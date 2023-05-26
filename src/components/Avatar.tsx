@@ -29,7 +29,12 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
     return (
       <div
         ref={ref}
-        className={cn('relative overflow-hidden', shapes[shape], sizes[size], className)}
+        className={cn(
+          'relative inline-block shrink-0 overflow-hidden',
+          shapes[shape],
+          sizes[size],
+          className,
+        )}
         {...props}
       >
         <Image
