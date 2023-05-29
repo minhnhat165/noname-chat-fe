@@ -2,16 +2,9 @@ import { HTMLAttributes, forwardRef } from 'react';
 
 import Image from 'next/image';
 import { Size } from '@/types/style';
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils';
 
 type Shape = 'circle' | 'square';
-
-export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
-  src?: string;
-  alt?: string;
-  size?: Size;
-  shape?: Shape;
-}
 
 const sizes: Record<Size, string> = {
   small: 'h-8 w-8',
@@ -24,8 +17,25 @@ const shapes: Record<Shape, string> = {
   square: 'rounded-lg',
 };
 
+export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
+  src?: string;
+  alt?: string;
+  size?: Size;
+  shape?: Shape;
+}
+
 const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
-  ({ src, alt, shape = 'circle', size = 'medium', className, ...props }, ref) => {
+  (
+    {
+      src = '/avatar_placeholder.png',
+      alt = 'Avatar',
+      shape = 'circle',
+      size = 'medium',
+      className,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <div
         ref={ref}
@@ -37,14 +47,7 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         )}
         {...props}
       >
-        <Image
-          priority
-          src={src || 'https://via.placeholder.com/150'}
-          alt={alt || 'Avatar'}
-          fill
-          className={cn('object-cover')}
-          sizes="72px"
-        />
+        <Image priority src={src} alt={alt} fill className="object-cover" sizes="72px" />
       </div>
     );
   },
