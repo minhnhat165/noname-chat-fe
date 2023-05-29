@@ -1,6 +1,7 @@
 'use client';
 
-import { User, useUserStore } from './userStore';
+import { User } from '@/types/user';
+import { useUserStore } from './userStore';
 
 import { useRef } from 'react';
 
