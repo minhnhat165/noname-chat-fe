@@ -12,7 +12,7 @@ const ReactQueryProvider = ({ children }: ReactQueryProviderProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ReactQueryDevtools position="bottom-right" initialIsOpen={false} />
     </QueryClientProvider>
   );
 };
