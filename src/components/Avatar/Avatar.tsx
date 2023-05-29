@@ -1,15 +1,22 @@
 import { HTMLAttributes, forwardRef } from 'react';
+import { Shape, Size } from '@/types/style';
 
 import Image from 'next/image';
-import { Size } from '@/types/style';
 import { cn } from '@/utils';
 
-type Shape = 'circle' | 'square';
+type AvatarSize = Size | 'xLarge';
+const sizes: Record<AvatarSize, string> = {
+  small: 'w-8 h-8',
+  medium: 'w-12 h-12',
+  large: 'w-16 h-16',
+  xLarge: 'w-24 h-24',
+};
 
-const sizes: Record<Size, string> = {
-  small: 'h-8 w-8',
-  medium: 'h-12 w-12',
-  large: 'h-16 w-16',
+const sizeNumbers: Record<AvatarSize, number> = {
+  small: 32,
+  medium: 48,
+  large: 64,
+  xLarge: 96,
 };
 
 const shapes: Record<Shape, string> = {
@@ -20,7 +27,7 @@ const shapes: Record<Shape, string> = {
 export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   src?: string;
   alt?: string;
-  size?: Size;
+  size?: AvatarSize;
   shape?: Shape;
 }
 
@@ -47,7 +54,14 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         )}
         {...props}
       >
-        <Image priority src={src} alt={alt} fill className="object-cover" sizes="72px" />
+        <Image
+          priority={false}
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover"
+          sizes={`${sizeNumbers[size] * 2}px`}
+        />
       </div>
     );
   },

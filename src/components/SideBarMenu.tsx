@@ -1,19 +1,23 @@
-import { Button, Divider, Menu, MenuProps } from 'antd';
 import {
   EditOutlined,
   HistoryOutlined,
   LogoutOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
+import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 
-import { Avatar } from './Avatar';
-import { User } from '@/types/user';
+import { useModal } from '@/hooks/useModal';
 import { useUserStore } from '@/stores/user';
+import { User } from '@/types/user';
+import { Avatar } from './Avatar';
+import { EditProfilePanel } from './user/components';
 
 export interface SideBarMenuProps {}
 
 export const SideBarMenu = (props: SideBarMenuProps) => {
   const user = useUserStore((state) => state.data) as User;
+  const { isOpen, close, open } = useModal();
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 p-2 px-4">
@@ -22,7 +26,7 @@ export const SideBarMenu = (props: SideBarMenuProps) => {
           <h3 className="inline-block font-bold">{user.name}</h3>
           <p className="inline-block">{user.email}</p>
         </div>
-        <Button type="text" shape="circle" icon={<EditOutlined />} />
+        <Button onClick={open} type="text" shape="circle" icon={<EditOutlined />} />
       </div>
       <Divider className="my-1" />
       <div className="flex-1">
@@ -30,6 +34,9 @@ export const SideBarMenu = (props: SideBarMenuProps) => {
       </div>
       <Divider className="my-0" />
       <Footer />
+      <Modal width={390} open={isOpen} centered={true} onCancel={close} footer={null}>
+        <EditProfilePanel user={user} />
+      </Modal>
     </div>
   );
 };
