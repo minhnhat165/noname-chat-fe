@@ -8,18 +8,12 @@ import {
 
 import { Avatar } from './Avatar';
 import { User } from '@/types/user';
+import { useUserStore } from '@/stores/user';
 
 export interface SideBarMenuProps {}
 
 export const SideBarMenu = (props: SideBarMenuProps) => {
-  const user: User = {
-    id: '1',
-    avatar:
-      'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60',
-    name: 'Nguyen Minh Nhat',
-    email: 'nhatyugioh@gmail.com',
-    username: 'nhatyugioh',
-  };
+  const user = useUserStore((state) => state.data) as User;
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 p-2 px-4">
@@ -31,16 +25,11 @@ export const SideBarMenu = (props: SideBarMenuProps) => {
         <Button type="text" shape="circle" icon={<EditOutlined />} />
       </div>
       <Divider className="my-1" />
-      <MenuAction />
-      <div className="mt-auto">
-        <Divider className="my-1" />
-        <div className="py-2 text-center">
-          <p className="text-center text-gray-500">Version 1.0.0</p>
-          <p>
-            copy right &copy; 2023 <span className="font-bold">Noname Chat App</span>
-          </p>
-        </div>
+      <div className="flex-1">
+        <MenuAction />
       </div>
+      <Divider className="my-0" />
+      <Footer />
     </div>
   );
 };
@@ -77,6 +66,7 @@ const MenuAction = () => {
   };
   return (
     <Menu
+      style={{ borderInlineEnd: 'none' }}
       onClick={onClick}
       defaultSelectedKeys={['1']}
       defaultOpenKeys={['sub1']}
@@ -85,3 +75,15 @@ const MenuAction = () => {
     />
   );
 };
+
+function Footer({}) {
+  return (
+    <div className="py-2 text-center">
+      <p className="text-center text-gray-500">Version 1.0.0</p>
+      <div>
+        <span className="text-center text-gray-500"> copy right &copy; 2023</span>{' '}
+        <span className="font-bold">Noname Chat App</span>
+      </div>
+    </div>
+  );
+}
