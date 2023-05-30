@@ -1,20 +1,20 @@
+import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 import {
   EditOutlined,
   HistoryOutlined,
   LogoutOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
-import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 
+import { User } from '@/types/user';
 import { useModal } from '@/hooks/useModal';
 import { useUserStore } from '@/stores/user';
-import { User } from '@/types/user';
-import { Avatar } from './Avatar';
-import { EditProfilePanel } from './user/components';
+import { Avatar } from '../common/avatar';
+import { EditProfilePanel } from '../user';
 
 export interface SideBarMenuProps {}
 
-export const SideBarMenu = (props: SideBarMenuProps) => {
+export const SidebarMenu = (props: SideBarMenuProps) => {
   const user = useUserStore((state) => state.data) as User;
   const { isOpen, close, open } = useModal();
 

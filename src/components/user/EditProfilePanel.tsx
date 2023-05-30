@@ -1,6 +1,7 @@
-import { Avatar } from '@/components/Avatar';
-import { User } from '@/types/user';
 import { Form, Input, Typography } from 'antd';
+
+import { Avatar } from '@/components/common/avatar';
+import { User } from '@/types/user';
 
 export interface EditProfilePanelProps {
   user: User;

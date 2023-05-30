@@ -31,7 +31,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   shape?: Shape;
 }
 
-const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
+export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
   (
     {
       src = '/avatar_placeholder.png',
@@ -68,5 +68,3 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
 );
 
 Avatar.displayName = 'Avatar';
-
-export { Avatar };

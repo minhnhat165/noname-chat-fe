@@ -2,17 +2,16 @@
 
 import { Button, Drawer } from 'antd';
 
-import { Room } from '@/types/room';
+import { rooms } from '@/stores/data-test';
 import { MenuUnfoldOutlined } from '@ant-design/icons';
 import { useState } from 'react';
-import RoomItem from './RoomItem';
-import SearchBar from './SearchBar';
-import { SideBarMenu } from './SideBarMenu';
-import { rooms } from '@/stores/data-test';
+import { RoomItem } from '../room';
+import { SearchBar } from '../common/search-bar';
+import { SidebarMenu } from './sidebar-menu';
 
 export interface SidebarProps {}
 
-const Sidebar = (props: SidebarProps) => {
+export const Sidebar = (props: SidebarProps) => {
   return (
     <div className="h-full w-96 border-r-2 bg-white">
       <Header />
@@ -28,8 +27,6 @@ const Sidebar = (props: SidebarProps) => {
     </div>
   );
 };
-
-export default Sidebar;
 
 const Header = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -62,7 +59,7 @@ const Header = () => {
         open={drawerVisible}
         width={280}
       >
-        <SideBarMenu />
+        <SidebarMenu />
       </Drawer>
     </div>
   );
