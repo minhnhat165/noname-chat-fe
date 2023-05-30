@@ -1,10 +1,12 @@
-import { HTMLAttributes, forwardRef } from 'react';
+import { HTMLAttributes, forwardRef, useMemo } from 'react';
 import { Shape, Size } from '@/types/style';
 
 import Image from 'next/image';
 import { cn } from '@/utils';
+import { generateInitials } from '@/utils/generate-initials';
 
 type AvatarSize = Size | 'xLarge';
+
 const sizes: Record<AvatarSize, string> = {
   small: 'w-8 h-8',
   medium: 'w-12 h-12',
@@ -17,6 +19,13 @@ const sizeNumbers: Record<AvatarSize, number> = {
   medium: 48,
   large: 64,
   xLarge: 96,
+};
+
+const sizeAlphabet: Record<AvatarSize, string> = {
+  small: 'text-xs',
+  medium: 'text-sm',
+  large: 'text-md',
+  xLarge: 'text-2xl',
 };
 
 const shapes: Record<Shape, string> = {
@@ -32,28 +41,16 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
-  (
-    {
-      src = '/avatar_placeholder.png',
-      alt = 'Avatar',
-      shape = 'circle',
-      size = 'medium',
-      className,
-      ...props
-    },
-    ref,
-  ) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'relative inline-block shrink-0 overflow-hidden',
-          shapes[shape],
-          sizes[size],
-          className,
-        )}
-        {...props}
-      >
+  ({ src, alt = 'Avatar', shape = 'circle', size = 'medium', className, ...props }, ref) => {
+    const DisplayContent = useMemo(() => {
+      if (!src) {
+        return (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className={cn('font-bold', sizeAlphabet[size])}>{generateInitials(alt)}</span>
+          </div>
+        );
+      }
+      return (
         <Image
           priority={false}
           src={src}
@@ -62,6 +59,21 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
           className="object-cover"
           sizes={`${sizeNumbers[size] * 2}px`}
         />
+      );
+    }, [src, alt, size]);
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'relative inline-block shrink-0 overflow-hidden bg-gray-200',
+          shapes[shape],
+          sizes[size],
+          className,
+        )}
+        {...props}
+      >
+        {DisplayContent}
       </div>
     );
   },
