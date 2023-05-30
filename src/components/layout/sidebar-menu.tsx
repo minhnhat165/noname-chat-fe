@@ -6,11 +6,11 @@ import {
   UsergroupAddOutlined,
 } from '@ant-design/icons';
 
+import { Avatar } from '../common/avatar';
+import { EditProfilePanel } from '../user';
 import { User } from '@/types/user';
 import { useModal } from '@/hooks/useModal';
 import { useUserStore } from '@/stores/user';
-import { Avatar } from '../common/avatar';
-import { EditProfilePanel } from '../user';
 
 export interface SideBarMenuProps {}
 
