@@ -1,4 +1,4 @@
-import SidebarRight from '@/components/SidebarRight';
+import { SidebarRight } from '@/components/layout/sidebar-right';
 
 export interface LayoutProps {
   children: React.ReactNode;

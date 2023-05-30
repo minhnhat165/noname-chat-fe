@@ -1,17 +1,17 @@
-import { Avatar } from './Avatar';
 import Link from 'next/link';
 import { Room } from '@/types/room';
 import { User } from '@/types/user';
 import { cn } from '@/utils/cn';
 import { intlFormatDistance } from 'date-fns';
 import { useMemo } from 'react';
+import { Avatar } from '../common/avatar';
 
-interface RoomItemProps {
+export interface RoomItemProps {
   room: Room;
   isActive?: boolean;
 }
 
-const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
+export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
   const room = useMemo(() => {
     const room = { ..._room };
     if (!room.isGroup) {
@@ -50,5 +50,3 @@ const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
 };
 
 export default RoomItem;
-
-export type { RoomItemProps, Room };

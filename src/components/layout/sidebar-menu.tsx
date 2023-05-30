@@ -1,20 +1,20 @@
+import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 import {
   EditOutlined,
   HistoryOutlined,
   LogoutOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
-import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 
+import { Avatar } from '../common/avatar';
+import { EditProfilePanel } from '../user';
+import { User } from '@/types/user';
 import { useModal } from '@/hooks/useModal';
 import { useUserStore } from '@/stores/user';
-import { User } from '@/types/user';
-import { Avatar } from './Avatar';
-import { EditProfilePanel } from './user/components';
 
 export interface SideBarMenuProps {}
 
-export const SideBarMenu = (props: SideBarMenuProps) => {
+export const SidebarMenu = (props: SideBarMenuProps) => {
   const user = useUserStore((state) => state.data) as User;
   const { isOpen, close, open } = useModal();
 
@@ -34,7 +34,14 @@ export const SideBarMenu = (props: SideBarMenuProps) => {
       </div>
       <Divider className="my-0" />
       <Footer />
-      <Modal width={390} open={isOpen} centered={true} onCancel={close} footer={null}>
+      <Modal
+        title="Edit Profile"
+        width={390}
+        open={isOpen}
+        centered={true}
+        onCancel={close}
+        okButtonProps={{ type: 'default' }}
+      >
         <EditProfilePanel user={user} />
       </Modal>
     </div>
