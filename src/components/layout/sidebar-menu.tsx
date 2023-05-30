@@ -34,7 +34,14 @@ export const SidebarMenu = (props: SideBarMenuProps) => {
       </div>
       <Divider className="my-0" />
       <Footer />
-      <Modal width={390} open={isOpen} centered={true} onCancel={close} footer={null}>
+      <Modal
+        title="Edit Profile"
+        width={390}
+        open={isOpen}
+        centered={true}
+        onCancel={close}
+        okButtonProps={{ type: 'default' }}
+      >
         <EditProfilePanel user={user} />
       </Modal>
     </div>
