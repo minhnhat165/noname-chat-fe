@@ -9,7 +9,7 @@ import {
 import { Avatar } from '../common/avatar';
 import { EditProfilePanel } from '../user';
 import { User } from '@/types/user';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/use-modal';
 import { useUserStore } from '@/stores/user';
 
 export interface SideBarMenuProps {}
