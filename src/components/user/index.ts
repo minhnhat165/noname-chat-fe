@@ -1,1 +1,1 @@
-export * from './EditProfilePanel';
+export * from './edit-profile-panel';
