@@ -82,7 +82,7 @@ pnpm dev
 
 ## Contributing
 
-* [Nguyễn Minh Nhật](https://github.com/minhNhat165)
+* [Nguyễn Minh Nhật](https://github.com/minhnhat165)
 * [Nguyễn Trung Đức](https://github.com/ntrungduc228)
 * [Nguyễn Thị Khánh Vi](https://github.com/khanhvi294)
 * [Trần Thị Kim Oanh](https://github.com/kimoanhxinh)
