@@ -95,8 +95,8 @@ function Footer({}) {
     <div className="py-2 text-center">
       <p className="text-center text-gray-500">Version 1.0.0</p>
       <div>
-        <span className="text-center text-gray-500"> copy right &copy; 2023</span>{' '}
-        <span className="font-bold">Noname Chat App</span>
+        <span className="text-center text-gray-500"> Copy right &copy; 2023</span>{' '}
+        <span className="font-bold">Vision.company</span>
       </div>
     </div>
   );

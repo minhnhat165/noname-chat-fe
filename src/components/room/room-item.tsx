@@ -1,10 +1,10 @@
+import { Avatar } from '../common/avatar';
 import Link from 'next/link';
 import { Room } from '@/types/room';
 import { User } from '@/types/user';
 import { cn } from '@/utils/cn';
 import { intlFormatDistance } from 'date-fns';
 import { useMemo } from 'react';
-import { Avatar } from '../common/avatar';
 
 export interface RoomItemProps {
   room: Room;
