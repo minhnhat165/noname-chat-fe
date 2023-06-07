@@ -1,13 +1,12 @@
+'use client';
+
 import { Button, Form, Input, Typography } from 'antd';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
+import { useId, useState } from 'react';
 
 import { Avatar } from '@/components/common/avatar';
 import { CameraOutlined } from '@ant-design/icons';
-import { Upload } from 'antd';
 import { User } from '@/types/user';
-import { useState } from 'react';
-
-// import ImgCrop from 'antd-img-crop';
 
 export interface EditProfilePanelProps {
   user: User;
@@ -24,7 +23,6 @@ export const EditProfilePanel = ({ user }: EditProfilePanelProps) => {
     },
   ]);
   const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-    console.log(newFileList);
     setFileList(newFileList);
   };
 
@@ -42,6 +40,7 @@ export const EditProfilePanel = ({ user }: EditProfilePanelProps) => {
     const imgWindow = window.open(src);
     imgWindow?.document.write(image.outerHTML);
   };
+  const id = useId();
   return (
     <div className="flex flex-col items-center">
       <div className="relative">
@@ -58,6 +57,7 @@ export const EditProfilePanel = ({ user }: EditProfilePanelProps) => {
         <div className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-white">
           <Button shape="circle" type="default" icon={<CameraOutlined />} />
         </div>
+        <input type="file" hidden />
       </div>
       <Typography.Title level={4}>{user.name}</Typography.Title>
       <Form className="w-full">
