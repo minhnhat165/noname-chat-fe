@@ -5,28 +5,58 @@ import {
   LogoutOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
+import { EditProfilePanel, EditProfilePanelRef } from '../user';
+import { useRef, useState } from 'react';
 
 import { Avatar } from '../common/avatar';
-import { EditProfilePanel } from '../user';
 import { User } from '@/types/user';
+import { useCredentialStore } from '@/stores/credential';
 import { useModal } from '@/hooks/use-modal';
+import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/stores/user';
 
 export interface SideBarMenuProps {}
 
 export const SidebarMenu = (props: SideBarMenuProps) => {
-  const user = useUserStore((state) => state.data) as User;
+  const { data: user, updateUser } = useUserStore((state) => state);
   const { isOpen, close, open } = useModal();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (data: User) => {
+      return data;
+    },
+    onSuccess: (data: User) => {
+      updateUser(data);
+    },
+  });
+
+  const handleEditProfile = async () => {
+    try {
+      setIsLoading(true);
+      const data = await profileEditPanelRef.current?.submit();
+      await mutateAsync(data!);
+      close();
+    } catch (error) {
+      console.log(error);
+    }
+    setIsLoading(false);
+  };
+
+  const profileEditPanelRef = useRef<EditProfilePanelRef>(null);
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 p-2 px-4">
-        <Avatar size="medium" src={user.avatar} />
+        <Avatar size="medium" src={user!.avatar} />
         <div>
-          <h3 className="inline-block font-bold">{user.name}</h3>
-          <p className="inline-block">{user.email}</p>
+          <h3 className="block font-bold">{user!.username}</h3>
+          <p className="inline-block">{user!.email}</p>
         </div>
-        <Button onClick={open} type="text" shape="circle" icon={<EditOutlined />} />
+        <div className="ml-auto">
+          <Button onClick={open} type="text" shape="circle" icon={<EditOutlined />} />
+        </div>
       </div>
       <Divider className="my-1" />
       <div className="flex-1">
@@ -40,9 +70,10 @@ export const SidebarMenu = (props: SideBarMenuProps) => {
         open={isOpen}
         centered={true}
         onCancel={close}
-        okButtonProps={{ type: 'default' }}
+        onOk={handleEditProfile}
+        confirmLoading={isLoading}
       >
-        <EditProfilePanel user={user} />
+        <EditProfilePanel ref={profileEditPanelRef} user={user!} />
       </Modal>
     </div>
   );
@@ -71,23 +102,23 @@ const items: MenuProps['items'] = [
 
   getItem('Call history', 'call-history', <HistoryOutlined />),
 
-  getItem('Log out', 'sub4', <LogoutOutlined />),
+  getItem('Log out', 'logout', <LogoutOutlined />),
 ];
 
+
 const MenuAction = () => {
+  const { removeCredential } = useCredentialStore();
   const onClick: MenuProps['onClick'] = (e) => {
-    console.log('click ', e);
+    const { key } = e;
+    switch (key) {
+      case 'logout':
+        removeCredential();
+        break;
+      default:
+        break;
+    }
   };
-  return (
-    <Menu
-      style={{ borderInlineEnd: 'none' }}
-      onClick={onClick}
-      defaultSelectedKeys={['1']}
-      defaultOpenKeys={['sub1']}
-      mode="inline"
-      items={items}
-    />
-  );
+  return <Menu style={{ borderInlineEnd: 'none' }} onClick={onClick} mode="inline" items={items} />;
 };
 
 function Footer({}) {

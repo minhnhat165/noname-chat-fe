@@ -1,11 +1,11 @@
 import { InitializeUserStore, useUserStore } from '@/stores/user';
 
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { User } from '@/types/user';
-import { Suspense } from 'react';
 import Loading from './loading';
 import { Sidebar } from '@/components/layout/sidebar';
+import { Suspense } from 'react';
+import { User } from '@/types/user';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export interface LayoutProps {
   children: React.ReactNode;

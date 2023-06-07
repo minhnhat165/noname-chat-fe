@@ -1,10 +1,10 @@
 import './globals.css';
 
+import { Inter } from 'next/font/google';
 import { Provider } from '@/providers';
+import { cn } from '@/utils';
 
-// import { Inter } from 'next/font/google';
-
-// const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: process.env.APP_NAME,
@@ -14,7 +14,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true} className={`overflow-hidden`}>
+      <body suppressHydrationWarning={true} className={cn(inter.className, 'overflow-hidden')}>
         <Provider>{children}</Provider>
       </body>
     </html>
