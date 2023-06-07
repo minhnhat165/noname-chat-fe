@@ -55,9 +55,17 @@ export const EditProfilePanel = ({ user }: EditProfilePanelProps) => {
         </ImgCrop> */}
         <Avatar src={avatar} size="xLarge" alt={name} />
         <div className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-white">
-          <Button shape="circle" type="default" icon={<CameraOutlined />} />
+          <Button
+            onClick={() => {
+              const input = document.getElementById(id);
+              input?.click();
+            }}
+            shape="circle"
+            type="default"
+            icon={<CameraOutlined />}
+          />
         </div>
-        <input type="file" hidden />
+        <input id={id} type="file" hidden />
       </div>
       <Typography.Title level={4}>{user.name}</Typography.Title>
       <Form className="w-full">
