@@ -58,7 +58,7 @@ export const EditProfilePanel = ({ user }: EditProfilePanelProps) => {
           <Button
             onClick={() => {
               const input = document.getElementById(id);
-              input?.click();
+              // input?.click();
             }}
             shape="circle"
             type="default"
