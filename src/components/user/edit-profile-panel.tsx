@@ -3,10 +3,11 @@ import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 
 import { Avatar } from '@/components/common/avatar';
 import { CameraOutlined } from '@ant-design/icons';
-import ImgCrop from 'antd-img-crop';
 import { Upload } from 'antd';
 import { User } from '@/types/user';
 import { useState } from 'react';
+
+// import ImgCrop from 'antd-img-crop';
 
 export interface EditProfilePanelProps {
   user: User;
