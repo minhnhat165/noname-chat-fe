@@ -23,6 +23,7 @@ export const EditProfilePanel = ({ user }: EditProfilePanelProps) => {
     },
   ]);
   const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
+    console.log(newFileList);
     setFileList(newFileList);
   };
 
@@ -43,17 +44,15 @@ export const EditProfilePanel = ({ user }: EditProfilePanelProps) => {
   return (
     <div className="flex flex-col items-center">
       <div className="relative">
-        <ImgCrop rotationSlider>
+        {/* <ImgCrop rotationSlider>
           <Upload
             multiple={false}
             fileList={fileList}
             onChange={onChange}
             onPreview={onPreview}
             maxCount={1}
-          >
-            {fileList.length < 5 && '+ Upload'}
-          </Upload>
-        </ImgCrop>
+          ></Upload>
+        </ImgCrop> */}
         <Avatar src={avatar} size="xLarge" alt={name} />
         <div className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-white">
           <Button shape="circle" type="default" icon={<CameraOutlined />} />
