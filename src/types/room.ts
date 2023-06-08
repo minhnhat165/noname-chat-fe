@@ -6,8 +6,9 @@ export type Room = {
   img?: string;
   name: string;
   description: string;
-  users: User[];
-  messages?: Message[];
+  participant: User[];
   isGroup: boolean;
+  admin?: User;
+  isAdmin?: boolean;
   lastMessage: Message;
 } & BaseEntity;
