@@ -9,7 +9,6 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown, MenuProps, Modal } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useEffect, useRef, useState } from 'react';
 

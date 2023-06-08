@@ -38,10 +38,22 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   alt?: string;
   size?: AvatarSize;
   shape?: Shape;
+  bordered?: boolean;
 }
 
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
-  ({ src, alt = 'Avatar', shape = 'circle', size = 'medium', className, ...props }, ref) => {
+  (
+    {
+      src,
+      alt = 'Avatar',
+      shape = 'circle',
+      size = 'medium',
+      bordered = false,
+      className,
+      ...props
+    },
+    ref,
+  ) => {
     const DisplayContent = useMemo(() => {
       if (!src) {
         return (
@@ -67,6 +79,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         ref={ref}
         className={cn(
           'relative inline-block shrink-0 overflow-hidden bg-gray-200',
+          bordered && 'ring-1 ring-gray-200',
           shapes[shape],
           sizes[size],
           className,

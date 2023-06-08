@@ -1,9 +1,8 @@
 'use client';
 
 import { User } from '@/types/user';
-import { useUserStore } from './userStore';
-
 import { useRef } from 'react';
+import { useUserStore } from './user-store';
 
 interface InitializeUserStoreProps {
   user: User;

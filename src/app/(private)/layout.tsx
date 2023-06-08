@@ -1,24 +1,30 @@
 import { InitializeUserStore, useUserStore } from '@/stores/user';
 
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { User } from '@/types/user';
-import { Suspense } from 'react';
 import Loading from './loading';
 import { Sidebar } from '@/components/layout/sidebar';
+import { Suspense } from 'react';
+import { User } from '@/types/user';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { user } from '@/stores/data-test';
 
 export interface LayoutProps {
   children: React.ReactNode;
 }
 export const getUserGithub = async (id: string) => {
-  const response = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
-  const data = await response.json();
-  return data;
+  try {
+    const response = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+    const data = await response.json();
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const Layout = async ({ children }: LayoutProps) => {
   // if (!cookies().get('token')) redirect('/login');
-  const user: User = await getUserGithub('1');
+  const user = await getUserGithub('1');
+  if (!user) redirect('/login');
   useUserStore.setState({ data: user });
   return (
     <div className="flex h-screen">
