@@ -8,9 +8,10 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Dropdown, Input, MenuProps, Modal, Tooltip } from 'antd';
+import { Avatar, Button, Dropdown, MenuProps, Modal } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface PageProps {
   params: {
@@ -48,14 +49,12 @@ const Page = ({ params }: PageProps) => {
   };
 
   const pickerEmoji = (emoji: string) => {
-    console.log(emoji);
     inputElement?.current?.focus();
+    const currentPosition = inputElement?.current?.selectionStart ?? 0;
     let message =
-      inputChat.substring(0, inputElement?.current?.selectionStart ?? 0) +
-      emoji +
-      inputChat.substring(inputElement?.current?.selectionStart ?? 0);
+      inputChat.substring(0, currentPosition) + emoji + inputChat.substring(currentPosition);
     setInputChat(message);
-    setCursorPosition(inputElement?.current?.selectionStart ?? 0 + emoji.length);
+    setCursorPosition(currentPosition + emoji.length);
   };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -71,16 +70,22 @@ const Page = ({ params }: PageProps) => {
     };
   }, [emojiPickerRef]);
 
+  useEffect(() => {
+    const currentInputElement = inputElement.current;
+    if (currentInputElement) {
+      currentInputElement.selectionEnd = cursorPosition;
+    }
+    // inputElement?.current?.selectionEnd = cursorPosition ?? 0;
+    inputElement?.current?.focus();
+  }, [cursorPosition]);
+
   const handleHover = () => {
-    // Thêm class cho phần tử B
     if (childHover.current) {
       childHover.current.classList.remove('hidden');
     }
   };
 
-  // Xử lý logic khi rời chuột khỏi phần tử A
   const handleMouseLeave = () => {
-    // Xóa class khỏi phần tử B
     if (childHover.current) {
       childHover.current.classList.add('hidden');
     }
@@ -164,7 +169,7 @@ const Page = ({ params }: PageProps) => {
           </div>
         </div>
         {/* footer */}
-        <div className="mb-5 h-14 w-[630px] rounded-lg bg-white">
+        <div className="mb-5 h-14 h-fit w-[630px] rounded-lg bg-white">
           <div className="flex h-full w-full items-center">
             <div
               className="relative flex h-9 w-14 items-center justify-center"
@@ -190,7 +195,7 @@ const Page = ({ params }: PageProps) => {
             </div>
             <input
               placeholder="Message"
-              className="h-12 flex-1 text-black focus:outline-none"
+              className="block h-12 flex-1 text-black focus:outline-none"
               value={inputChat}
               onChange={(e) => {
                 setInputChat(e.target.value);
