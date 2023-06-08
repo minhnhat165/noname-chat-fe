@@ -1,21 +1,21 @@
-import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 import {
   EditOutlined,
   HistoryOutlined,
   LogoutOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
-import { EditProfilePanel, EditProfilePanelRef } from '../user';
+import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 import { useRef, useState } from 'react';
+import { EditProfilePanel, EditProfilePanelRef } from '../user';
 
-import { Avatar } from '../common/avatar';
-import { CallHistory } from '../call';
-import { User } from '@/types/user';
-import { useCredentialStore } from '@/stores/credential';
 import { useModal } from '@/hooks/use-modal';
-import { useMutation } from '@tanstack/react-query';
-import { useSidebar } from './sidebar';
+import { useCredentialStore } from '@/stores/credential';
 import { useUserStore } from '@/stores/user';
+import { User } from '@/types/user';
+import { useMutation } from '@tanstack/react-query';
+import { CallHistory } from '../call';
+import { Avatar } from '../common/avatar';
+import { useSidebar } from './sidebar';
 
 export interface SideBarMenuProps {}
 
