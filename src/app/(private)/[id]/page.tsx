@@ -9,7 +9,7 @@ export interface PageProps {
 const Page = async ({ params }: PageProps) => {
   const user = await getUserGithub(params.id);
 
-  return <div>{user.name}</div>;
+  return <div>{user!.username}</div>;
 };
 
 export default Page;

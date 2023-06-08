@@ -9,42 +9,19 @@ import { EditProfilePanel, EditProfilePanelRef } from '../user';
 import { useRef, useState } from 'react';
 
 import { Avatar } from '../common/avatar';
+import { CallHistory } from '../call';
 import { User } from '@/types/user';
 import { useCredentialStore } from '@/stores/credential';
 import { useModal } from '@/hooks/use-modal';
 import { useMutation } from '@tanstack/react-query';
+import { useSidebar } from './sidebar';
 import { useUserStore } from '@/stores/user';
 
 export interface SideBarMenuProps {}
 
 export const SidebarMenu = (props: SideBarMenuProps) => {
-  const { data: user, updateUser } = useUserStore((state) => state);
-  const { isOpen, close, open } = useModal();
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const { mutateAsync } = useMutation({
-    mutationFn: async (data: User) => {
-      return data;
-    },
-    onSuccess: (data: User) => {
-      updateUser(data);
-    },
-  });
-
-  const handleEditProfile = async () => {
-    try {
-      setIsLoading(true);
-      const data = await profileEditPanelRef.current?.submit();
-      await mutateAsync(data!);
-      close();
-    } catch (error) {
-      console.log(error);
-    }
-    setIsLoading(false);
-  };
-
-  const profileEditPanelRef = useRef<EditProfilePanelRef>(null);
+  const user = useUserStore((state) => state.data);
+  const { closeMenu } = useSidebar();
 
   return (
     <div className="flex h-full flex-col">
@@ -55,26 +32,15 @@ export const SidebarMenu = (props: SideBarMenuProps) => {
           <p className="inline-block">{user!.email}</p>
         </div>
         <div className="ml-auto">
-          <Button onClick={open} type="text" shape="circle" icon={<EditOutlined />} />
+          <ProfileEdit />
         </div>
       </div>
       <Divider className="my-1" />
       <div className="flex-1">
-        <MenuAction />
+        <MenuAction onAction={closeMenu} />
       </div>
       <Divider className="my-0" />
       <Footer />
-      <Modal
-        title="Edit Profile"
-        width={390}
-        open={isOpen}
-        centered={true}
-        onCancel={close}
-        onOk={handleEditProfile}
-        confirmLoading={isLoading}
-      >
-        <EditProfilePanel ref={profileEditPanelRef} user={user!} />
-      </Modal>
     </div>
   );
 };
@@ -105,12 +71,16 @@ const items: MenuProps['items'] = [
   getItem('Log out', 'logout', <LogoutOutlined />),
 ];
 
-
-const MenuAction = () => {
+const MenuAction = ({ onAction }: { onAction?: (key: string) => void }) => {
   const { removeCredential } = useCredentialStore();
+  const { open: openCallHistory, close: closeCallHistory, isOpen: isOpenCallHistory } = useModal();
   const onClick: MenuProps['onClick'] = (e) => {
     const { key } = e;
+    onAction?.(key as string);
     switch (key) {
+      case 'call-history':
+        openCallHistory();
+        break;
       case 'logout':
         removeCredential();
         break;
@@ -118,7 +88,20 @@ const MenuAction = () => {
         break;
     }
   };
-  return <Menu style={{ borderInlineEnd: 'none' }} onClick={onClick} mode="inline" items={items} />;
+  return (
+    <>
+      <Menu style={{ borderInlineEnd: 'none' }} onClick={onClick} mode="inline" items={items} />
+      <Modal
+        title="Calls"
+        open={isOpenCallHistory}
+        onCancel={closeCallHistory}
+        footer={null}
+        width={390}
+      >
+        <CallHistory onItemClicked={closeCallHistory} />
+      </Modal>
+    </>
+  );
 };
 
 function Footer({}) {
@@ -132,3 +115,60 @@ function Footer({}) {
     </div>
   );
 }
+
+const ProfileEdit = () => {
+  const { closeMenu } = useSidebar();
+  const { data: user, updateUser } = useUserStore((state) => state);
+
+  const { isOpen, close, open } = useModal();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (data: User) => {
+      return data;
+    },
+    onSuccess: (data: User) => {
+      updateUser(data);
+    },
+  });
+
+  const handleEditProfile = async () => {
+    try {
+      setIsLoading(true);
+      const data = await profileEditPanelRef.current?.submit();
+      await mutateAsync(data!);
+      close();
+    } catch (error) {
+      console.log(error);
+    }
+    setIsLoading(false);
+  };
+
+  const profileEditPanelRef = useRef<EditProfilePanelRef>(null);
+
+  return (
+    <>
+      <Button
+        onClick={() => {
+          open();
+          closeMenu();
+        }}
+        type="text"
+        shape="circle"
+        icon={<EditOutlined />}
+      />
+      <Modal
+        title="Edit Profile"
+        width={390}
+        open={isOpen}
+        centered={true}
+        onCancel={close}
+        onOk={handleEditProfile}
+        confirmLoading={isLoading}
+      >
+        <EditProfilePanel ref={profileEditPanelRef} user={user!} />
+      </Modal>
+    </>
+  );
+};
