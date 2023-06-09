@@ -73,7 +73,7 @@ export const rooms: Room[] = [
     },
   },
   {
-    id: 2,
+    id: 3,
     name: 'Room 1',
     description: 'Room 1 description',
     isGroup: false,

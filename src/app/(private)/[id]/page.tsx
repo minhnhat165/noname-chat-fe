@@ -186,7 +186,7 @@ const Page = ({ params }: PageProps) => {
               {displayEmoji && (
                 <div className="absolute bottom-10 right-0 drop-shadow-xl">
                   <EmojiPicker
-                    onEmojiClick={(emoji) => pickerEmoji(emoji.emoji)}
+                    onEmojiClick={(emoji: { emoji: string }) => pickerEmoji(emoji.emoji)}
                     emojiStyle={emojiStyle}
                     autoFocusSearch={false}
                   />
