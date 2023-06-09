@@ -13,7 +13,7 @@ export interface LayoutProps {
 }
 async function getUserGithub(id: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_API_URL}/api/users/${id}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_API_URL}/users/${id}`);
     const res = await response.json();
     return user;
   } catch (error) {
