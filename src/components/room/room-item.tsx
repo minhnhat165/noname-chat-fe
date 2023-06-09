@@ -111,10 +111,8 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
           isActive ? 'bg-sky-300' : 'bg-white hover:bg-slate-100',
         )}
       >
-        <div>
-          <Avatar src={room.img} />
-        </div>
-        <div className="flex-1 p-2 pl-2">
+        <Avatar src={room.img} />
+        <div className="flex flex-1 flex-col justify-between px-2">
           <div className="flex">
             <span className="font-bold text-gray-800">{room.name}</span>
             <span className="ml-auto text-xs text-gray-400">
@@ -123,7 +121,7 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
               })}
             </span>
           </div>
-          <p className="line-clamp-1 text-slate-500">{room.lastMessage.content}</p>
+          <p className="mt-2 line-clamp-1 text-sm text-slate-500">{room.lastMessage.content}</p>
         </div>
         <div className="invisible absolute right-3 top-1/2 -translate-y-1/2 group-hover/item:visible">
           <Dropdown

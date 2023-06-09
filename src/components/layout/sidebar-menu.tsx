@@ -1,19 +1,27 @@
+'use client';
+
 import { Button, Divider, Menu, MenuProps, Modal } from 'antd';
 import {
   EditOutlined,
+  FundProjectionScreenOutlined,
   HistoryOutlined,
+  InboxOutlined,
   LogoutOutlined,
+  MessageOutlined,
+  UserOutlined,
   UsergroupAddOutlined,
 } from '@ant-design/icons';
 import { EditProfilePanel, EditProfilePanelRef } from '../user';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { Avatar } from '../common/avatar';
 import { CallHistory } from '../call';
+import Link from 'next/link';
 import { User } from '@/types/user';
 import { useCredentialStore } from '@/stores/credential';
 import { useModal } from '@/hooks/use-modal';
 import { useMutation } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
 import { useSidebar } from './sidebar';
 import { useUserStore } from '@/stores/user';
 
@@ -22,6 +30,12 @@ export interface SideBarMenuProps {}
 export const SidebarMenu = (props: SideBarMenuProps) => {
   const user = useUserStore((state) => state.data);
   const { closeMenu } = useSidebar();
+
+  const currentSide = usePathname() as string;
+
+  const isAdminSide: boolean = useMemo(() => {
+    return currentSide?.startsWith('/admin');
+  }, [currentSide]);
 
   return (
     <div className="flex h-full flex-col">
@@ -32,12 +46,12 @@ export const SidebarMenu = (props: SideBarMenuProps) => {
           <p className="inline-block">{user!.email}</p>
         </div>
         <div className="ml-auto">
-          <ProfileEdit />
+          <ProfileEdit onClickEdit={closeMenu} />
         </div>
       </div>
       <Divider className="my-1" />
       <div className="flex-1">
-        <MenuAction onAction={closeMenu} />
+        <MenuAction onAction={closeMenu} isAdmin={isAdminSide} />
       </div>
       <Divider className="my-0" />
       <Footer />
@@ -63,17 +77,53 @@ function getItem(
   } as MenuItem;
 }
 
-const items: MenuProps['items'] = [
-  getItem('Create group', 'create-group', <UsergroupAddOutlined />),
-
-  getItem('Call history', 'call-history', <HistoryOutlined />),
-
-  getItem('Log out', 'logout', <LogoutOutlined />),
-];
-
-const MenuAction = ({ onAction }: { onAction?: (key: string) => void }) => {
+const MenuAction = ({
+  onAction,
+  isAdmin,
+}: {
+  onAction?: (key: string) => void;
+  isAdmin: boolean;
+}) => {
   const { removeCredential } = useCredentialStore();
+  const { role } = useUserStore((state) => state.data!);
   const { open: openCallHistory, close: closeCallHistory, isOpen: isOpenCallHistory } = useModal();
+  const items: MenuProps['items'] = useMemo(() => {
+    const newItems: MenuProps['items'] = [];
+    if (isAdmin) {
+      newItems.unshift(
+        {
+          key: 'home',
+          label: <Link href="/">Chat</Link>,
+          icon: <MessageOutlined />,
+        },
+        {
+          key: 'user',
+          label: <Link href="/admin/user">User</Link>,
+          icon: <UserOutlined />,
+        },
+        {
+          key: 'room',
+          label: <Link href="/admin/chat">Room chat</Link>,
+          icon: <InboxOutlined />,
+        },
+      );
+    } else {
+      if (role === 'admin') {
+        newItems.unshift({
+          key: 'admin',
+          label: <Link href="/admin">Admin</Link>,
+          icon: <FundProjectionScreenOutlined />,
+        });
+      }
+      newItems.push(
+        getItem('Create group', 'create-group', <UsergroupAddOutlined />),
+        getItem('Call history', 'call-history', <HistoryOutlined />),
+      );
+    }
+    newItems.push(getItem('Logout', 'logout', <LogoutOutlined />));
+
+    return newItems;
+  }, [isAdmin, role]);
   const onClick: MenuProps['onClick'] = (e) => {
     const { key } = e;
     onAction?.(key as string);
@@ -106,7 +156,7 @@ const MenuAction = ({ onAction }: { onAction?: (key: string) => void }) => {
 
 function Footer({}) {
   return (
-    <div className="py-2 text-center">
+    <div className="py-2 text-center text-sm opacity-50">
       <p className="text-center text-gray-500">Version 1.0.0</p>
       <div>
         <span className="text-center text-gray-500"> Copy right &copy; 2023</span>{' '}
@@ -116,8 +166,7 @@ function Footer({}) {
   );
 }
 
-const ProfileEdit = () => {
-  const { closeMenu } = useSidebar();
+const ProfileEdit = ({ onClickEdit }: { onClickEdit?: () => void }) => {
   const { data: user, updateUser } = useUserStore((state) => state);
 
   const { isOpen, close, open } = useModal();
@@ -152,7 +201,7 @@ const ProfileEdit = () => {
       <Button
         onClick={() => {
           open();
-          closeMenu();
+          onClickEdit?.();
         }}
         type="text"
         shape="circle"
