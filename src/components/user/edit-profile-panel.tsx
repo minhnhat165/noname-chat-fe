@@ -9,7 +9,7 @@ import { Avatar } from '@/components/common/avatar';
 import ImgCrop from 'antd-img-crop';
 import { Upload } from 'antd';
 import { User } from '@/types/user';
-import { uploadImage } from '@/utils/uploadImage';
+import { uploadImage } from '@/utils/upload-image';
 
 export interface EditProfilePanelProps {
   user: User;
