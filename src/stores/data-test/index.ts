@@ -8,6 +8,8 @@ export const users: User[] = [
       'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60',
     email: 'nhatyugioh@gmail.com',
     username: 'Nguyễn Minh Nhat',
+    role: 'admin',
+    status: 'active',
   },
   {
     id: '2',
@@ -15,6 +17,8 @@ export const users: User[] = [
       'https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
     email: 'oanh@gmail.com',
     username: 'Trần Thị Kim Oanh',
+    status: 'active',
+    role: 'user',
   },
   {
     id: '3',
@@ -22,6 +26,8 @@ export const users: User[] = [
       'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=580&q=80',
     email: 'duc@gmail.com',
     username: 'Nguyễn Trung Đức',
+    status: 'active',
+    role: 'user',
   },
   {
     id: '4',
@@ -29,6 +35,8 @@ export const users: User[] = [
       'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=461&q=80',
     email: 'vi@gmail.com',
     username: 'Nguyễn Thị Khánh Vi',
+    status: 'active',
+    role: 'user',
   },
 ];
 
