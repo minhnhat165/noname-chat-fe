@@ -1,5 +1,5 @@
 import { SidebarMenu } from '@/components/layout/sidebar-menu';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { useUserStore } from '@/stores/user';
 
 export interface LayoutProps {
@@ -7,9 +7,9 @@ export interface LayoutProps {
 }
 
 export default function AdminLayout({ children }: LayoutProps) {
-  const { role } = useUserStore((state) => state.data!);
+  const { role } = useUserStore.getState().data!;
   if (role !== 'admin') {
-    redirect('/');
+    notFound();
   }
 
   return (
