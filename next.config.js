@@ -4,7 +4,13 @@ const nextConfig = {
     appDir: true,
   },
   images: {
-    domains: ['localhost', 'res.cloudinary.com', 'via.placeholder.com', 'images.unsplash.com'],
+    domains: [
+      'localhost',
+      'res.cloudinary.com',
+      'via.placeholder.com',
+      'images.unsplash.com',
+      'reqres.in',
+    ],
   },
 };
 

@@ -1,7 +1,8 @@
 type Pagination = {
   page: number;
-  limit: number;
+  per_page: number;
   total: number;
+  total_pages: number;
 };
 
 type PaginationWithCursor = {
@@ -9,11 +10,11 @@ type PaginationWithCursor = {
   endCursor: string;
 };
 
-type listResponse<T> = {
+export type ListResponse<T> = {
   data: T[];
 } & Pagination;
 
-type listResponseWithCursor<T> = {
+type ListResponseWithCursor<T> = {
   data: T[];
   pageInfo: PaginationWithCursor;
 };
@@ -21,3 +22,8 @@ type listResponseWithCursor<T> = {
 type singleResponse<T> = {
   data: T;
 };
+
+export interface ListParams {
+  page: number;
+  limit: number;
+}
