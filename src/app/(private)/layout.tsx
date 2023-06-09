@@ -6,19 +6,24 @@ import { Suspense } from 'react';
 import { User } from '@/types/user';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { user } from '@/stores/data-test';
 
 export interface LayoutProps {
   children: React.ReactNode;
 }
-export const getUserGithub = async (id: string) => {
-  const response = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
-  const data = await response.json();
-  return data;
-};
+async function getUserGithub(id: string) {
+  try {
+    const response = await fetch(`http://localhost:3000/api/users/${id}`);
+    const res = await response.json();
+    return user;
+  } catch (error) {
+    throw new Error('Failed to fetch data');
+  }
+}
 
 const Layout = async ({ children }: LayoutProps) => {
   // if (!cookies().get('token')) redirect('/login');
-  const user: User = await getUserGithub('1');
+  const user = await getUserGithub('1');
   useUserStore.setState({ data: user });
   return (
     <div className="flex h-screen">
