@@ -105,7 +105,7 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
   return (
     <>
       <Link
-        href={`/${room.id}`}
+        href={`/chat/${room.id}`}
         className={cn(
           'group/item relative flex h-[72px] w-full items-center rounded-lg p-2',
           isActive ? 'bg-sky-300' : 'bg-white hover:bg-slate-100',
