@@ -12,12 +12,12 @@ import {
   UsergroupAddOutlined,
 } from '@ant-design/icons';
 import { EditProfilePanel, EditProfilePanelRef } from '../user';
+import { Role, User } from '@/types/user';
 import { useMemo, useRef, useState } from 'react';
 
 import { Avatar } from '../common/avatar';
 import { CallHistory } from '../call';
 import Link from 'next/link';
-import { User } from '@/types/user';
 import { useCredentialStore } from '@/stores/credential';
 import { useModal } from '@/hooks/use-modal';
 import { useMutation } from '@tanstack/react-query';
@@ -108,7 +108,7 @@ const MenuAction = ({
         },
       );
     } else {
-      if (role === 'admin') {
+      if (role === Role.ADMIN) {
         newItems.unshift({
           key: 'admin',
           label: <Link href="/admin">Admin</Link>,

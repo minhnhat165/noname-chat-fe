@@ -2,9 +2,9 @@
 
 import { Badge, Button, Popconfirm, Table, Tag } from 'antd';
 import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { Role, User, UserStatus } from '@/types/user';
 
 import { Avatar } from '../common/avatar';
-import { User } from '@/types/user';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { userApi } from '@/services/user-services';
@@ -59,7 +59,7 @@ export const UserTable = (props: UserTableProps) => {
           key="role"
           align="center"
           render={(_, { role }: User) => {
-            return <Tag color={role === 'admin' ? 'yellow' : 'blue'}>{role}</Tag>;
+            return <Tag color={role === Role.ADMIN ? 'yellow' : 'blue'}>{role}</Tag>;
           }}
         />
         <Table.Column
@@ -68,7 +68,9 @@ export const UserTable = (props: UserTableProps) => {
           key="status"
           align="center"
           render={(_, { status }: User) => {
-            return <Badge status={status === 'active' ? 'success' : 'error'} text={status} />;
+            return (
+              <Badge status={status === UserStatus.ACTIVE ? 'success' : 'error'} text={status} />
+            );
           }}
         />
         <Table.Column
@@ -78,7 +80,9 @@ export const UserTable = (props: UserTableProps) => {
           render={(_, { status }: User) => {
             return (
               <Popconfirm
-                title={`Are you sure to ${status === 'active' ? 'lock' : 'unlock'} this user?`}
+                title={`Are you sure to ${
+                  status === UserStatus.ACTIVE ? 'lock' : 'unlock'
+                } this user?`}
                 okText="Yes"
                 cancelText="No"
               >
@@ -86,7 +90,7 @@ export const UserTable = (props: UserTableProps) => {
                   type="text"
                   shape="circle"
                   danger
-                  icon={status === 'active' ? <LockOutlined /> : <UnlockOutlined />}
+                  icon={status === UserStatus.ACTIVE ? <LockOutlined /> : <UnlockOutlined />}
                 />
               </Popconfirm>
             );
