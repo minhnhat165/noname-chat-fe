@@ -1,18 +1,22 @@
 'use client';
 
-import { Button, Drawer } from 'antd';
+import { ArrowLeftOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { Button, Drawer, Input } from 'antd';
+import { Search, SidebarSearch } from './sidebar-search';
 import { createContext, useContext, useState } from 'react';
+import { rooms, users } from '@/stores/data-test';
 
-import { MenuUnfoldOutlined } from '@ant-design/icons';
-import { RoomItem } from '../room';
-import { SearchBar } from '../common/search-bar';
+import { RoomList } from '../room';
 import { SidebarMenu } from './sidebar-menu';
-import { rooms } from '@/stores/data-test';
 
 interface SidebarContextProps {
   showMenu: () => void;
   closeMenu: () => void;
+  isSearch: boolean;
+  setIsSearch: (isSearch: boolean) => void;
   menuVisible: boolean;
+  searchValue: string;
+  setSearchValue: (value: string) => void;
 }
 
 export const SidebarContext = createContext<SidebarContextProps>({} as SidebarContextProps);
@@ -21,6 +25,13 @@ export const useSidebar = () => useContext(SidebarContext);
 
 export const Sidebar = () => {
   const [menuVisible, setMenuVisible] = useState(false);
+  const [isSearch, setIsSearch] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+
+  const [searchResult, setSearchResult] = useState<Search>({
+    rooms: rooms,
+    users: users.slice(1, 4),
+  });
 
   const showMenu = () => {
     setMenuVisible(true);
@@ -34,18 +45,17 @@ export const Sidebar = () => {
         showMenu,
         closeMenu,
         menuVisible,
+        isSearch,
+        setIsSearch,
+        searchValue,
+        setSearchValue,
       }}
     >
-      <div className="h-full w-96 border-r-2 bg-white">
+      <div className="h-full w-[372px] border-r bg-white">
         <Header />
         <div className="p-2">
-          <ul>
-            {rooms.map((room) => (
-              <li key={room.id}>
-                <RoomItem room={room} />
-              </li>
-            ))}
-          </ul>
+          {!isSearch && <RoomList rooms={rooms} />}
+          {isSearch && <SidebarSearch searchResult={searchResult} />}
         </div>
       </div>
     </SidebarContext.Provider>
@@ -53,19 +63,44 @@ export const Sidebar = () => {
 };
 
 const Header = () => {
-  const { showMenu, closeMenu, menuVisible } = useSidebar();
-
+  const { showMenu, closeMenu, menuVisible, isSearch, setIsSearch, searchValue, setSearchValue } =
+    useSidebar();
+  const { Search } = Input;
   return (
     <div className="flex h-14 items-center justify-between px-4 py-2">
-      <Button
-        onClick={showMenu}
-        type="text"
-        className="mr-2"
-        shape="circle"
-        icon={<MenuUnfoldOutlined />}
+      {isSearch ? (
+        <Button
+          onClick={() => {
+            setIsSearch(false);
+          }}
+          type="text"
+          className="mr-2"
+          shape="circle"
+          icon={<ArrowLeftOutlined />}
+          size="large"
+        />
+      ) : (
+        <Button
+          onClick={showMenu}
+          type="text"
+          className="mr-2"
+          shape="circle"
+          icon={<MenuUnfoldOutlined />}
+          size="large"
+        />
+      )}
+      <Search
         size="large"
+        placeholder="input search text"
+        allowClear
+        onFocus={() => {
+          setIsSearch(true);
+        }}
+        value={searchValue}
+        onChange={(e) => {
+          setSearchValue(e.target.value);
+        }}
       />
-      <SearchBar />
       <Drawer
         placement="left"
         closable={false}

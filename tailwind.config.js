@@ -13,7 +13,7 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-animate')],
   corePlugins: {
     preflight: false, // <== disable this!
   },
