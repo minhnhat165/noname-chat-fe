@@ -5,10 +5,9 @@ import { User } from './user';
 export type Room = {
   img?: string;
   name: string;
-  description: string;
-  participant: User[];
+  participants: User[];
   isGroup: boolean;
   admin?: User;
   isAdmin?: boolean;
-  lastMessage: Message;
+  lastMessage?: Message;
 } & BaseEntity;

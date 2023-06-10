@@ -1,12 +1,17 @@
+'use client';
+
 import { ArrowLeftOutlined, DeleteOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Button, Popconfirm } from 'antd';
 
 import { Avatar } from '../common/avatar';
 import { Call } from '@/types/call';
 import Link from 'next/link';
+import { User } from '@/types/user';
 import { cn } from '@/utils';
 import { extractRoomByCurrentUser } from '../room';
+import { generateRoomLink } from '@/utils/link';
 import { useUserStore } from '@/stores/user';
+import { useWindowCall } from '@/hooks/call';
 
 export interface CallItemProps {
   call: Call;
@@ -17,10 +22,14 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
   const user = useUserStore((state) => state.data);
   const room = extractRoomByCurrentUser(call.room, user!);
   const isCaller = call.caller.id === user?.id;
-  const isNegative = call.status === 'rejected' || call.status === 'missed';
+  const status = genStatusOfUserByCall(call, user!);
+  const isNegative = status === 'rejected' || status === 'missed';
+
+  const { openWindowCall } = useWindowCall();
+
   return (
     <Link
-      href={`/${room.id}`}
+      href={generateRoomLink(room.id)}
       className="group/item flex items-center rounded-lg p-2 hover:bg-slate-200"
     >
       <Avatar src={room.img} size="medium" />
@@ -31,7 +40,7 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
             rotate={isCaller ? 135 : -45}
             className={cn('mt-1', isNegative ? 'text-red-500' : 'text-green-500')}
           />{' '}
-          <span className="capitalize">{call.status}</span>&#x2022;
+          <span className="capitalize">{status}</span>&#x2022;
           <span>
             {call.createdAt?.toLocaleString('en-US', {
               timeStyle: 'short',
@@ -70,8 +79,33 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
           />
         </Popconfirm>
 
-        <Button shape="circle" type="text" size="large" icon={<PhoneOutlined />} />
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            openWindowCall(room.id, '2');
+          }}
+          shape="circle"
+          type="text"
+          size="large"
+          icon={<PhoneOutlined />}
+        />
       </div>
     </Link>
   );
 };
+
+type UserCallStatus = 'accepted' | 'rejected' | 'missed' | 'pending';
+
+function genStatusOfUserByCall(call: Call, user: User): UserCallStatus {
+  if (call.acceptedUsers.some((u) => u.id === user.id)) {
+    return 'accepted';
+  }
+  if (call.rejectedUsers.some((u) => u.id === user.id)) {
+    return 'rejected';
+  }
+  if (call.status === 'ended') {
+    return 'missed';
+  }
+  return 'pending';
+}
