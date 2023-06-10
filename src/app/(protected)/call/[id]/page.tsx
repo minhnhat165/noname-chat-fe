@@ -43,8 +43,8 @@ async function getCall(id: string): Promise<Call> {
 }
 
 const CallPage = async ({ params, searchParams }: CallPageProps) => {
-  const room = await getRoom(params.id);
   const callId = searchParams.call_id;
+  const room = await getRoom(params.id);
   const call = callId ? await getCall(callId) : null;
   return (
     <div className="flex h-screen w-full items-center justify-center">
