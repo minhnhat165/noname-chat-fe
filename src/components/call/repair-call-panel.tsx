@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Avatar } from '../common/avatar';
 import { Button } from 'antd';
 import { Room } from '@/types/room';
-import { extractRoomByCurrentUser } from '../user/user-item';
+import { extractRoomByCurrentUser } from '../room';
 import { useMemo } from 'react';
 import { useUserStore } from '@/stores/user';
 
