@@ -64,7 +64,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
   return (
     <div className="flex h-full flex-col items-center justify-items-center py-10">
       <div className="flex flex-1 flex-col items-center justify-center">
-        <Avatar src={room.img} size="xLarge" />
+        <Avatar src={room.avatar} size="xLarge" />
         <div className="mb-10 mt-3 text-center">
           <h2 className="text-lg font-bold">{room.name}</h2>
           <p className="text-sm text-gray-500">{isCaller ? 'Calling...' : 'Incoming call...'}</p>

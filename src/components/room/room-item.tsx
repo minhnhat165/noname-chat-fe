@@ -114,7 +114,7 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
           isActive ? 'bg-sky-300' : 'bg-white hover:bg-slate-100',
         )}
       >
-        <Avatar src={room.img} />
+        <Avatar src={room.avatar} />
         <div className="flex flex-1 flex-col justify-between px-2">
           <div className="flex">
             <span className="font-bold text-gray-800">{room.name}</span>
@@ -137,13 +137,16 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
             menu={{ items: menuItems, onClick }}
             placement="bottom"
           >
-            <Button size="large"
-              type="default" shape="circle"
+            <Button
+              size="large"
+              type="default"
+              shape="circle"
               onClick={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
+                e.stopPropagation();
+                e.preventDefault();
               }}
-              icon={<EllipsisOutlined />} />
+              icon={<EllipsisOutlined />}
+            />
           </Dropdown>
         </div>
       </Link>
@@ -205,7 +208,7 @@ export function extractRoomByCurrentUser(room: Room, currentUser: User) {
   if (!room.isGroup) {
     const user: User = room.participants.find((user) => user.id !== currentUser.id) as User;
     if (!user) return room;
-    room.img = user.avatar;
+    room.avatar = user.avatar;
     room.name = user.username;
   } else {
     room.isAdmin = room.admin?.id === currentUser.id;
@@ -217,7 +220,7 @@ export const generateRoomByOtherUser = (user: User, me: User): Room => {
   return {
     id: user.id,
     name: user.username,
-    img: user.avatar,
+    avatar: user.avatar,
     isGroup: false,
     participants: [me, user],
   };

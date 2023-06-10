@@ -3,7 +3,7 @@ import { Message } from './message';
 import { User } from './user';
 
 export type Room = {
-  img?: string;
+  avatar?: string;
   name: string;
   participants: User[];
   isGroup: boolean;

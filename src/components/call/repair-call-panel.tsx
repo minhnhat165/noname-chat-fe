@@ -23,7 +23,7 @@ export const RepairCallPanel = ({ room: _room }: RepairCallPanelProps) => {
 
   return (
     <div className="flex flex-col items-center">
-      <Avatar src={room.img} size="xLarge" />
+      <Avatar src={room.avatar} size="xLarge" />
       <div className="my-3 text-center">
         <h2 className="text-lg font-bold">{room.name}</h2>
         <p>Ready to call</p>

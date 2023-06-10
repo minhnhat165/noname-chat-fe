@@ -32,7 +32,7 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
       href={generateRoomLink(room.id)}
       className="group/item flex items-center rounded-lg p-2 hover:bg-slate-200"
     >
-      <Avatar src={room.img} size="medium" />
+      <Avatar src={room.avatar} size="medium" />
       <div className="ml-4 flex-1 overflow-hidden">
         <h3 className="line-clamp-1 font-bold">{room.name}</h3>
         <div className="flex items-center gap-1 text-base">
