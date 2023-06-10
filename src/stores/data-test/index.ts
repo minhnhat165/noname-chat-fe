@@ -46,9 +46,8 @@ export const rooms: Room[] = [
   {
     id: 1,
     name: 'Room 1',
-    description: 'Room 1 description',
     isGroup: false,
-    participant: [users[0], users[1]],
+    participants: [users[0], users[1]],
     lastMessage: {
       id: 1,
       read: false,
@@ -60,9 +59,8 @@ export const rooms: Room[] = [
   {
     id: 2,
     name: 'Room 1',
-    description: 'Room 1 description',
     isGroup: true,
-    participant: users,
+    participants: users,
     admin: users[0],
     lastMessage: {
       id: 3,
@@ -75,9 +73,8 @@ export const rooms: Room[] = [
   {
     id: 3,
     name: 'Room 1',
-    description: 'Room 1 description',
     isGroup: false,
-    participant: [users[0], users[2]],
+    participants: [users[0], users[2], users[3]],
     lastMessage: {
       id: 3,
       read: false,
