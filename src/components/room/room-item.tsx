@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
   StopOutlined,
 } from '@ant-design/icons';
+import { UserStore, useUserStore } from '@/stores/user';
 
 import { Avatar } from '../common/avatar';
 import Link from 'next/link';
@@ -19,7 +20,6 @@ import { generateRoomLink } from '@/utils/link';
 import { intlFormatDistance } from 'date-fns';
 import { useMemo } from 'react';
 import { useModal } from '@/hooks/use-modal';
-import { useUserStore } from '@/stores/user';
 
 export interface RoomItemProps {
   room: Room;
@@ -34,7 +34,7 @@ const MENU_ITEMS_KEYS = {
 };
 
 export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
-  const user = useUserStore((state) => state.data);
+  const user = useUserStore((state: UserStore) => state.data);
   const room = useMemo(() => {
     return extractRoomByCurrentUser(_room, user!);
   }, [_room, user]);
@@ -108,7 +108,7 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
   return (
     <>
       <Link
-        href={generateRoomLink(room.id)}
+        href={generateRoomLink(room._id)}
         className={cn(
           'group/item relative flex h-[72px] w-full items-center rounded-lg p-2',
           isActive ? 'bg-sky-300' : 'bg-white hover:bg-slate-100',
@@ -206,19 +206,19 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
 
 export function extractRoomByCurrentUser(room: Room, currentUser: User) {
   if (!room.isGroup) {
-    const user: User = room.participants.find((user) => user.id !== currentUser.id) as User;
+    const user: User = room.participants.find((user) => user._id !== currentUser._id) as User;
     if (!user) return room;
     room.avatar = user.avatar;
     room.name = user.username;
   } else {
-    room.isAdmin = room.admin?.id === currentUser.id;
+    room.isAdmin = room.admin?._id === currentUser._id;
   }
   return room;
 }
 
 export const generateRoomByOtherUser = (user: User, me: User): Room => {
   return {
-    id: user.id,
+    _id: user._id,
     name: user.username,
     avatar: user.avatar,
     isGroup: false,

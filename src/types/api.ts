@@ -12,7 +12,8 @@ type PaginationWithCursor = {
 
 export type ListResponse<T> = {
   data: T[];
-} & Pagination;
+  pageInfo: Pagination;
+};
 
 type ListResponseWithCursor<T> = {
   data: T[];
