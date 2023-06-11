@@ -2,10 +2,10 @@
 
 import { ArrowLeftOutlined, DeleteOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Button, Popconfirm } from 'antd';
+import { Call, CallStatus } from '@/types/call';
 import { UserStore, useUserStore } from '@/stores/user';
 
 import { Avatar } from '../common/avatar';
-import { Call } from '@/types/call';
 import Link from 'next/link';
 import { Message } from '@/types/message';
 import { User } from '@/types/user';
@@ -20,11 +20,11 @@ export interface CallItemProps {
 }
 
 export const CallItem = ({ message, onDeleted }: CallItemProps) => {
-  const { call, room: _room } = message;
+  const call = message.call!;
   const user = useUserStore((state: UserStore) => state.data);
-  const room = extractRoomByCurrentUser(_room, user!);
-  const isCaller = call.caller._id === user?._id;
-  const status = genStatusOfUserByCall(call, user!);
+  const room = extractRoomByCurrentUser(call.room, user!);
+  const isCaller = call!.caller._id === user?._id;
+  const status = genStatusOfUserByCall(call!, user!);
   const isNegative = status === 'rejected' || status === 'missed';
 
   const { openWindowCall } = useWindowCall();
@@ -44,7 +44,7 @@ export const CallItem = ({ message, onDeleted }: CallItemProps) => {
           />{' '}
           <span className="capitalize">{status}</span>&#x2022;
           <span>
-            {new Date(call.createdAt!)?.toLocaleString('en-US', {
+            {new Date(call.createdAt).toLocaleString('en-US', {
               timeStyle: 'short',
             })}
           </span>
@@ -106,7 +106,7 @@ function genStatusOfUserByCall(call: Call, user: User): UserCallStatus {
   if (call.rejectedUsers.some((u) => u._id === user._id)) {
     return 'rejected';
   }
-  if (call.status === 'ended') {
+  if (call.status === CallStatus.ENDED) {
     return 'missed';
   }
   return 'pending';

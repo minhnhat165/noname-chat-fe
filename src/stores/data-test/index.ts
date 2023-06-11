@@ -1,5 +1,6 @@
 import { Role, User, UserStatus } from '@/types/user';
 
+import { MessageType } from '@/types/message';
 import { Room } from '@/types/room';
 
 export const users: User[] = [
@@ -52,9 +53,11 @@ export const rooms: Room[] = [
     lastMessage: {
       _id: 1,
       read: false,
+      roomId: '1',
+      type: MessageType.TEXT,
       content: 'Last message',
       createdAt: '2021-10-10T00:00:00.000Z',
-      user: users[0],
+      sender: users[0],
     },
   },
   {
@@ -66,9 +69,11 @@ export const rooms: Room[] = [
     lastMessage: {
       _id: 3,
       read: false,
+      roomId: '2',
       content: 'Last message lkajsfdlkjas lkajsdfla laksjfd;lkasjdf;laksjdflaksjdflaksjfd;la',
       createdAt: '2021-10-10T00:00:00.000Z',
-      user: users[2],
+      sender: users[2],
+      type: MessageType.TEXT,
     },
   },
   {
@@ -81,7 +86,9 @@ export const rooms: Room[] = [
       read: false,
       content: 'Last message lkajsfdlkjas lkajsdfla laksjfd;lkasjdf;laksjdflaksjdflaksjfd;la',
       createdAt: '2021-10-10T00:00:00.000Z',
-      user: users[2],
+      sender: users[2],
+      roomId: '3',
+      type: MessageType.TEXT,
     },
   },
 ];

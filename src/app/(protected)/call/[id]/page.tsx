@@ -1,7 +1,7 @@
+import { Call, CallStatus } from '@/types/call';
 import { CallPanel, RepairCallPanel } from '@/components/call';
 import { rooms, user } from '@/stores/data-test';
 
-import { Call } from '@/types/call';
 import { Room } from '@/types/room';
 
 export interface CallPageProps {
@@ -33,9 +33,9 @@ async function getCall(id: string): Promise<Call> {
       caller: user,
       rejectedUsers: [],
       acceptedUsers: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      status: 'ongoing',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toDateString(),
+      status: CallStatus.ONGOING,
     };
   } catch (error) {
     throw new Error('Failed to fetch data');

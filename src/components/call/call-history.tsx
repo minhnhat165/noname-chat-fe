@@ -23,7 +23,7 @@ export const CallHistory = ({ onItemClicked }: CallHistoryProps) => {
       <ul className="flex flex-col gap-1">
         {messages.map((message) => {
           return (
-            <li key={message._id} onClick={() => onItemClicked?.(message.call)}>
+            <li key={message._id} onClick={() => onItemClicked?.(message.call!)}>
               <CallItem message={message} />
             </li>
           );

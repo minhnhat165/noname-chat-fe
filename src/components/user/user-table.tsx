@@ -24,15 +24,17 @@ export const UserTable = (props: UserTableProps) => {
     keepPreviousData: true,
   });
 
+  const pageInfo = data?.pageInfo;
+
   return (
     <>
       <Table
         rowKey={(record) => record._id as string}
         loading={isLoading}
         pagination={{
-          pageSize: data?.per_page,
+          pageSize: pageInfo?.perPage,
           position: ['bottomRight'],
-          total: data?.total,
+          total: pageInfo?.total,
           current: page,
           onChange: (page) => setPage(page),
         }}

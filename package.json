@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@types/cookie": "^0.5.1",
+    "@types/cookies": "^0.7.7",
     "@types/http-proxy": "^1.17.11",
     "@types/set-cookie-parser": "^2.4.2",
     "prettier": "^2.8.8",
