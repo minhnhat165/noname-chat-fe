@@ -20,7 +20,7 @@ type ListResponseWithCursor<T> = {
   pageInfo: PaginationWithCursor;
 };
 
-type singleResponse<T> = {
+export type singleResponse<T> = {
   data: T;
 };
 
@@ -28,3 +28,7 @@ export interface ListParams {
   page: number;
   limit: number;
 }
+
+export type SuccessResponse = {
+  message: string;
+};

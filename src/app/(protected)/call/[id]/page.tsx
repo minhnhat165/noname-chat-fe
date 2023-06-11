@@ -1,8 +1,11 @@
 import { Call, CallStatus } from '@/types/call';
-import { CallPanel, RepairCallPanel } from '@/components/call';
 import { rooms, user } from '@/stores/data-test';
 
+import { CallPage } from '@/components/call/call-page';
 import { Room } from '@/types/room';
+import { getToken } from '@/utils/auth';
+
+// import { CallPage, CallPanel, RepairCallPanel } from '@/components/call';
 
 export interface CallPageProps {
   params: {
@@ -15,7 +18,8 @@ export interface CallPageProps {
 
 async function getRoom(id: string): Promise<Room> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_API_URL}/users/${id}`);
+    const response = await fetch(`${process.env.API_BASE_URL}/calls/${id}`);
+    console.log(response);
     const res = await response.json();
     return rooms[0];
   } catch (error) {
@@ -25,8 +29,9 @@ async function getRoom(id: string): Promise<Room> {
 
 async function getCall(id: string): Promise<Call> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_API_URL}/users/${id}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_API_URL}/calls/${id}`);
     const res = await response.json();
+    console.log(res);
     return {
       _id: 1,
       room: rooms[0],
@@ -42,15 +47,15 @@ async function getCall(id: string): Promise<Call> {
   }
 }
 
-const CallPage = async ({ params, searchParams }: CallPageProps) => {
-  const callId = searchParams.call_id;
-  const room = await getRoom(params.id);
-  const call = callId ? await getCall(callId) : null;
+const Page = async ({ params, searchParams }: CallPageProps) => {
+  // const callId = searchParams.call_id;
+  // // const room = await getRoom(params.id);
+  // const call = callId ? await getCall(callId) : null;
   return (
     <div className="flex h-screen w-full items-center justify-center">
-      {call ? <CallPanel call={call} /> : <RepairCallPanel room={room} />}
+      <CallPage />
     </div>
   );
 };
 
-export default CallPage;
+export default Page;

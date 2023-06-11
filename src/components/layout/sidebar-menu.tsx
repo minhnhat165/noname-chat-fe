@@ -16,7 +16,7 @@ import { Role, User } from '@/types/user';
 import { useMemo, useRef, useState } from 'react';
 
 import { Avatar } from '../common/avatar';
-import { CallHistory } from '../call';
+
 import Link from 'next/link';
 import { useCredentialStore } from '@/stores/credential';
 import { useModal } from '@/hooks/use-modal';
@@ -24,6 +24,7 @@ import { useMutation } from '@tanstack/react-query';
 import { usePathname } from 'next/navigation';
 import { useSidebar } from './sidebar';
 import { useUserStore } from '@/stores/user';
+import { CallHistory } from '../call/call-history';
 
 export interface SideBarMenuProps {}
 

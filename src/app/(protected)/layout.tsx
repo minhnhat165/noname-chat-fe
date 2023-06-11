@@ -1,5 +1,7 @@
 import { InitializeUserStore, useUserStore } from '@/stores/user';
 
+import { checkIsLogin } from '@/utils/auth';
+import { redirect } from 'next/navigation';
 import { user } from '@/stores/data-test';
 
 export interface AuthLayoutProps {
@@ -16,6 +18,10 @@ async function getUserInfo() {
 }
 
 const ProtectedLayout = async ({ children }: AuthLayoutProps) => {
+  const isLogged = checkIsLogin();
+  if (!isLogged) {
+    redirect('/');
+  }
   const user = await getUserInfo();
   useUserStore.setState({ data: user });
   return (
