@@ -2,6 +2,7 @@
 const nextConfig = {
   experimental: {
     appDir: true,
+    serverActions: true,
   },
   images: {
     domains: [
@@ -10,6 +11,7 @@ const nextConfig = {
       'via.placeholder.com',
       'images.unsplash.com',
       'reqres.in',
+      'lh3.googleusercontent.com',
     ],
   },
 };
