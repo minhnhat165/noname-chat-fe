@@ -12,6 +12,7 @@ import { User } from '@/types/user';
 import { cn } from '@/utils';
 import { extractRoomByCurrentUser } from '../room';
 import { generateRoomLink } from '@/utils/link';
+import { useCreateCall } from '@/hooks/call/use-create-call';
 import { useWindowCall } from '@/hooks/call';
 
 export interface CallItemProps {
@@ -28,6 +29,12 @@ export const CallItem = ({ message, onDeleted }: CallItemProps) => {
   const isNegative = status === 'rejected' || status === 'missed';
 
   const { openWindowCall } = useWindowCall();
+
+  const { mutate, isLoading } = useCreateCall({
+    onSuccess(data, variables) {
+      openWindowCall(variables, data.data._id);
+    },
+  });
 
   return (
     <Link
@@ -82,10 +89,11 @@ export const CallItem = ({ message, onDeleted }: CallItemProps) => {
         </Popconfirm>
 
         <Button
+          loading={isLoading}
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            openWindowCall(room._id, '2');
+            mutate(room._id);
           }}
           shape="circle"
           type="text"

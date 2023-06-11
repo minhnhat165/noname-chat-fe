@@ -1,6 +1,5 @@
 import { Call } from '@/types/call';
 import { CallItem } from './call-item';
-import { ReactNode } from 'react';
 import { Spin } from 'antd';
 import { callApi } from '@/services/call-services';
 import { useQuery } from '@tanstack/react-query';
