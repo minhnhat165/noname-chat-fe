@@ -27,7 +27,7 @@ export const UserTable = (props: UserTableProps) => {
   return (
     <>
       <Table
-        rowKey={(record) => record.id as string}
+        rowKey={(record) => record._id as string}
         loading={isLoading}
         pagination={{
           pageSize: data?.per_page,
@@ -38,7 +38,7 @@ export const UserTable = (props: UserTableProps) => {
         }}
         dataSource={users}
       >
-        <Table.Column title="Id" dataIndex="id" key="id" />
+        <Table.Column title="Id" dataIndex="_id" key="_id" />
         <Table.Column
           title="Name"
           dataIndex="username"

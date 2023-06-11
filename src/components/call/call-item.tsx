@@ -2,26 +2,28 @@
 
 import { ArrowLeftOutlined, DeleteOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Button, Popconfirm } from 'antd';
+import { UserStore, useUserStore } from '@/stores/user';
 
 import { Avatar } from '../common/avatar';
 import { Call } from '@/types/call';
 import Link from 'next/link';
+import { Message } from '@/types/message';
 import { User } from '@/types/user';
 import { cn } from '@/utils';
 import { extractRoomByCurrentUser } from '../room';
 import { generateRoomLink } from '@/utils/link';
-import { useUserStore } from '@/stores/user';
 import { useWindowCall } from '@/hooks/call';
 
 export interface CallItemProps {
-  call: Call;
+  message: Message;
   onDeleted?: (call: Call) => void;
 }
 
-export const CallItem = ({ call, onDeleted }: CallItemProps) => {
-  const user = useUserStore((state) => state.data);
-  const room = extractRoomByCurrentUser(call.room, user!);
-  const isCaller = call.caller.id === user?.id;
+export const CallItem = ({ message, onDeleted }: CallItemProps) => {
+  const { call, room: _room } = message;
+  const user = useUserStore((state: UserStore) => state.data);
+  const room = extractRoomByCurrentUser(_room, user!);
+  const isCaller = call.caller._id === user?._id;
   const status = genStatusOfUserByCall(call, user!);
   const isNegative = status === 'rejected' || status === 'missed';
 
@@ -29,7 +31,7 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
 
   return (
     <Link
-      href={generateRoomLink(room.id)}
+      href={generateRoomLink(room._id)}
       className="group/item flex items-center rounded-lg p-2 hover:bg-slate-200"
     >
       <Avatar src={room.avatar} size="medium" />
@@ -42,7 +44,7 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
           />{' '}
           <span className="capitalize">{status}</span>&#x2022;
           <span>
-            {call.createdAt?.toLocaleString('en-US', {
+            {new Date(call.createdAt!)?.toLocaleString('en-US', {
               timeStyle: 'short',
             })}
           </span>
@@ -83,7 +85,7 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            openWindowCall(room.id, '2');
+            openWindowCall(room._id, '2');
           }}
           shape="circle"
           type="text"
@@ -98,10 +100,10 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
 type UserCallStatus = 'accepted' | 'rejected' | 'missed' | 'pending';
 
 function genStatusOfUserByCall(call: Call, user: User): UserCallStatus {
-  if (call.acceptedUsers.some((u) => u.id === user.id)) {
+  if (call.acceptedUsers.some((u) => u._id === user._id)) {
     return 'accepted';
   }
-  if (call.rejectedUsers.some((u) => u.id === user.id)) {
+  if (call.rejectedUsers.some((u) => u._id === user._id)) {
     return 'rejected';
   }
   if (call.status === 'ended') {

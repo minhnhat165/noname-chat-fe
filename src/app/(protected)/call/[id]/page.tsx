@@ -28,7 +28,7 @@ async function getCall(id: string): Promise<Call> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_API_URL}/users/${id}`);
     const res = await response.json();
     return {
-      id: 1,
+      _id: 1,
       room: rooms[0],
       caller: user,
       rejectedUsers: [],

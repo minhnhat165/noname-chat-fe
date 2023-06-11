@@ -6,7 +6,7 @@ import { Room } from '@/types/room';
 export function useWindowCall() {
   const [callWindow, setCallWindow] = useState<Window | null>(null);
 
-  const openWindowCall = (roomId: Room['id'], callId: string) => {
+  const openWindowCall = (roomId: Room['_id'], callId: string) => {
     const height = 400;
     const width = 640;
     const left = window.screen.width / 2 - width / 2;
