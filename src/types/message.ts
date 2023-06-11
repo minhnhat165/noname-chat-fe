@@ -12,7 +12,7 @@ export enum MessageType {
 export type Message = {
   content: string;
   sender: User;
-  roomId: string;
+  room?: Room;
   read: boolean;
   type: MessageType;
   call?: Call;

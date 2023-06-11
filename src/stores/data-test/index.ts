@@ -46,14 +46,13 @@ export const user: User = users[0];
 
 export const rooms: Room[] = [
   {
-    _id: 1,
+    _id: "1",
     name: 'Room 1',
     isGroup: false,
     participants: [users[0], users[1]],
     lastMessage: {
-      _id: 1,
+      _id: "1",
       read: false,
-      roomId: '1',
       type: MessageType.TEXT,
       content: 'Last message',
       createdAt: '2021-10-10T00:00:00.000Z',
@@ -61,15 +60,14 @@ export const rooms: Room[] = [
     },
   },
   {
-    _id: 2,
+    _id: "2",
     name: 'Room 1',
     isGroup: true,
     participants: users,
     admin: users[0],
     lastMessage: {
-      _id: 3,
+      _id: "3",
       read: false,
-      roomId: '2',
       content: 'Last message lkajsfdlkjas lkajsdfla laksjfd;lkasjdf;laksjdflaksjdflaksjfd;la',
       createdAt: '2021-10-10T00:00:00.000Z',
       sender: users[2],
@@ -77,17 +75,16 @@ export const rooms: Room[] = [
     },
   },
   {
-    _id: 3,
+    _id: "4",
     name: 'Room 1',
     isGroup: false,
     participants: [users[0], users[2], users[3]],
     lastMessage: {
-      _id: 3,
+      _id: "5",
       read: false,
       content: 'Last message lkajsfdlkjas lkajsdfla laksjfd;lkasjdf;laksjdflaksjdflaksjfd;la',
       createdAt: '2021-10-10T00:00:00.000Z',
       sender: users[2],
-      roomId: '3',
       type: MessageType.TEXT,
     },
   },
