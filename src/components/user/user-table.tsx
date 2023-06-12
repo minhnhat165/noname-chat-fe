@@ -3,28 +3,52 @@
 import { Badge, Button, Popconfirm, Table, Tag } from 'antd';
 import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Role, User, UserStatus } from '@/types/user';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Avatar } from '../common/avatar';
-import { useQuery } from '@tanstack/react-query';
+import { ListResponse } from '@/types/api';
+import { adminApi } from '@/services/admin-services';
+import { queryKeys } from '@/constants';
 import { useState } from 'react';
-import { userApi } from '@/services/user-services';
-import { users } from '@/stores/data-test';
+import { useToggleLockUser } from '@/hooks/user/use-toggle-lock-user';
 
 export interface UserTableProps {}
 
 export const UserTable = (props: UserTableProps) => {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['users', page],
+    queryKey: [queryKeys.ADMIN_USERS, page],
     queryFn: () =>
-      userApi.getAll({
+      adminApi.getUsers({
         page: page,
         limit: 10,
       }),
     keepPreviousData: true,
   });
 
+  const {} = useToggleLockUser();
+
   const pageInfo = data?.pageInfo;
+  const users = data?.data || [];
+
+  const { toggleLock } = useToggleLockUser({
+    onSuccess(data) {
+      queryClient.setQueryData<ListResponse<User>>([queryKeys.ADMIN_USERS, page], (oldData) => {
+        const newData = oldData!.data.map((user) => {
+          if (user._id === data.data._id) {
+            return data.data;
+          }
+          return user;
+        });
+        console.log(newData);
+        return {
+          ...oldData!,
+          data: newData,
+        };
+      });
+    },
+  });
 
   return (
     <>
@@ -32,7 +56,7 @@ export const UserTable = (props: UserTableProps) => {
         rowKey={(record) => record._id as string}
         loading={isLoading}
         pagination={{
-          pageSize: pageInfo?.perPage,
+          pageSize: pageInfo?.limit,
           position: ['bottomRight'],
           total: pageInfo?.total,
           current: page,
@@ -79,7 +103,7 @@ export const UserTable = (props: UserTableProps) => {
           title="Action"
           key="action"
           align="center"
-          render={(_, { status }: User) => {
+          render={(_, { status, _id }: User) => {
             return (
               <Popconfirm
                 title={`Are you sure to ${
@@ -87,6 +111,7 @@ export const UserTable = (props: UserTableProps) => {
                 } this user?`}
                 okText="Yes"
                 cancelText="No"
+                onConfirm={() => toggleLock(_id, status === UserStatus.BANNED)}
               >
                 <Button
                   type="text"
