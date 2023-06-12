@@ -1,12 +1,13 @@
 import { RoomList, generateRoomByOtherUser } from '../room';
-import { rooms, users } from '@/stores/data-test';
+import { UserStore, useUserStore } from '@/stores/user';
+import { rooms, user, users } from '@/stores/data-test';
 
 import { Divider } from 'antd';
 import { Room } from '@/types/room';
 import { User } from '@/types/user';
 import { useQuery } from '@tanstack/react-query';
 import { useSidebar } from './sidebar';
-import { useUserStore } from '@/stores/user';
+import { userApi } from '@/services/user-services';
 
 const ONE_MINUTE = 60 * 1000;
 
@@ -27,20 +28,22 @@ const search = (query: string): Search => {
 };
 
 export const SidebarSearch = ({ searchResult }: SidebarSearchProps) => {
-  const currentUser = useUserStore((state) => state.data!);
+  const currentUser = useUserStore((state: UserStore) => state.data!);
   const { searchValue } = useSidebar();
 
   const { data } = useQuery({
     queryKey: ['search', searchValue],
-    queryFn: () => search(searchValue),
+    queryFn: () => userApi.search(searchValue),
     enabled: !!searchValue,
     staleTime: ONE_MINUTE,
     keepPreviousData: true,
   });
-  const { rooms, users } = data || {
-    rooms: [],
-    users: [],
-  };
+  console.log(data?.data);
+  const users = data?.data || [];
+  // const { rooms, users } = data || {
+  //   rooms: [],
+  //   users: [],
+  // };
 
   return (
     <div>
@@ -52,12 +55,12 @@ export const SidebarSearch = ({ searchResult }: SidebarSearchProps) => {
           })}
         />
       )}
-      {rooms.length > 0 && (
+      {/* {rooms.length > 0 && (
         <>
           <Divider />
           <SearchSection title="Rooms" rooms={rooms} />
         </>
-      )}
+      )} */}
     </div>
   );
 };

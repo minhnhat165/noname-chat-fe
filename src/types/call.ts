@@ -2,7 +2,10 @@ import { BaseEntity } from './base-entity';
 import { Room } from './room';
 import { User } from './user';
 
-type CallStatus = 'ongoing' | 'ended' ;
+export enum CallStatus {
+  ONGOING = 'ONGOING',
+  ENDED = 'ENDED',
+}
 
 export type Call = {
   caller: User;
@@ -10,4 +13,5 @@ export type Call = {
   acceptedUsers: User[];
   rejectedUsers: User[];
   status: CallStatus;
+  createdAt: string;
 } & BaseEntity;

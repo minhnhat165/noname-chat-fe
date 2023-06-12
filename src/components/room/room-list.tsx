@@ -5,7 +5,7 @@ export function RoomList({ rooms }: { rooms: Room[] }) {
   return (
     <ul>
       {rooms.map((room) => (
-        <li key={room.id}>
+        <li key={room._id}>
           <RoomItem room={room} />
         </li>
       ))}

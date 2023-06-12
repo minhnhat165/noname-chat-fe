@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dropdown, MenuProps, Modal } from 'antd';
+import { Button, Dropdown, MenuProps, Modal, Skeleton } from 'antd';
 import {
   DeleteOutlined,
   EllipsisOutlined,
@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
   StopOutlined,
 } from '@ant-design/icons';
+import { UserStore, useUserStore } from '@/stores/user';
 
 import { Avatar } from '../common/avatar';
 import Link from 'next/link';
@@ -19,7 +20,6 @@ import { generateRoomLink } from '@/utils/link';
 import { intlFormatDistance } from 'date-fns';
 import { useMemo } from 'react';
 import { useModal } from '@/hooks/use-modal';
-import { useUserStore } from '@/stores/user';
 
 export interface RoomItemProps {
   room: Room;
@@ -34,7 +34,7 @@ const MENU_ITEMS_KEYS = {
 };
 
 export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
-  const user = useUserStore((state) => state.data);
+  const user = useUserStore((state: UserStore) => state.data);
   const room = useMemo(() => {
     return extractRoomByCurrentUser(_room, user!);
   }, [_room, user]);
@@ -108,13 +108,13 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
   return (
     <>
       <Link
-        href={generateRoomLink(room.id)}
+        href={generateRoomLink(room._id)}
         className={cn(
           'group/item relative flex h-[72px] w-full items-center rounded-lg p-2',
           isActive ? 'bg-sky-300' : 'bg-white hover:bg-slate-100',
         )}
       >
-        <Avatar src={room.img} />
+        <Avatar src={room.avatar} />
         <div className="flex flex-1 flex-col justify-between px-2">
           <div className="flex">
             <span className="font-bold text-gray-800">{room.name}</span>
@@ -137,13 +137,16 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
             menu={{ items: menuItems, onClick }}
             placement="bottom"
           >
-            <Button size="large"
-              type="default" shape="circle"
+            <Button
+              size="large"
+              type="default"
+              shape="circle"
               onClick={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
+                e.stopPropagation();
+                e.preventDefault();
               }}
-              icon={<EllipsisOutlined />} />
+              icon={<EllipsisOutlined />}
+            />
           </Dropdown>
         </div>
       </Link>
@@ -201,23 +204,38 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
   );
 };
 
+export const RoomItemSkeleton = () => {
+  return (
+    <div className="flex h-[72px] w-full items-center rounded-lg p-2">
+      <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200" />
+      <div className="flex flex-1 flex-col justify-between gap-1 px-2">
+        <div className="flex">
+          <Skeleton.Input style={{ width: 100 }} active size="small" />
+          <Skeleton.Input className="ml-auto" style={{ width: 32 }} active size="small" />
+        </div>
+        <Skeleton.Input style={{ width: '100%' }} active size="small" />
+      </div>
+    </div>
+  );
+};
+
 export function extractRoomByCurrentUser(room: Room, currentUser: User) {
   if (!room.isGroup) {
-    const user: User = room.participants.find((user) => user.id !== currentUser.id) as User;
+    const user: User = room.participants.find((user) => user._id !== currentUser._id) as User;
     if (!user) return room;
-    room.img = user.avatar;
+    room.avatar = user.avatar;
     room.name = user.username;
   } else {
-    room.isAdmin = room.admin?.id === currentUser.id;
+    room.isAdmin = room.admin?._id === currentUser._id;
   }
   return room;
 }
 
 export const generateRoomByOtherUser = (user: User, me: User): Room => {
   return {
-    id: user.id,
+    _id: user._id,
     name: user.username,
-    img: user.avatar,
+    avatar: user.avatar,
     isGroup: false,
     participants: [me, user],
   };
