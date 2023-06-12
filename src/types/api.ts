@@ -1,7 +1,7 @@
 type Pagination = {
-  page: number;
-  perPage: number;
+  limit: number;
   total: number;
+  currentPage: number;
   totalPages: number;
 };
 

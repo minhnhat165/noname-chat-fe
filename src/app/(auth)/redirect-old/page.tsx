@@ -1,3 +1,4 @@
+import { COOKIE_ACCESS_TOKEN_NAME } from '@/constants';
 import { cookies } from 'next/headers';
 
 type Props = {
@@ -18,7 +19,7 @@ const RedirectPage = async ({ searchParams }: Props) => {
 
   const setCookie = async (e: any) => {
     'use server';
-    cookies().set('token', token || '');
+    cookies().set(COOKIE_ACCESS_TOKEN_NAME, token || '');
     // redirect('/');
   };
 
