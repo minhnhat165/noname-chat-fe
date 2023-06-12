@@ -12,19 +12,19 @@ import {
   UsergroupAddOutlined,
 } from '@ant-design/icons';
 import { EditProfilePanel, EditProfilePanelRef } from '../user';
-import { Role, User } from '@/types/user';
-import { useMemo, useRef, useState } from 'react';
+import { redirect, usePathname } from 'next/navigation';
+import { useMemo, useRef, useState, useTransition } from 'react';
 
 import { Avatar } from '../common/avatar';
-
+import { CallHistory } from '../call/call-history';
 import Link from 'next/link';
-import { useCredentialStore } from '@/stores/credential';
+import { Role } from '@/types/user';
+import { removeToken } from '@/app/actions';
 import { useModal } from '@/hooks/use-modal';
 import { useMutation } from '@tanstack/react-query';
-import { usePathname } from 'next/navigation';
 import { useSidebar } from './sidebar';
 import { useUserStore } from '@/stores/user';
-import { CallHistory } from '../call/call-history';
+import { userApi } from '@/services/user-services';
 
 export interface SideBarMenuProps {}
 
@@ -42,9 +42,9 @@ export const SidebarMenu = (props: SideBarMenuProps) => {
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 p-2 px-4">
         <Avatar size="medium" src={user!.avatar} />
-        <div>
-          <h3 className="block font-bold">{user!.username}</h3>
-          <p className="inline-block">{user!.email}</p>
+        <div className="flex-1 text-ellipsis">
+          <h3 className="line-clamp-1 font-bold">{user!.username}</h3>
+          <p className="line-clamp-1">{user!.email}</p>
         </div>
         <div className="ml-auto">
           <ProfileEdit onClickEdit={closeMenu} />
@@ -85,9 +85,15 @@ const MenuAction = ({
   onAction?: (key: string) => void;
   isAdmin: boolean;
 }) => {
-  const { removeCredential } = useCredentialStore();
   const { role } = useUserStore((state) => state.data!);
   const { open: openCallHistory, close: closeCallHistory, isOpen: isOpenCallHistory } = useModal();
+  let [isPending, startTransition] = useTransition();
+  const logout = () => {
+    startTransition(() => {
+      removeToken();
+      redirect('/login');
+    });
+  };
   const items: MenuProps['items'] = useMemo(() => {
     const newItems: MenuProps['items'] = [];
     if (isAdmin) {
@@ -133,7 +139,7 @@ const MenuAction = ({
         openCallHistory();
         break;
       case 'logout':
-        removeCredential();
+        logout();
         break;
       default:
         break;
@@ -175,11 +181,9 @@ const ProfileEdit = ({ onClickEdit }: { onClickEdit?: () => void }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { mutateAsync } = useMutation({
-    mutationFn: async (data: User) => {
-      return data;
-    },
-    onSuccess: (data: User) => {
-      updateUser(data);
+    mutationFn: userApi.update,
+    onSuccess: (data) => {
+      updateUser(data.data);
     },
   });
 
