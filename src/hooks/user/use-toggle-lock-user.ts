@@ -1,13 +1,13 @@
 'use client';
 
+import { SingleResponse, SuccessResponse } from '@/types/api';
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 
-import { SuccessResponse } from '@/types/api';
 import { User } from '@/types/user';
 import { adminApi } from '@/services/admin-services';
 
 export const useToggleLockUser = (
-  options?: UseMutationOptions<SuccessResponse, unknown, User['_id'], unknown>,
+  options?: UseMutationOptions<SingleResponse<User>, unknown, User['_id'], unknown>,
 ) => {
   const { mutate: lock, isLoading: lockLoading } = useMutation({
     mutationFn: adminApi.lock,
