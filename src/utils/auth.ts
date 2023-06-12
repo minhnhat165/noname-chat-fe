@@ -1,3 +1,4 @@
+import { COOKIE_ACCESS_TOKEN_NAME } from '@/constants';
 import { cookies } from 'next/headers';
 
 export const checkIsLogin = (): boolean => {
@@ -5,5 +6,5 @@ export const checkIsLogin = (): boolean => {
   return !!token;
 };
 export const getToken = () => {
-  return cookies().get('token');
+  return cookies().get(COOKIE_ACCESS_TOKEN_NAME);
 };

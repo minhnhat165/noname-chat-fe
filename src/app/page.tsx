@@ -1,13 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
+import { checkIsLogin } from '@/utils/auth';
 import { redirect } from 'next/navigation';
 
 const LOGIN_LINK = 'http://localhost:5000/api/auth/google';
 
 export default function Home() {
-  const token = cookies().get('token');
-  const isLogged = !!token;
+  const isLogged = checkIsLogin();
   if (isLogged) redirect('/chat');
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">

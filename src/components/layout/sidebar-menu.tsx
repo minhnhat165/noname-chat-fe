@@ -88,6 +88,7 @@ const MenuAction = ({
   const { role } = useUserStore((state) => state.data!);
   const { open: openCallHistory, close: closeCallHistory, isOpen: isOpenCallHistory } = useModal();
   let [isPending, startTransition] = useTransition();
+  const { open: openLogout, close: closeLogout, isOpen: isOpenLogout } = useModal();
   const logout = () => {
     startTransition(() => {
       removeToken();
@@ -139,7 +140,7 @@ const MenuAction = ({
         openCallHistory();
         break;
       case 'logout':
-        logout();
+        openLogout();
         break;
       default:
         break;
@@ -156,6 +157,17 @@ const MenuAction = ({
         width={390}
       >
         <CallHistory onItemClicked={closeCallHistory} />
+      </Modal>
+      <Modal
+        open={isOpenLogout}
+        title="Confirm Logout"
+        onOk={logout}
+        onCancel={closeLogout}
+        okText="Logout"
+        cancelText="Cancel"
+        confirmLoading={isPending}
+      >
+        <p>Are you sure you want to log out?</p>
       </Modal>
     </>
   );
