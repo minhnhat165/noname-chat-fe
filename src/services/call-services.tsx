@@ -1,4 +1,4 @@
-import { ListParams, ListResponse, SuccessResponse, singleResponse } from '@/types/api';
+import { ListParams, ListResponse, SingleResponse, SuccessResponse } from '@/types/api';
 
 import { Call } from '@/types/call';
 import { Message } from '@/types/message';
@@ -14,11 +14,11 @@ export const callApi = {
     const url = `${BASE_URL}/history`;
     return axios.get(url);
   },
-  getCall: (id: string): Promise<singleResponse<Call>> => {
+  getCall: (id: string): Promise<SingleResponse<Call>> => {
     const url = `${BASE_URL}/${id}`;
     return axios.get(url);
   },
-  createCall: (roomId: string): Promise<singleResponse<Call>> => {
+  createCall: (roomId: string): Promise<SingleResponse<Call>> => {
     return axios.post(BASE_URL, {
       roomId: roomId,
     });

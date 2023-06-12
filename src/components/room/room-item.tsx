@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Dropdown, MenuProps, Modal } from 'antd';
+import { Button, Dropdown, MenuProps, Modal, Skeleton } from 'antd';
 import {
   DeleteOutlined,
   EllipsisOutlined,
@@ -201,6 +201,21 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
         <p>Are you sure you want to delete this chat?</p>
       </Modal>
     </>
+  );
+};
+
+export const RoomItemSkeleton = () => {
+  return (
+    <div className="flex h-[72px] w-full items-center rounded-lg p-2">
+      <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200" />
+      <div className="flex flex-1 flex-col justify-between gap-1 px-2">
+        <div className="flex">
+          <Skeleton.Input style={{ width: 100 }} active size="small" />
+          <Skeleton.Input className="ml-auto" style={{ width: 32 }} active size="small" />
+        </div>
+        <Skeleton.Input style={{ width: '100%' }} active size="small" />
+      </div>
+    </div>
   );
 };
 

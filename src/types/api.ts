@@ -5,7 +5,7 @@ type Pagination = {
   totalPages: number;
 };
 
-type PaginationWithCursor = {
+type CursorPagination = {
   hasMore: boolean;
   endCursor: string;
 };
@@ -15,12 +15,12 @@ export type ListResponse<T> = {
   pageInfo: Pagination;
 };
 
-type ListResponseWithCursor<T> = {
+export type CursorPaginationResponse<T> = {
   data: T[];
-  pageInfo: PaginationWithCursor;
+  pageInfo: CursorPagination;
 };
 
-export type singleResponse<T> = {
+export type SingleResponse<T> = {
   data: T;
 };
 
@@ -28,7 +28,10 @@ export interface ListParams {
   page: number;
   limit: number;
 }
-
+export type CursorPaginationParams = {
+  limit: number;
+  cursor: string;
+};
 export type SuccessResponse = {
   message: string;
 };

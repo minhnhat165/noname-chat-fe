@@ -10,8 +10,8 @@ const nextConfig = {
       'res.cloudinary.com',
       'via.placeholder.com',
       'images.unsplash.com',
-      'reqres.in',
       'lh3.googleusercontent.com',
+      'ui-avatars.com',
     ],
   },
 };

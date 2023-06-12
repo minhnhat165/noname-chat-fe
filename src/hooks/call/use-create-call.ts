@@ -1,11 +1,11 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 
 import { Call } from '@/types/call';
+import { SingleResponse } from '@/types/api';
 import { callApi } from '@/services/call-services';
-import { singleResponse } from '@/types/api';
 
 export function useCreateCall(
-  options?: UseMutationOptions<singleResponse<Call>, unknown, string, unknown>,
+  options?: UseMutationOptions<SingleResponse<Call>, unknown, string, unknown>,
 ) {
   return useMutation({
     mutationFn: callApi.createCall,

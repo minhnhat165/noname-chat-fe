@@ -1,4 +1,4 @@
-import { ListParams, ListResponse } from '@/types/api';
+import { ListParams, ListResponse, SingleResponse } from '@/types/api';
 
 import { User } from '@/types/user';
 import { axios } from '@/lib';
@@ -11,5 +11,10 @@ export const userApi = {
   search: (q: string): Promise<ListResponse<User>> => {
     const url = '/users/search';
     return axios.get(url, { params: { q } });
+  },
+
+  update: (data: Partial<User>): Promise<SingleResponse<User>> => {
+    const url = `/users`;
+    return axios.patch(url, data);
   },
 };
