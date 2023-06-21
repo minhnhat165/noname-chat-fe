@@ -2,37 +2,46 @@
 
 import { ArrowLeftOutlined, DeleteOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Button, Popconfirm } from 'antd';
+import { Call, CallStatus } from '@/types/call';
+import { UserStore, useUserStore } from '@/stores/user';
 
 import { Avatar } from '../common/avatar';
-import { Call } from '@/types/call';
 import Link from 'next/link';
+import { Message } from '@/types/message';
 import { User } from '@/types/user';
 import { cn } from '@/utils';
 import { extractRoomByCurrentUser } from '../room';
 import { generateRoomLink } from '@/utils/link';
-import { useUserStore } from '@/stores/user';
+import { useCreateCall } from '@/hooks/call/use-create-call';
 import { useWindowCall } from '@/hooks/call';
 
 export interface CallItemProps {
-  call: Call;
+  message: Message;
   onDeleted?: (call: Call) => void;
 }
 
-export const CallItem = ({ call, onDeleted }: CallItemProps) => {
-  const user = useUserStore((state) => state.data);
+export const CallItem = ({ message, onDeleted }: CallItemProps) => {
+  const call = message.call!;
+  const user = useUserStore((state: UserStore) => state.data);
   const room = extractRoomByCurrentUser(call.room, user!);
-  const isCaller = call.caller.id === user?.id;
-  const status = genStatusOfUserByCall(call, user!);
+  const isCaller = call!.caller._id === user?._id;
+  const status = genStatusOfUserByCall(call!, user!);
   const isNegative = status === 'rejected' || status === 'missed';
 
   const { openWindowCall } = useWindowCall();
 
+  const { mutate, isLoading } = useCreateCall({
+    onSuccess(data, variables) {
+      openWindowCall(variables, data.data._id);
+    },
+  });
+
   return (
     <Link
-      href={generateRoomLink(room.id)}
+      href={generateRoomLink(room._id)}
       className="group/item flex items-center rounded-lg p-2 hover:bg-slate-200"
     >
-      <Avatar src={room.img} size="medium" />
+      <Avatar src={room.avatar} size="medium" />
       <div className="ml-4 flex-1 overflow-hidden">
         <h3 className="line-clamp-1 font-bold">{room.name}</h3>
         <div className="flex items-center gap-1 text-base">
@@ -42,7 +51,7 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
           />{' '}
           <span className="capitalize">{status}</span>&#x2022;
           <span>
-            {call.createdAt?.toLocaleString('en-US', {
+            {new Date(call.createdAt).toLocaleString('en-US', {
               timeStyle: 'short',
             })}
           </span>
@@ -80,10 +89,11 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
         </Popconfirm>
 
         <Button
+          loading={isLoading}
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            openWindowCall(room.id, '2');
+            mutate(room._id);
           }}
           shape="circle"
           type="text"
@@ -98,13 +108,13 @@ export const CallItem = ({ call, onDeleted }: CallItemProps) => {
 type UserCallStatus = 'accepted' | 'rejected' | 'missed' | 'pending';
 
 function genStatusOfUserByCall(call: Call, user: User): UserCallStatus {
-  if (call.acceptedUsers.some((u) => u.id === user.id)) {
+  if (call.acceptedUsers.some((u) => u._id === user._id)) {
     return 'accepted';
   }
-  if (call.rejectedUsers.some((u) => u.id === user.id)) {
+  if (call.rejectedUsers.some((u) => u._id === user._id)) {
     return 'rejected';
   }
-  if (call.status === 'ended') {
+  if (call.status === CallStatus.ENDED) {
     return 'missed';
   }
   return 'pending';

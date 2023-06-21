@@ -2,43 +2,69 @@
 
 import { Badge, Button, Popconfirm, Table, Tag } from 'antd';
 import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { Role, User, UserStatus } from '@/types/user';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Avatar } from '../common/avatar';
-import { User } from '@/types/user';
-import { useQuery } from '@tanstack/react-query';
+import { ListResponse } from '@/types/api';
+import { adminApi } from '@/services/admin-services';
+import { queryKeys } from '@/constants';
 import { useState } from 'react';
-import { userApi } from '@/services/user-services';
-import { users } from '@/stores/data-test';
+import { useToggleLockUser } from '@/hooks/user/use-toggle-lock-user';
 
 export interface UserTableProps {}
 
 export const UserTable = (props: UserTableProps) => {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['users', page],
+    queryKey: [queryKeys.ADMIN_USERS, page],
     queryFn: () =>
-      userApi.getAll({
+      adminApi.getUsers({
         page: page,
         limit: 10,
       }),
     keepPreviousData: true,
   });
 
+  const {} = useToggleLockUser();
+
+  const pageInfo = data?.pageInfo;
+  const users = data?.data || [];
+
+  const { toggleLock } = useToggleLockUser({
+    onSuccess(data) {
+      queryClient.setQueryData<ListResponse<User>>([queryKeys.ADMIN_USERS, page], (oldData) => {
+        const newData = oldData!.data.map((user) => {
+          if (user._id === data.data._id) {
+            return data.data;
+          }
+          return user;
+        });
+        console.log(newData);
+        return {
+          ...oldData!,
+          data: newData,
+        };
+      });
+    },
+  });
+
   return (
     <>
       <Table
-        rowKey={(record) => record.id as string}
+        rowKey={(record) => record._id as string}
         loading={isLoading}
         pagination={{
-          pageSize: data?.per_page,
+          pageSize: pageInfo?.limit,
           position: ['bottomRight'],
-          total: data?.total,
+          total: pageInfo?.total,
           current: page,
           onChange: (page) => setPage(page),
         }}
         dataSource={users}
       >
-        <Table.Column title="Id" dataIndex="id" key="id" />
+        <Table.Column title="Id" dataIndex="_id" key="_id" />
         <Table.Column
           title="Name"
           dataIndex="username"
@@ -59,7 +85,7 @@ export const UserTable = (props: UserTableProps) => {
           key="role"
           align="center"
           render={(_, { role }: User) => {
-            return <Tag color={role === 'admin' ? 'yellow' : 'blue'}>{role}</Tag>;
+            return <Tag color={role === Role.ADMIN ? 'yellow' : 'blue'}>{role}</Tag>;
           }}
         />
         <Table.Column
@@ -68,25 +94,30 @@ export const UserTable = (props: UserTableProps) => {
           key="status"
           align="center"
           render={(_, { status }: User) => {
-            return <Badge status={status === 'active' ? 'success' : 'error'} text={status} />;
+            return (
+              <Badge status={status === UserStatus.ACTIVE ? 'success' : 'error'} text={status} />
+            );
           }}
         />
         <Table.Column
           title="Action"
           key="action"
           align="center"
-          render={(_, { status }: User) => {
+          render={(_, { status, _id }: User) => {
             return (
               <Popconfirm
-                title={`Are you sure to ${status === 'active' ? 'lock' : 'unlock'} this user?`}
+                title={`Are you sure to ${
+                  status === UserStatus.ACTIVE ? 'lock' : 'unlock'
+                } this user?`}
                 okText="Yes"
                 cancelText="No"
+                onConfirm={() => toggleLock(_id, status === UserStatus.BANNED)}
               >
                 <Button
                   type="text"
                   shape="circle"
                   danger
-                  icon={status === 'active' ? <LockOutlined /> : <UnlockOutlined />}
+                  icon={status === UserStatus.ACTIVE ? <LockOutlined /> : <UnlockOutlined />}
                 />
               </Popconfirm>
             );

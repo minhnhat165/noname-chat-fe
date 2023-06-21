@@ -6,6 +6,7 @@ import { Search, SidebarSearch } from './sidebar-search';
 import { createContext, useContext, useState } from 'react';
 import { rooms, users } from '@/stores/data-test';
 
+import { RoomFolder } from '../room/room-folder';
 import { RoomList } from '../room';
 import { SidebarMenu } from './sidebar-menu';
 
@@ -51,10 +52,10 @@ export const Sidebar = () => {
         setSearchValue,
       }}
     >
-      <div className="h-full w-[372px] border-r bg-white">
+      <div className="flex h-full w-[372px] flex-col border-r bg-white">
         <Header />
-        <div className="p-2">
-          {!isSearch && <RoomList rooms={rooms} />}
+        <div className=" flex-1 overflow-y-scroll p-2">
+          {!isSearch && <RoomFolder />}
           {isSearch && <SidebarSearch searchResult={searchResult} />}
         </div>
       </div>

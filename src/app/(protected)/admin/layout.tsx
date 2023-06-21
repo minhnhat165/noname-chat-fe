@@ -1,3 +1,4 @@
+import { Role } from '@/types/user';
 import { SidebarMenu } from '@/components/layout/sidebar-menu';
 import { notFound } from 'next/navigation';
 import { useUserStore } from '@/stores/user';
@@ -8,7 +9,7 @@ export interface LayoutProps {
 
 export default function AdminLayout({ children }: LayoutProps) {
   const { role } = useUserStore.getState().data!;
-  if (role !== 'admin') {
+  if (role !== Role.ADMIN) {
     notFound();
   }
 

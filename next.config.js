@@ -2,6 +2,7 @@
 const nextConfig = {
   experimental: {
     appDir: true,
+    serverActions: true,
   },
   images: {
     domains: [
@@ -9,7 +10,8 @@ const nextConfig = {
       'res.cloudinary.com',
       'via.placeholder.com',
       'images.unsplash.com',
-      'reqres.in',
+      'lh3.googleusercontent.com',
+      'ui-avatars.com',
     ],
   },
 };
