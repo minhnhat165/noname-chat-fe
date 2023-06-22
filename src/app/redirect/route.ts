@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
+  console.log(url);
   const token = url.searchParams.get('token');
   if (token) {
     cookies().set(COOKIE_ACCESS_TOKEN_NAME, token);

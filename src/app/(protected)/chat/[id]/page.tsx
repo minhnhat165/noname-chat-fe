@@ -12,7 +12,10 @@ import {
 } from '@ant-design/icons';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useEffect, useRef, useState } from 'react';
-
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Message, MessageType } from '@/types/message';
+import { messageApi } from '@/services/message-services';
+import { useParams } from 'next/navigation';
 export interface PageProps {
   params: {
     id: string;
@@ -118,6 +121,29 @@ const Page = ({ params }: PageProps) => {
   ];
   const emojiStyle: EmojiStyle = EmojiStyle.NATIVE;
 
+  //api
+  const mutation = useMutation({
+    mutationFn: messageApi.createMessage,
+  });
+  const roomId = useParams()?.id as string;
+  const { data: messages } = useQuery({
+    queryKey: ['message', roomId],
+    queryFn: () => messageApi.getMessages(roomId!),
+    enabled: !!roomId,
+    onError(err) {
+      console.log(err);
+    },
+  });
+  console.log('messageaaa', messages);
+  // const { isLoading, isError, data, error } = useQuery({
+  //   queryKey: ['todos', roomId],
+  //   queryFn: messageApi.getMessages(roomId),
+  //   enabled: !!roomId,
+  //   onError(err) {
+  //     console.log(err);
+  //   },
+  // });
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 w-full items-center justify-between bg-white px-5">
@@ -147,7 +173,7 @@ const Page = ({ params }: PageProps) => {
                 <div className="mr-2 rounded-md bg-white p-1">hihihihihi</div>
                 <Button
                   type="primary"
-                  className="bg-transparent text-black shadow-none hover:!bg-transparent hover:!text-black"
+                  className="hidden bg-transparent text-black shadow-none hover:!bg-transparent hover:!text-black"
                   shape="circle"
                   size="small"
                   onClick={showModal}
@@ -205,10 +231,11 @@ const Page = ({ params }: PageProps) => {
                 if (e.key === 'Enter') {
                   const message = {
                     content: inputElement?.current?.value,
-                    // conversationId: conversationId,
+                    room: '6492bf2743ceaa45bfbfcc4f',
+                    type: MessageType.TEXT,
                   };
                   setInputChat('');
-                  // createMessageMutation.mutate(message);
+                  mutation.mutate(message);
                 }
               }}
             />

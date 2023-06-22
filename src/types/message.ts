@@ -10,12 +10,12 @@ export enum MessageType {
   CALL = 'CALL',
 }
 export type Message = {
-  content: string;
-  sender: User;
-  room?: Room;
+  content?: string;
+  sender: String;
+  room?: String;
   read: boolean;
   type: MessageType;
   call?: Call;
   images?: string;
-  createdAt: string;
+  createdAt?: string;
 } & BaseEntity;
