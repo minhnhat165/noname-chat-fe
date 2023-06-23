@@ -3,7 +3,8 @@
 import { DisplayAvatar, DisplayName } from '@/components/message/display-info';
 import MyMessage from '@/components/message/my-message';
 import { messageApi } from '@/services/message-services';
-import { MessageType } from '@/types/message';
+import { useSocketStore } from '@/stores/socket';
+import { Message, MessageType } from '@/types/message';
 import { User } from '@/types/user';
 import {
   LinkOutlined,
@@ -13,7 +14,7 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Avatar, Dropdown, MenuProps } from 'antd';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useParams } from 'next/navigation';
@@ -31,6 +32,8 @@ const Page = ({ params }: PageProps) => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const inputElement = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const socket = useSocketStore((state) => state.socket);
+  const queryClient = useQueryClient();
 
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
@@ -90,6 +93,22 @@ const Page = ({ params }: PageProps) => {
     },
   ];
   const emojiStyle: EmojiStyle = EmojiStyle.NATIVE;
+  //socket
+  useEffect(() => {
+    socket?.emit('join-room', roomId);
+  }, [socket]);
+
+  const messageReceived = (message: Message) => {
+    queryClient.setQueryData(['message', roomId], (oldData: any) => [...oldData, message]);
+  };
+
+  useEffect(() => {
+    socket?.on('message.create', messageReceived);
+    return () => {
+      socket?.off('message.create', messageReceived);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageReceived, socket]);
 
   //api
 
@@ -108,7 +127,6 @@ const Page = ({ params }: PageProps) => {
   });
   // useUserStore.getState().data!;
 
-  console.log('messageaaa', messages);
   // const { isLoading, isError, data, error } = useQuery({
   //   queryKey: ['todos', roomId],
   //   queryFn: messageApi.getMessages(roomId),
@@ -192,6 +210,7 @@ const Page = ({ params }: PageProps) => {
                   const message = {
                     content: inputElement?.current?.value,
                     type: MessageType.TEXT,
+                    room: roomId,
                   };
                   setInputChat('');
                   mutation.mutate(message);
