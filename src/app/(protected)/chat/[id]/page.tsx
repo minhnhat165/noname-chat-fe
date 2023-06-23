@@ -98,6 +98,7 @@ const Page = ({ params }: PageProps) => {
     socket?.emit('join-room', roomId);
   }, [socket]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageReceived = (message: Message) => {
     queryClient.setQueryData(['message', roomId], (oldData: any) => [...oldData, message]);
   };
@@ -109,7 +110,18 @@ const Page = ({ params }: PageProps) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageReceived, socket]);
-
+  //eslint-disable-next-line react-hooks/exhaustive-deps
+  const messageRemoved = (id: string) => {
+    queryClient.setQueryData(['message', roomId], (oldData: any) => {
+      return oldData.filter((message: Message) => message._id !== id);
+    });
+  };
+  useEffect(() => {
+    socket?.on('message.delete', messageRemoved);
+    return () => {
+      socket?.off('message.delete', messageRemoved);
+    };
+  }, [messageRemoved, socket]);
   //api
 
   const roomId = useParams()?.id as string;
