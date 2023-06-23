@@ -1,6 +1,8 @@
 'use client';
+import { messageApi } from '@/services/message-services';
 import { Message } from '@/types/message';
 import { DeleteOutlined } from '@ant-design/icons';
+import { useMutation } from '@tanstack/react-query';
 import { Button, Modal } from 'antd';
 import React, { useState } from 'react';
 
@@ -10,17 +12,23 @@ export interface MessageProps {
 
 const MyMessage = (message: MessageProps) => {
   const [open, setOpen] = useState(false);
-  const [hover, setHover] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [hover, setHover] = useState(false);
+
   const showModal = () => {
     setOpen(true);
   };
-
-  const handleOk = () => {
-    setTimeout(() => {
+  const deleteMessage = useMutation({
+    mutationFn: () => messageApi.deleteMessage(message.message._id),
+    onSuccess: () => {
       setOpen(false);
       setConfirmLoading(false);
-    }, 2000);
+    },
+  });
+
+  const handleOk = () => {
+    setConfirmLoading(true);
+    deleteMessage.mutate();
   };
 
   const handleCancel = () => {
@@ -47,14 +55,13 @@ const MyMessage = (message: MessageProps) => {
         ''
       )}
       <div className="mr-2 rounded-md bg-white p-2">{message.message.content}</div>
-
       <Modal
-        title="Confirm deletion"
+        title="Delete this message"
+        okText="Confirm"
         open={open}
         onOk={handleOk}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
-        okText="Confirm"
       >
         <p>Confirm delete this message</p>
       </Modal>

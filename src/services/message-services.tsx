@@ -12,4 +12,8 @@ export const messageApi = {
     const url = `${BASE_URL}/${roomId}`;
     return axios.get(url);
   },
+  deleteMessage: (id: String): Promise<String> => {
+    const url = `${BASE_URL}/${id}`;
+    return axios.delete(url);
+  },
 };

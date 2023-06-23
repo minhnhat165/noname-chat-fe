@@ -1,7 +1,7 @@
 'use client';
 
-import { DisplayAvatar, DisplayName } from '@/components/message/displayInfo';
-import MyMessage from '@/components/message/message';
+import { DisplayAvatar, DisplayName } from '@/components/message/display-info';
+import MyMessage from '@/components/message/my-message';
 import { messageApi } from '@/services/message-services';
 import { MessageType } from '@/types/message';
 import { User } from '@/types/user';
@@ -92,9 +92,7 @@ const Page = ({ params }: PageProps) => {
   const emojiStyle: EmojiStyle = EmojiStyle.NATIVE;
 
   //api
-  const mutation = useMutation({
-    mutationFn: messageApi.createMessage,
-  });
+
   const roomId = useParams()?.id as string;
   const { data: messages } = useQuery({
     queryKey: ['message', roomId],
@@ -105,6 +103,9 @@ const Page = ({ params }: PageProps) => {
     },
   });
   const _id = '6492b1c0867f0cdeb5fc2869';
+  const mutation = useMutation({
+    mutationFn: messageApi.createMessage,
+  });
   // useUserStore.getState().data!;
 
   console.log('messageaaa', messages);
@@ -190,7 +191,6 @@ const Page = ({ params }: PageProps) => {
                 if (e.key === 'Enter') {
                   const message = {
                     content: inputElement?.current?.value,
-                    room: '6492bf2743ceaa45bfbfcc4f',
                     type: MessageType.TEXT,
                   };
                   setInputChat('');
