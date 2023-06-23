@@ -11,7 +11,7 @@ export enum MessageType {
 }
 export type Message = {
   content?: string;
-  sender: String;
+  sender: String | User;
   room?: String;
   read: boolean;
   type: MessageType;

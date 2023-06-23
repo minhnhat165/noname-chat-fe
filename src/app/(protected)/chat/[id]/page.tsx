@@ -1,8 +1,11 @@
 'use client';
 
-import { Avatar, Button, Dropdown, MenuProps, Modal } from 'antd';
+import { DisplayAvatar, DisplayName } from '@/components/message/displayInfo';
+import MyMessage from '@/components/message/message';
+import { messageApi } from '@/services/message-services';
+import { MessageType } from '@/types/message';
+import { User } from '@/types/user';
 import {
-  DeleteOutlined,
   LinkOutlined,
   MoreOutlined,
   PhoneOutlined,
@@ -10,12 +13,11 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
-import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Message, MessageType } from '@/types/message';
-import { messageApi } from '@/services/message-services';
+import { Avatar, Dropdown, MenuProps } from 'antd';
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 export interface PageProps {
   params: {
     id: string;
@@ -29,27 +31,6 @@ const Page = ({ params }: PageProps) => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const inputElement = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const childHover = useRef<HTMLDivElement>(null);
-
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-
-  const showModal = () => {
-    setOpen(true);
-  };
-
-  const handleOk = () => {
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  const handleCancel = () => {
-    console.log('Clicked cancel button');
-    setOpen(false);
-  };
 
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
@@ -82,17 +63,6 @@ const Page = ({ params }: PageProps) => {
     inputElement?.current?.focus();
   }, [cursorPosition]);
 
-  const handleHover = () => {
-    if (childHover.current) {
-      childHover.current.classList.remove('hidden');
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (childHover.current) {
-      childHover.current.classList.add('hidden');
-    }
-  };
   const items: MenuProps['items'] = [
     {
       key: '1',
@@ -134,6 +104,9 @@ const Page = ({ params }: PageProps) => {
       console.log(err);
     },
   });
+  const _id = '6492b1c0867f0cdeb5fc2869';
+  // useUserStore.getState().data!;
+
   console.log('messageaaa', messages);
   // const { isLoading, isError, data, error } = useQuery({
   //   queryKey: ['todos', roomId],
@@ -160,43 +133,29 @@ const Page = ({ params }: PageProps) => {
         </div>
       </div>
       <div className="flex flex-grow flex-col items-center">
-        <div className="mb-1 flex w-[630px] flex-grow flex-col-reverse">
-          <div className="mr-1 flex items-end">
-            <Avatar size="small" icon={<UserOutlined />} />
-            <div className="ml-1 w-full">
-              <div>Khánh Vi</div>
-              <div
-                className="flex w-full items-center"
-                onMouseEnter={handleHover}
-                onMouseLeave={handleMouseLeave}
-              >
-                <div className="mr-2 rounded-md bg-white p-1">hihihihihi</div>
-                <Button
-                  type="primary"
-                  className="hidden bg-transparent text-black shadow-none hover:!bg-transparent hover:!text-black"
-                  shape="circle"
-                  size="small"
-                  onClick={showModal}
-                  icon={<DeleteOutlined />}
-                  ref={childHover}
-                />
-                <Modal
-                  title="Confirm deletion"
-                  open={open}
-                  onOk={handleOk}
-                  confirmLoading={confirmLoading}
-                  onCancel={handleCancel}
-                  okText="Confirm"
-                >
-                  <p>Confirm delete this message</p>
-                </Modal>
+        <div className="mb-1 flex w-[730px] flex-grow flex-col justify-end">
+          {messages?.map((message, index) => {
+            return _id == (message.sender as User)._id ? (
+              <MyMessage key={message._id} message={message} />
+            ) : (
+              <div key={message._id} className="mr-1 flex items-end">
+                <div className="my-[2px]">
+                  <DisplayName messages={messages} index={index} />
+
+                  <div className="flex">
+                    <div className="h-[34px] w-[34px]">
+                      <DisplayAvatar messages={messages} index={index} />
+                    </div>
+                    <div className="ml-2 rounded-md bg-white p-2">{message.content}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
         {/* footer */}
-        <div className="mb-5 h-14 h-fit w-[630px] rounded-lg bg-white">
-          <div className="flex h-full w-full items-center">
+        <div className="mb-5 mt-2 h-fit w-[730px] rounded-lg bg-white">
+          <div className=" flex h-14 w-full items-center">
             <div
               className="relative flex h-9 w-14 items-center justify-center"
               ref={emojiPickerRef}
