@@ -3,6 +3,7 @@ import { InitializeUserStore, useUserStore } from '@/stores/user';
 import { checkIsLogin } from '@/utils/auth';
 import { redirect } from 'next/navigation';
 import { user } from '@/stores/data-test';
+import SocketClient from '@/components/socket/socket-client';
 
 export interface AuthLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ const ProtectedLayout = async ({ children }: AuthLayoutProps) => {
   useUserStore.setState({ data: user });
   return (
     <>
+      <SocketClient />
       <InitializeUserStore user={user} />
       {children}
     </>
