@@ -37,7 +37,7 @@ export const RepairCallPanel = ({ room: _room }: RepairCallPanelProps) => {
       <Button
         loading={isLoading}
         onClick={() => {
-          mutate(room._id);
+          // mutate(room._id);
         }}
         type="primary"
         shape="round"
