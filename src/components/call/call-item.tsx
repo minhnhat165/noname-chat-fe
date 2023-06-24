@@ -4,13 +4,12 @@ import { ArrowLeftOutlined, DeleteOutlined, PhoneOutlined } from '@ant-design/ic
 import { Button, Popconfirm } from 'antd';
 import { Call, CallStatus } from '@/types/call';
 import { UserStore, useUserStore } from '@/stores/user';
+import { cn, extractRoomByCurrentUser } from '@/utils';
 
 import { Avatar } from '../common/avatar';
 import Link from 'next/link';
 import { Message } from '@/types/message';
 import { User } from '@/types/user';
-import { cn } from '@/utils';
-import { extractRoomByCurrentUser } from '../room';
 import { generateRoomLink } from '@/utils/link';
 import { useCreateCall } from '@/hooks/call/use-create-call';
 import { useWindowCall } from '@/hooks/call';
