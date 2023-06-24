@@ -168,7 +168,7 @@ const Page = ({ params }: PageProps) => {
     const allMessage: Message[] = [];
     console.log(hasNextPage);
     data?.pages.forEach((page) => {
-      return page.data.forEach((message) => allMessage.push(message));
+      return page.data.forEach((message: Message) => allMessage.push(message));
     });
     return allMessage;
   }, [data]);
@@ -196,7 +196,7 @@ const Page = ({ params }: PageProps) => {
           <InfiniteScroll
             dataLength={messages.length || 0}
             next={fetchNextPage}
-            hasMore={hasNextPage}
+            hasMore={hasNextPage || false}
             className="!overflow-y-hidden"
             style={{ display: 'flex', flexDirection: 'column-reverse' }}
             loader={<Spin size="small" />}

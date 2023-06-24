@@ -8,7 +8,11 @@ export const messageApi = {
     const url = `${BASE_URL}`;
     return axios.post(url, data);
   },
-  getMessages: (roomId: String, page: number, limit: number): Promise<Message[]> => {
+  getMessages: (
+    roomId: String,
+    page: number,
+    limit: number,
+  ): Promise<{ data: Message[]; nextCursor: number }> => {
     const url = `${BASE_URL}/${roomId}?page=${page}&limit=${limit}`;
     return axios.get(url);
   },
