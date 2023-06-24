@@ -2,23 +2,33 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { COOKIE_ACCESS_TOKEN_NAME } from '@/constants';
+import Cookies from 'cookies';
 import httpProxy from 'http-proxy';
 
 export const config = {
-    api: {
-        bodyParser: false,
-    },
+  api: {
+    bodyParser: false,
+  },
 };
 
 const proxy = httpProxy.createProxyServer();
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-    return new Promise(() => {
-        req.headers.cookie = '';
-        proxy.web(req, res, {
-            target: process.env.SERVER_API_URL,
-            changeOrigin: true,
-            selfHandleResponse: false,
-        });
+  return new Promise(() => {
+    const cookies = new Cookies(req, res);
+    const accessToken = cookies.get(COOKIE_ACCESS_TOKEN_NAME);
+    console.log(accessToken);
+    if (accessToken) {
+      req.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    req.headers.cookie = '';
+
+    proxy.web(req, res, {
+      target: process.env.SERVER_API_URL,
+      changeOrigin: true,
+      selfHandleResponse: false,
     });
+  });
 }

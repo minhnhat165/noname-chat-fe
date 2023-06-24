@@ -57,7 +57,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
     const DisplayContent = useMemo(() => {
       if (!src) {
         return (
-          <div className="flex h-full w-full items-center justify-center">
+          <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-sky-600 text-white">
             <span className={cn('font-bold', sizeAlphabet[size])}>{generateInitials(alt)}</span>
           </div>
         );

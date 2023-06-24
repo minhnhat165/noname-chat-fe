@@ -1,13 +1,14 @@
 'use client';
 
+import { UserStore, useUserStore } from '@/stores/user';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { Avatar } from '../common/avatar';
 import { Button } from 'antd';
 import { Room } from '@/types/room';
-import { extractRoomByCurrentUser } from '../room';
+import { extractRoomByCurrentUser } from '@/utils';
+import { useCreateCall } from '@/hooks/call/use-create-call';
 import { useMemo } from 'react';
-import { useUserStore } from '@/stores/user';
 
 export interface RepairCallPanelProps {
   room: Room;
@@ -16,21 +17,27 @@ export interface RepairCallPanelProps {
 export const RepairCallPanel = ({ room: _room }: RepairCallPanelProps) => {
   const router = useRouter();
   const pathname = usePathname();
-  const user = useUserStore((state) => state.data);
+  const user = useUserStore((state: UserStore) => state.data);
   const room = useMemo(() => {
     return extractRoomByCurrentUser(_room, user!);
   }, [_room, user]);
-
+  const { mutate, isLoading } = useCreateCall({
+    onSuccess(data, variables, context) {
+      console.log(data);
+      router.push(`${pathname}?call_id=${data.data._id}`);
+    },
+  });
   return (
     <div className="flex flex-col items-center">
-      <Avatar src={room.img} size="xLarge" />
+      <Avatar src={room.avatar} size="xLarge" />
       <div className="my-3 text-center">
         <h2 className="text-lg font-bold">{room.name}</h2>
         <p>Ready to call</p>
       </div>
       <Button
+        loading={isLoading}
         onClick={() => {
-          router.push(`${pathname}?call_id=${2}`);
+          // mutate(room._id);
         }}
         type="primary"
         shape="round"

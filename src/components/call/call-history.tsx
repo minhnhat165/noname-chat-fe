@@ -1,53 +1,29 @@
-import { rooms, user } from '@/stores/data-test';
-
 import { Call } from '@/types/call';
 import { CallItem } from './call-item';
+import { Spin } from 'antd';
+import { callApi } from '@/services/call-services';
+import { useQuery } from '@tanstack/react-query';
 
 export interface CallHistoryProps {
   onItemClicked?: (call: Call) => void;
 }
 
-const calls: Call[] = [
-  {
-    id: 1,
-    caller: user,
-    room: rooms[0],
-    status: 'ended',
-    acceptedUsers: [user],
-    rejectedUsers: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 2,
-    caller: rooms[1].participants[1],
-    room: rooms[1],
-    acceptedUsers: [],
-    rejectedUsers: [],
-    status: 'ended',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 6,
-    caller: rooms[2].participants[2],
-    room: rooms[2],
-    acceptedUsers: [],
-    rejectedUsers: [rooms[0].participants[0]],
-    status: 'ended',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
 export const CallHistory = ({ onItemClicked }: CallHistoryProps) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['callHistory'],
+    queryFn: callApi.getHistory,
+  });
+  const messages = data?.data || [];
   return (
-    <div className="overflow-y-overlay -mx-2 mt-4 max-h-96">
+    <div className="overflow-y-overlay relative -mx-2 mt-4 max-h-96 min-h-[480px]">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+        <Spin spinning={isLoading} size="large" />
+      </div>
       <ul className="flex flex-col gap-1">
-        {calls.map((call) => {
+        {messages.map((message) => {
           return (
-            <li key={call.id} onClick={() => onItemClicked?.(call)}>
-              <CallItem call={call} />
+            <li key={message._id} onClick={() => onItemClicked?.(message.call!)}>
+              <CallItem message={message} />
             </li>
           );
         })}

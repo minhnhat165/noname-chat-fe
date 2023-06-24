@@ -16,7 +16,7 @@ export interface EditProfilePanelProps {
 }
 
 export type EditProfilePanelRef = {
-  submit: () => Promise<User>;
+  submit: () => Promise<Partial<User>>;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const EditProfilePanel = forwardRef<EditProfilePanelRef, EditProfilePanelProps>(
@@ -39,7 +39,7 @@ export const EditProfilePanel = forwardRef<EditProfilePanelRef, EditProfilePanel
       const imgWindow = window.open(src);
       imgWindow?.document.write(image.outerHTML);
     };
-    const submit = async () => {
+    const submit = async (): Promise<Partial<User>> => {
       const values = await form.validateFields();
       const { username, bio } = values;
       const updateData: Partial<User> = { username, bio };
@@ -47,7 +47,7 @@ export const EditProfilePanel = forwardRef<EditProfilePanelRef, EditProfilePanel
         const { secure_url } = await uploadImage(croppedFile);
         updateData.avatar = secure_url;
       }
-      return updateData as User;
+      return updateData;
     };
     useImperativeHandle(ref, () => ({
       submit,
@@ -83,7 +83,7 @@ export const EditProfilePanel = forwardRef<EditProfilePanelRef, EditProfilePanel
           >
             <Input prefix={<UserOutlined />} size="large" placeholder="Name" />
           </Form.Item>
-          <Form.Item name="bio">
+          <Form.Item initialValue={user?.bio || ''} name="bio">
             <Input.TextArea
               size="large"
               placeholder="Bio"
