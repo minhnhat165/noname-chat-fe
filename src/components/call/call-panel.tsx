@@ -10,7 +10,7 @@ import { CLOSE_CALL_MESSAGE } from '@/constants';
 import { Call } from '@/types/call';
 import { Room } from '@/types/room';
 import { callApi } from '@/services/call-services';
-import { extractRoomByCurrentUser } from '../room';
+import { extractRoomByCurrentUser } from '@/utils';
 import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/stores/user';
 
