@@ -15,7 +15,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Avatar, Dropdown, MenuProps } from 'antd';
+import { Avatar, Dropdown, MenuProps, Spin } from 'antd';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -160,7 +160,7 @@ const Page = ({ params }: PageProps) => {
     ...result
   } = useInfiniteQuery({
     queryKey: ['messages', roomId],
-    queryFn: ({ pageParam = 1 }) => messageApi.getMessages(roomId, pageParam, 10),
+    queryFn: ({ pageParam = 1 }) => messageApi.getMessages(roomId, pageParam, 20),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     // getPreviousPageParam: (firstPage, allPages) => firstPage.prevCursor,
   });
@@ -188,9 +188,7 @@ const Page = ({ params }: PageProps) => {
         </div>
       </div>
 
-      <div className="flex flex-grow flex-col items-center">
-        {/* <div className="mb-1 flex w-[730px] flex-grow flex-col justify-end"> */}
-        {/* //-reverse */}
+      <div className="flex flex-grow flex-col items-center overflow-hidden">
         <div
           className="mb-1 flex w-[730px] flex-grow flex-col-reverse overflow-y-auto"
           id="scrollableDiv"
@@ -199,8 +197,9 @@ const Page = ({ params }: PageProps) => {
             dataLength={messages.length || 0}
             next={fetchNextPage}
             hasMore={hasNextPage}
+            className="!overflow-y-hidden"
             style={{ display: 'flex', flexDirection: 'column-reverse' }}
-            loader={<h4>Loading...</h4>}
+            loader={<Spin size="small" />}
             inverse={true}
             scrollableTarget="scrollableDiv"
           >
@@ -225,7 +224,7 @@ const Page = ({ params }: PageProps) => {
           </InfiniteScroll>
         </div>
         {/* footer */}
-        <div className="mb-5 mt-2 h-fit w-[730px] rounded-lg bg-white">
+        <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
           <div className=" flex h-14 w-full items-center">
             <div
               className="relative flex h-9 w-14 items-center justify-center"
