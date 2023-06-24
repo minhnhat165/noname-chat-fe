@@ -14,11 +14,12 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Avatar, Dropdown, MenuProps } from 'antd';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 export interface PageProps {
   params: {
     id: string;
@@ -125,14 +126,14 @@ const Page = ({ params }: PageProps) => {
   //api
 
   const roomId = useParams()?.id as string;
-  const { data: messages } = useQuery({
-    queryKey: ['message', roomId],
-    queryFn: () => messageApi.getMessages(roomId!),
-    enabled: !!roomId,
-    onError(err) {
-      console.log(err);
-    },
-  });
+  // const { data: messages } = useQuery({
+  //   queryKey: ['message', roomId],
+  //   queryFn: () => messageApi.getMessages(roomId!),
+  //   enabled: !!roomId,
+  //   onError(err) {
+  //     console.log(err);
+  //   },
+  // });
   const _id = '6492b1c0867f0cdeb5fc2869';
   const mutation = useMutation({
     mutationFn: messageApi.createMessage,
@@ -147,10 +148,33 @@ const Page = ({ params }: PageProps) => {
   //     console.log(err);
   //   },
   // });
-
+  //pagination
+  const {
+    data,
+    fetchNextPage,
+    fetchPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    ...result
+  } = useInfiniteQuery({
+    queryKey: ['messages', roomId],
+    queryFn: ({ pageParam = 1 }) => messageApi.getMessages(roomId, pageParam, 10),
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    // getPreviousPageParam: (firstPage, allPages) => firstPage.prevCursor,
+  });
+  const messages = useMemo(() => {
+    const allMessage: Message[] = [];
+    console.log(hasNextPage);
+    data?.pages.forEach((page) => {
+      return page.data.forEach((message) => allMessage.push(message));
+    });
+    return allMessage;
+  }, [data]);
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 w-full items-center justify-between bg-white px-5">
+      <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
         <div className="flex items-center">
           <Avatar size="large" icon={<UserOutlined />} />
           <span className="ml-2 font-bold text-gray-800">Khánh Vi</span>
@@ -163,26 +187,42 @@ const Page = ({ params }: PageProps) => {
           </Dropdown>
         </div>
       </div>
-      <div className="flex flex-grow flex-col items-center">
-        <div className="mb-1 flex w-[730px] flex-grow flex-col justify-end">
-          {messages?.map((message, index) => {
-            return _id == (message.sender as User)._id ? (
-              <MyMessage key={message._id} message={message} />
-            ) : (
-              <div key={message._id} className="mr-1 flex items-end">
-                <div className="my-[2px]">
-                  <DisplayName messages={messages} index={index} />
 
-                  <div className="flex">
-                    <div className="h-[34px] w-[34px]">
-                      <DisplayAvatar messages={messages} index={index} />
+      <div className="flex flex-grow flex-col items-center">
+        {/* <div className="mb-1 flex w-[730px] flex-grow flex-col justify-end"> */}
+        {/* //-reverse */}
+        <div
+          className="mb-1 flex w-[730px] flex-grow flex-col-reverse overflow-y-auto"
+          id="scrollableDiv"
+        >
+          <InfiniteScroll
+            dataLength={messages.length || 0}
+            next={fetchNextPage}
+            hasMore={hasNextPage}
+            style={{ display: 'flex', flexDirection: 'column-reverse' }}
+            loader={<h4>Loading...</h4>}
+            inverse={true}
+            scrollableTarget="scrollableDiv"
+          >
+            {messages?.map((message, index) => {
+              return _id == (message.sender as User)._id ? (
+                <MyMessage key={message._id} message={message} />
+              ) : (
+                <div key={message._id} className="mr-1 flex items-end">
+                  <div className="my-[2px]">
+                    <DisplayName messages={messages} index={index} />
+
+                    <div className="flex">
+                      <div className="h-[34px] w-[34px]">
+                        <DisplayAvatar messages={messages} index={index} />
+                      </div>
+                      <div className="ml-2 rounded-md bg-white p-2">{message.content}</div>
                     </div>
-                    <div className="ml-2 rounded-md bg-white p-2">{message.content}</div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </InfiniteScroll>
         </div>
         {/* footer */}
         <div className="mb-5 mt-2 h-fit w-[730px] rounded-lg bg-white">
