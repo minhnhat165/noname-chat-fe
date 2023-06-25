@@ -7,7 +7,6 @@ import { createContext, useContext, useState } from 'react';
 import { rooms, users } from '@/stores/data-test';
 
 import { RoomFolder } from '../room/room-folder';
-import { RoomList } from '../room';
 import { SidebarMenu } from './sidebar-menu';
 
 interface SidebarContextProps {
@@ -55,8 +54,10 @@ export const Sidebar = () => {
       <div className="flex h-full w-[372px] flex-col border-r bg-white">
         <Header />
         <div className=" flex-1 overflow-y-scroll p-2">
-          {!isSearch && <RoomFolder />}
           {isSearch && <SidebarSearch searchResult={searchResult} />}
+          <div className={isSearch ? 'hidden' : 'block'}>
+            <RoomFolder />
+          </div>
         </div>
       </div>
     </SidebarContext.Provider>
