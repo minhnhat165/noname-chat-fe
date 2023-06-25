@@ -1,17 +1,15 @@
-'use client';
-
 import { AudioOutlined, PhoneOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { Button, ButtonProps } from 'antd';
-import { useMemo, useState } from 'react';
+import { SyntheticEvent, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { Avatar } from '../common/avatar';
 import { CLOSE_CALL_MESSAGE } from '@/constants';
 import { Call } from '@/types/call';
-import { Room } from '@/types/room';
 import { callApi } from '@/services/call-services';
 import { extractRoomByCurrentUser } from '@/utils';
 import { useMutation } from '@tanstack/react-query';
+import { usePeerJs } from '@/hooks/call/use-peerjs';
 import { useUserStore } from '@/stores/user';
 
 export interface CallPanelProps {
@@ -24,6 +22,8 @@ export const CallPanel = ({ call }: CallPanelProps) => {
   const room = useMemo(() => {
     return extractRoomByCurrentUser(call.room, user!);
   }, [call.room, user]);
+
+  const { connectPeer, localVideoRef, remoteVideoRefs, toggleVideo, toggleAudio } = usePeerJs();
 
   const router = useRouter();
 
@@ -57,6 +57,8 @@ export const CallPanel = ({ call }: CallPanelProps) => {
     },
   });
 
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+
   const closeCall = () => {
     if (window.opener) {
       window.opener.postMessage({ type: CLOSE_CALL_MESSAGE }, '*');
@@ -70,6 +72,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
   const handleAcceptCall = () => {
     acceptMutation.mutate(call._id);
     setIsAccepted(true);
+    connectPeer(call._id, remoteVideoRef.current!);
   };
 
   const handleRejectCall = () => {
@@ -78,21 +81,34 @@ export const CallPanel = ({ call }: CallPanelProps) => {
 
   const handleToggleVideo: ButtonProps['onClick'] = () => {
     setIsUseVideo((prev) => !prev);
+    toggleVideo();
   };
 
   const handleToggleAudio: ButtonProps['onClick'] = () => {
     setIsUseAudio((prev) => !prev);
+    toggleAudio();
   };
 
   const handleClickPhone: ButtonProps['onClick'] = () => {
     handleAcceptCall();
   };
+
   const handleClickOffPhone: ButtonProps['onClick'] = () => {
-    isAccepted ? handleEndCall() : handleRejectCall();
+    connectPeer(call._id, remoteVideoRef.current!);
+    // isAccepted ? handleEndCall() : handleRejectCall();
   };
 
   return (
     <div className="flex h-full flex-col items-center justify-items-center py-10">
+      <video
+        ref={remoteVideoRef}
+        className="absolute left-0 top-0 h-screen w-screen bg-black"
+      ></video>
+      <video
+        ref={localVideoRef}
+        className="absolute bottom-10 right-10 max-w-xs rounded-lg bg-blue-300"
+      ></video>
+
       <div className="flex flex-1 flex-col items-center justify-center">
         <Avatar src={room.avatar} size="xLarge" />
         <div className="mb-10 mt-3 text-center">
@@ -146,6 +162,22 @@ export const CallPanel = ({ call }: CallPanelProps) => {
           onClick={handleClickOffPhone}
           icon={<PhoneOutlined rotate={225} />}
         />
+      </div>
+      <div className="relative bg-white">
+        <form
+          onSubmit={(e: SyntheticEvent) => {
+            e.preventDefault();
+            const target = e.target as typeof e.target & {
+              id: { value: string };
+            };
+            if (target.id.value) {
+              connectPeer(target.id.value, remoteVideoRef.current!);
+            }
+          }}
+        >
+          <input name="id" />
+          <button type="submit">Submit</button>
+        </form>
       </div>
     </div>
   );

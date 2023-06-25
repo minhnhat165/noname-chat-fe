@@ -1,8 +1,5 @@
-import * as cookie from 'cookie';
-import * as setCookie from 'set-cookie-parser';
-
 import axios from 'axios';
-import createAuthRefreshInterceptor from 'axios-auth-refresh';
+import { redirect } from 'next/navigation';
 
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_CLIENT_API_URL,
@@ -28,6 +25,9 @@ instance.interceptors.response.use(
     return response.data;
   },
   function (error) {
+    if (error.response.status === 401) {
+      // redirect('/login');
+    }
     return Promise.reject(error);
   },
 );

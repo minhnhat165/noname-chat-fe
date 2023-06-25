@@ -30,6 +30,7 @@
     "eslint": "8.39.0",
     "eslint-config-next": "^13.4.5",
     "http-proxy": "^1.18.1",
+    "jwt-decode": "^3.1.2",
     "next": "^13.4.5",
     "peerjs": "^1.4.7",
     "postcss": "8.4.23",
