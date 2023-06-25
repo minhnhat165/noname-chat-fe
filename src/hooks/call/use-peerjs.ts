@@ -1,3 +1,5 @@
+'use-client';
+
 import Peer, { MediaConnection } from 'peerjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
