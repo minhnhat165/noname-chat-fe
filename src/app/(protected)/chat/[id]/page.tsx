@@ -101,7 +101,12 @@ const Page = ({ params }: PageProps) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageReceived = (message: Message) => {
-    queryClient.setQueryData(['message', roomId], (oldData: any) => [...oldData, message]);
+    queryClient.setQueryData(['messages', roomId], (oldData: any) => {
+      console.log('cu', oldData);
+      console.log(oldData.pages[0].data);
+      return { ...oldData, pages: [message, ...oldData.pages[0].data] };
+      //  [...oldData, message])
+    });
   };
 
   useEffect(() => {
@@ -165,8 +170,10 @@ const Page = ({ params }: PageProps) => {
     // getPreviousPageParam: (firstPage, allPages) => firstPage.prevCursor,
   });
   const messages = useMemo(() => {
+    console.log('memo');
     const allMessage: Message[] = [];
     console.log(hasNextPage);
+    console.log('data', data);
     data?.pages.forEach((page) => {
       return page.data.forEach((message: Message) => allMessage.push(message));
     });
