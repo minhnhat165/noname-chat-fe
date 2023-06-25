@@ -1,10 +1,10 @@
 'use client';
 import { messageApi } from '@/services/message-services';
 import { Message } from '@/types/message';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteFilled } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Modal } from 'antd';
-import React, { useState } from 'react';
+import { Button, Modal, Tooltip } from 'antd';
+import { useState } from 'react';
 
 export interface MessageProps {
   message: Message;
@@ -38,23 +38,29 @@ const MyMessage = (message: MessageProps) => {
   return (
     <div
       key={message.message._id}
-      className="my-[2px] flex w-full items-center justify-end"
+      className="my-[2px] flex w-full  items-center justify-end"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
       {hover ? (
-        <Button
-          type="primary"
-          className=" bg-transparent text-black shadow-none hover:!bg-transparent hover:!text-black"
-          shape="circle"
-          size="small"
-          onClick={showModal}
-          icon={<DeleteOutlined />}
-        />
+        <Tooltip title="Delete">
+          <Button
+            type="primary"
+            className=" !bg-slate-300 text-[#a3a4a6] shadow-none hover:!bg-slate-400 hover:!text-black"
+            shape="circle"
+            size="small"
+            onClick={showModal}
+            icon={<DeleteFilled />}
+          />
+        </Tooltip>
       ) : (
         ''
       )}
-      <div className="mr-2 rounded-md bg-white p-2">{message.message.content}</div>
+
+      <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
+        {message.message.content}
+      </div>
+
       <Modal
         title="Delete this message"
         okText="Confirm"

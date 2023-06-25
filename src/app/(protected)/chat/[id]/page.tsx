@@ -3,7 +3,9 @@
 import { DisplayAvatar, DisplayName } from '@/components/message/display-info';
 import MyMessage from '@/components/message/my-message';
 import { messageApi } from '@/services/message-services';
-import { MessageType } from '@/types/message';
+import { useMessagesStore } from '@/stores/messages/messages-store';
+import { useSocketStore } from '@/stores/socket';
+import { Message, MessageType } from '@/types/message';
 import { User } from '@/types/user';
 import {
   LinkOutlined,
@@ -13,11 +15,12 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Avatar, Dropdown, MenuProps } from 'antd';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import { Avatar, Dropdown, MenuProps, Spin } from 'antd';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 export interface PageProps {
   params: {
     id: string;
@@ -31,6 +34,10 @@ const Page = ({ params }: PageProps) => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const inputElement = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const socket = useSocketStore((state) => state.socket);
+
+  const messages = useMessagesStore((state) => state.messages);
+  const { setMessages, removeMessage, addMessage } = useMessagesStore();
 
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
@@ -90,25 +97,50 @@ const Page = ({ params }: PageProps) => {
     },
   ];
   const emojiStyle: EmojiStyle = EmojiStyle.NATIVE;
+  //socket
+  useEffect(() => {
+    socket?.emit('join-room', roomId);
+  }, [socket]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const messageReceived = (message: Message) => {
+    addMessage(message);
+  };
+
+  useEffect(() => {
+    socket?.on('message.create', messageReceived);
+    return () => {
+      socket?.off('message.create', messageReceived);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageReceived, socket]);
+  //eslint-disable-next-line react-hooks/exhaustive-deps
+  const messageRemoved = (id: string) => {
+    removeMessage(id);
+  };
+  useEffect(() => {
+    socket?.on('message.delete', messageRemoved);
+    return () => {
+      socket?.off('message.delete', messageRemoved);
+    };
+  }, [messageRemoved, socket]);
   //api
 
   const roomId = useParams()?.id as string;
-  const { data: messages } = useQuery({
-    queryKey: ['message', roomId],
-    queryFn: () => messageApi.getMessages(roomId!),
-    enabled: !!roomId,
-    onError(err) {
-      console.log(err);
-    },
-  });
+  // const { data: messages } = useQuery({
+  //   queryKey: ['message', roomId],
+  //   queryFn: () => messageApi.getMessages(roomId!),
+  //   enabled: !!roomId,
+  //   onError(err) {
+  //     console.log(err);
+  //   },
+  // });
   const _id = '6492b1c0867f0cdeb5fc2869';
   const mutation = useMutation({
     mutationFn: messageApi.createMessage,
   });
   // useUserStore.getState().data!;
 
-  console.log('messageaaa', messages);
   // const { isLoading, isError, data, error } = useQuery({
   //   queryKey: ['todos', roomId],
   //   queryFn: messageApi.getMessages(roomId),
@@ -117,10 +149,35 @@ const Page = ({ params }: PageProps) => {
   //     console.log(err);
   //   },
   // });
+  //pagination
+  const {
+    data,
+    fetchNextPage,
+    fetchPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    ...result
+  } = useInfiniteQuery({
+    queryKey: ['messages', roomId],
+    queryFn: ({ pageParam = 1 }) => messageApi.getMessages(roomId, pageParam, 20),
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    // getPreviousPageParam: (firstPage, allPages) => firstPage.prevCursor,
+  });
 
+  // useMessagesStore((state)=> state.setMessages(allMessage));
+
+  useEffect(() => {
+    const allMessage: Message[] = [];
+    data?.pages.forEach((page) => {
+      return page.data.forEach((message: Message) => allMessage.push(message));
+    });
+    setMessages(allMessage);
+  }, [data]);
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 w-full items-center justify-between bg-white px-5">
+      <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
         <div className="flex items-center">
           <Avatar size="large" icon={<UserOutlined />} />
           <span className="ml-2 font-bold text-gray-800">Khánh Vi</span>
@@ -133,29 +190,44 @@ const Page = ({ params }: PageProps) => {
           </Dropdown>
         </div>
       </div>
-      <div className="flex flex-grow flex-col items-center">
-        <div className="mb-1 flex w-[730px] flex-grow flex-col justify-end">
-          {messages?.map((message, index) => {
-            return _id == (message.sender as User)._id ? (
-              <MyMessage key={message._id} message={message} />
-            ) : (
-              <div key={message._id} className="mr-1 flex items-end">
-                <div className="my-[2px]">
-                  <DisplayName messages={messages} index={index} />
 
-                  <div className="flex">
-                    <div className="h-[34px] w-[34px]">
-                      <DisplayAvatar messages={messages} index={index} />
+      <div className="flex flex-grow flex-col items-center overflow-hidden">
+        <div
+          className="mb-1 flex w-[730px] flex-grow flex-col-reverse overflow-y-auto"
+          id="scrollableDiv"
+        >
+          <InfiniteScroll
+            dataLength={messages.length || 0}
+            next={fetchNextPage}
+            hasMore={hasNextPage || false}
+            className="!overflow-y-hidden"
+            style={{ display: 'flex', flexDirection: 'column-reverse' }}
+            loader={<Spin size="small" />}
+            inverse={true}
+            scrollableTarget="scrollableDiv"
+          >
+            {messages?.map((message, index) => {
+              return _id == (message.sender as User)._id ? (
+                <MyMessage key={message._id} message={message} />
+              ) : (
+                <div key={message._id} className="mr-1 flex items-end">
+                  <div className="my-[2px]">
+                    <DisplayName messages={messages} index={index} />
+
+                    <div className="flex">
+                      <div className="h-[34px] w-[34px]">
+                        <DisplayAvatar messages={messages} index={index} />
+                      </div>
+                      <div className="ml-2 rounded-md bg-white p-2">{message.content}</div>
                     </div>
-                    <div className="ml-2 rounded-md bg-white p-2">{message.content}</div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </InfiniteScroll>
         </div>
         {/* footer */}
-        <div className="mb-5 mt-2 h-fit w-[730px] rounded-lg bg-white">
+        <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
           <div className=" flex h-14 w-full items-center">
             <div
               className="relative flex h-9 w-14 items-center justify-center"
@@ -192,6 +264,7 @@ const Page = ({ params }: PageProps) => {
                   const message = {
                     content: inputElement?.current?.value,
                     type: MessageType.TEXT,
+                    room: roomId,
                   };
                   setInputChat('');
                   mutation.mutate(message);
