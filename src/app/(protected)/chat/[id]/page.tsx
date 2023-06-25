@@ -3,6 +3,7 @@
 import { DisplayAvatar, DisplayName } from '@/components/message/display-info';
 import MyMessage from '@/components/message/my-message';
 import { messageApi } from '@/services/message-services';
+import { useMessagesStore } from '@/stores/messages/messages-store';
 import { useSocketStore } from '@/stores/socket';
 import { Message, MessageType } from '@/types/message';
 import { User } from '@/types/user';
@@ -14,11 +15,11 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { Avatar, Dropdown, MenuProps, Spin } from 'antd';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 export interface PageProps {
   params: {
@@ -34,7 +35,9 @@ const Page = ({ params }: PageProps) => {
   const inputElement = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const socket = useSocketStore((state) => state.socket);
-  const queryClient = useQueryClient();
+
+  const messages = useMessagesStore((state) => state.messages);
+  const { setMessages, removeMessage, addMessage } = useMessagesStore();
 
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
@@ -101,12 +104,7 @@ const Page = ({ params }: PageProps) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageReceived = (message: Message) => {
-    queryClient.setQueryData(['messages', roomId], (oldData: any) => {
-      console.log('cu', oldData);
-      console.log(oldData.pages[0].data);
-      return { ...oldData, pages: [message, ...oldData.pages[0].data] };
-      //  [...oldData, message])
-    });
+    addMessage(message);
   };
 
   useEffect(() => {
@@ -118,9 +116,7 @@ const Page = ({ params }: PageProps) => {
   }, [messageReceived, socket]);
   //eslint-disable-next-line react-hooks/exhaustive-deps
   const messageRemoved = (id: string) => {
-    queryClient.setQueryData(['message', roomId], (oldData: any) => {
-      return oldData.filter((message: Message) => message._id !== id);
-    });
+    removeMessage(id);
   };
   useEffect(() => {
     socket?.on('message.delete', messageRemoved);
@@ -169,15 +165,15 @@ const Page = ({ params }: PageProps) => {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     // getPreviousPageParam: (firstPage, allPages) => firstPage.prevCursor,
   });
-  const messages = useMemo(() => {
-    console.log('memo');
+
+  // useMessagesStore((state)=> state.setMessages(allMessage));
+
+  useEffect(() => {
     const allMessage: Message[] = [];
-    console.log(hasNextPage);
-    console.log('data', data);
     data?.pages.forEach((page) => {
       return page.data.forEach((message: Message) => allMessage.push(message));
     });
-    return allMessage;
+    setMessages(allMessage);
   }, [data]);
   return (
     <div className="flex h-full flex-col">
