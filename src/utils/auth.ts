@@ -6,5 +6,6 @@ export const checkIsLogin = (): boolean => {
   return !!token;
 };
 export const getToken = () => {
-  return cookies().get(COOKIE_ACCESS_TOKEN_NAME);
+  const token = cookies().get(COOKIE_ACCESS_TOKEN_NAME);
+  return token?.value;
 };

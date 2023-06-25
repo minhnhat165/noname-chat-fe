@@ -6,6 +6,7 @@ import { cn, extractRoomByCurrentUser, generateRoomLink } from '@/utils';
 import { Avatar } from '../common/avatar';
 import Link from 'next/link';
 import { MessageType } from '@/types/message';
+import { PhoneOutlined } from '@ant-design/icons';
 import { Room } from '@/types/room';
 import { RoomItemMenuAction } from './room-item-menu-action';
 import { useMemo } from 'react';
@@ -24,12 +25,19 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
 
   const { lastMessage } = room;
 
-  const lastMessageContent = useMemo(() => {
-    if (lastMessage?.type === MessageType.CALL) {
-      return 'Call';
-    }
-    return lastMessage?.content ?? 'New';
-  }, [lastMessage]);
+  const renderSubTitle = () => {
+    return (
+      <p className="line-clamp-1 text-xs text-slate-500">
+        {lastMessage?.type === MessageType.CALL ? (
+          <p>
+            <PhoneOutlined /> call
+          </p>
+        ) : (
+          lastMessage?.content
+        )}
+      </p>
+    );
+  };
 
   return (
     <>
@@ -46,7 +54,7 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
             <span className="font-semibold text-gray-800">{room.name}</span>
             {lastMessage && <TimeDisplay time={lastMessage.createdAt} />}
           </div>
-          <p className="line-clamp-1 text-xs text-slate-500">{lastMessageContent}</p>
+          {renderSubTitle()}
         </div>
         <div className="invisible absolute right-3 top-1/2 -translate-y-1/2 transition-all group-hover/item:visible">
           <RoomItemMenuAction room={room} />
@@ -56,7 +64,7 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
   );
 };
 
-const TimeDisplay = ({ time }: { time: string }) => {
-  const timeDisplay = useTimeDisplay(new Date(time));
+const TimeDisplay = ({ time }: { time: string | undefined }) => {
+  const timeDisplay = useTimeDisplay(new Date(time!));
   return <span className="ml-auto text-xs text-gray-400">{timeDisplay}</span>;
 };

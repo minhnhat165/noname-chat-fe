@@ -53,7 +53,7 @@ export const Sidebar = () => {
     >
       <div className="flex h-full w-[372px] flex-col border-r bg-white">
         <Header />
-        <div className=" flex-1 overflow-y-scroll p-2">
+        <div className="overflow-y-overlay flex-1 p-2">
           {isSearch && <SidebarSearch searchResult={searchResult} />}
           <div className={isSearch ? 'hidden' : 'block'}>
             <RoomFolder />
