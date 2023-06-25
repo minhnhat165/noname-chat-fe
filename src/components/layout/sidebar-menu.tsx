@@ -40,11 +40,13 @@ export const SidebarMenu = (props: SideBarMenuProps) => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 p-2 px-4">
-        <Avatar size="medium" src={user!.avatar} />
-        <div className="flex-1 text-ellipsis">
-          <h3 className="line-clamp-1 font-bold">{user!.username}</h3>
-          <p className="line-clamp-1">{user!.email}</p>
+      <div className="flex px-4 py-2">
+        <div>
+          <Avatar size="medium" src={user!.avatar} bordered />
+          <div className="overflow-hidden text-ellipsis">
+            <h3 className="line-clamp-1 font-bold">{user!.username}</h3>
+            <p className="line-clamp-1">{user!.email}</p>
+          </div>
         </div>
         <div className="ml-auto">
           <ProfileEdit onClickEdit={closeMenu} />

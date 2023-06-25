@@ -23,7 +23,6 @@ export const RepairCallPanel = ({ room: _room }: RepairCallPanelProps) => {
   }, [_room, user]);
   const { mutate, isLoading } = useCreateCall({
     onSuccess(data, variables, context) {
-      console.log(data);
       router.push(`${pathname}?call_id=${data.data._id}`);
     },
   });
@@ -37,7 +36,7 @@ export const RepairCallPanel = ({ room: _room }: RepairCallPanelProps) => {
       <Button
         loading={isLoading}
         onClick={() => {
-          // mutate(room._id);
+          mutate(room._id);
         }}
         type="primary"
         shape="round"
