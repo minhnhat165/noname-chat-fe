@@ -5,11 +5,15 @@ import {
   FileTextOutlined,
   LinkOutlined,
   SmileOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Dropdown, MenuProps } from 'antd';
+import { Button, Dropdown, MenuProps, UploadFile, UploadProps } from 'antd';
+import { RcFile } from 'antd/es/upload';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Upload } from 'antd';
+import ImgCrop from 'antd-img-crop';
 
 type Props = { roomId: string };
 
@@ -19,7 +23,9 @@ const MessageFooter = (props: Props) => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const inputElement = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-
+  const [selectImage, setSelectImage] = useState(false);
+  const labelImage = useRef<HTMLButtonElement>(null);
+  console.log('gtr', selectImage);
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
     const currentPosition = inputElement?.current?.selectionStart ?? 0;
@@ -49,6 +55,16 @@ const MessageFooter = (props: Props) => {
       icon: <FileTextOutlined />,
     },
   ];
+  const onClick: MenuProps['onClick'] = ({ key }) => {
+    switch (key) {
+      case '1':
+        setSelectImage(true);
+        break;
+      case '2':
+        // openBlock();
+        break;
+    }
+  };
 
   const emojiStyle: EmojiStyle = EmojiStyle.NATIVE;
 
@@ -75,10 +91,54 @@ const MessageFooter = (props: Props) => {
   //     console.log(err);
   //   },
   // });
+  //upload ảnh
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
+  const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+  };
+
+  const onPreview = async (file: UploadFile) => {
+    let src = file.url as string;
+    if (!src) {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj as RcFile);
+        reader.onload = () => resolve(reader.result as string);
+      });
+    }
+    const image = new Image();
+    image.src = src;
+    const imgWindow = window.open(src);
+    imgWindow?.document.write(image.outerHTML);
+  };
+  useMemo(() => {
+    if (fileList.length === 0) setSelectImage(false);
+  }, [fileList]);
+  useEffect(() => {
+    if (selectImage === true && labelImage.current) labelImage.current.click();
+  }, [selectImage]);
+  //   const myInput = useRef<HTMLButtonElement>(null);
+  //   useEffect(() => {
+  //     if (myInput.current) {
+  //       myInput.current.click();
+  //     }
+  //   }, []);
+  //   return (
+  //     <div>
+  //       <button
+  //         ref={myInput}
+  //         onClick={() => {
+  //           console.log('object');
+  //         }}
+  //       >
+  //         hihi
+  //       </button>
+  //     </div>
+  //   );
   return (
     <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
-      <div className=" flex h-14 w-full items-center">
+      <div className=" flex min-h-[56px] w-full items-center">
         <div className="relative flex h-9 w-14 items-center justify-center" ref={emojiPickerRef}>
           <div
             onClick={() => {
@@ -98,41 +158,72 @@ const MessageFooter = (props: Props) => {
             </div>
           )}
         </div>
-        <input
-          placeholder="Message"
-          className="block h-12 flex-1 text-black focus:outline-none"
-          value={inputChat}
-          onChange={(e) => {
-            setInputChat(e.target.value);
-          }}
-          ref={inputElement}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const message = {
-                content: inputElement?.current?.value,
-                type: MessageType.TEXT,
-                room: props.roomId,
-              };
-              setInputChat('');
-              mutation.mutate(message);
-            }
-          }}
-        />
+        <div className="block h-fit flex-1 ">
+          {/* test */}
+          {selectImage && (
+            <ImgCrop rotationSlider>
+              <Upload
+                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                listType="picture-card"
+                fileList={fileList}
+                onChange={onChange}
+                onPreview={onPreview}
+              >
+                <button
+                  onClick={() => {
+                    console.log('hh');
+                  }}
+                  type="button"
+                  ref={labelImage}
+                >
+                  + Upload
+                </button>
+                {/* {fileList.length < 5 && '+ Upload'} */}
+              </Upload>
+            </ImgCrop>
+          )}
+          {/* end test */}
+
+          <input
+            placeholder="Message"
+            className="block h-12 w-full text-black focus:outline-none"
+            value={inputChat}
+            onChange={(e) => {
+              setInputChat(e.target.value);
+            }}
+            ref={inputElement}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const message = {
+                  content: inputElement?.current?.value,
+                  type: MessageType.TEXT,
+                  room: props.roomId,
+                };
+                setInputChat('');
+                mutation.mutate(message);
+              }
+            }}
+          />
+        </div>
 
         <div className="relative flex h-9 w-14 items-center justify-center">
-          {/* <label htmlFor="file-input" className="hover:cursor-pointer"> */}
-          <Dropdown overlayClassName="w-40" menu={{ items: sendFileItem }} placement="topRight">
+          <Dropdown
+            overlayClassName="w-40"
+            menu={{ items: sendFileItem, onClick }}
+            placement="topRight"
+          >
             <LinkOutlined className="text-[22px] text-gray-500 hover:cursor-pointer hover:text-cyan-600" />
           </Dropdown>
 
-          {/* </label>
-        <input
-          // onChange={handleFileInputChange}
-          id="file-input"
-          type="file"
-          hidden
-          multiple
-        /> */}
+          {/* <input
+            onChange={(e) => {
+              console.log('object', e.target.value);
+            }}
+            id="file-input"
+            type="file"
+            hidden
+            multiple
+          /> */}
         </div>
       </div>
     </div>

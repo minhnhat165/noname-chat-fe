@@ -1,5 +1,5 @@
-import { Spin } from 'antd';
-import React, { useEffect } from 'react';
+import { Button, Spin, Upload, UploadProps } from 'antd';
+import React, { useEffect, useMemo, useRef } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import MyMessage from './my-message';
 import { DisplayAvatar, DisplayName } from './display-info';
@@ -10,6 +10,7 @@ import { User } from '@/types/user';
 import { useSocketStore } from '@/stores/socket';
 import { messageApi } from '@/services/message-services';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { UploadOutlined } from '@ant-design/icons';
 
 type Props = {
   roomId: string;
@@ -63,6 +64,7 @@ const MessageBody = (props: Props) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
+
   return (
     <div
       className="mb-1 flex w-[730px] flex-grow flex-col-reverse overflow-y-auto"
