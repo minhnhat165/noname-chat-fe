@@ -27,15 +27,15 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
 
   const renderSubTitle = () => {
     return (
-      <p className="line-clamp-1 text-xs text-slate-500">
+      <span className="line-clamp-1 text-xs text-slate-500">
         {lastMessage?.type === MessageType.CALL ? (
-          <p>
+          <span>
             <PhoneOutlined /> call
-          </p>
+          </span>
         ) : (
           lastMessage?.content
         )}
-      </p>
+      </span>
     );
   };
 

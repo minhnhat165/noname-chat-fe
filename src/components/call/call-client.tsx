@@ -12,10 +12,7 @@ const CallClient = () => {
       console.log('My peer ID is: ' + id);
     });
     peer.on('connection', function (conn) {
-      conn.on('data', function (data) {
-        // Will print 'hi!'
-        console.log(data);
-      });
+      conn.on('data', function (data) {});
       conn.send('Hello!');
     });
   }, [peerId]);
