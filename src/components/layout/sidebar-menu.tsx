@@ -93,7 +93,7 @@ const MenuAction = ({
   const { open: openLogout, close: closeLogout, isOpen: isOpenLogout } = useModal();
   const logout = () => {
     startTransition(() => {
-      removeToken();
+      // removeToken();
       redirect('/login');
     });
   };
