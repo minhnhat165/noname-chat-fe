@@ -8,7 +8,9 @@ import { rooms, users } from '@/stores/data-test';
 
 import { RoomFolder } from '../room/room-folder';
 import { RoomList } from '../room';
+import { CreateChat } from '../chat';
 import { SidebarMenu } from './sidebar-menu';
+import { GroupCreate, Header as HeaderGroup, GroupName } from './group-create';
 
 interface SidebarContextProps {
   showMenu: () => void;
@@ -18,6 +20,12 @@ interface SidebarContextProps {
   menuVisible: boolean;
   searchValue: string;
   setSearchValue: (value: string) => void;
+  isCreateGroup: boolean;
+  setIsCreateGroup: (isCreateGroup: boolean) => void;
+  isStep2CreateGroup: boolean;
+  setIsStep2CreateGroup: (isStep2CreateGroup: boolean) => void;
+  username: string;
+  setUsername: (value:string) => void
 }
 
 export const SidebarContext = createContext<SidebarContextProps>({} as SidebarContextProps);
@@ -25,8 +33,12 @@ export const SidebarContext = createContext<SidebarContextProps>({} as SidebarCo
 export const useSidebar = () => useContext(SidebarContext);
 
 export const Sidebar = () => {
+  const [username, setUsername] = useState<string>('');
+
   const [menuVisible, setMenuVisible] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
+  const [isCreateGroup, setIsCreateGroup] = useState(false);
+  const [isStep2CreateGroup, setIsStep2CreateGroup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
   const [searchResult, setSearchResult] = useState<Search>({
@@ -50,13 +62,21 @@ export const Sidebar = () => {
         setIsSearch,
         searchValue,
         setSearchValue,
+        isCreateGroup,
+        setIsCreateGroup,
+        isStep2CreateGroup,
+        setIsStep2CreateGroup,username, setUsername
       }}
     >
-      <div className="flex h-full w-[372px] flex-col border-r bg-white">
-        <Header />
-        <div className=" flex-1 overflow-y-scroll p-2">
-          {!isSearch && <RoomFolder />}
-          {isSearch && <SidebarSearch searchResult={searchResult} />}
+      {/* old 372px */}
+      <div className="relative flex h-full w-[400px] flex-col border-r border-r-2 bg-slate-100">
+        {/* {isStep2CreateGroup && <GroupName />} */}
+        {!isCreateGroup ? <Header /> : !isStep2CreateGroup && <HeaderGroup username={username} setUsername={setUsername} />}
+        <div className=" flex-1 overflow-y-scroll">
+          {!isSearch && !isCreateGroup && <RoomFolder />}
+          {isSearch && !isCreateGroup && <SidebarSearch searchResult={searchResult} />}
+          {isCreateGroup && <GroupCreate />}
+          {!isCreateGroup ? <CreateChat /> : ''}
         </div>
       </div>
     </SidebarContext.Provider>
@@ -68,7 +88,7 @@ const Header = () => {
     useSidebar();
   const { Search } = Input;
   return (
-    <div className="flex h-14 items-center justify-between px-4 py-2">
+    <div className="flex h-14 items-center justify-between bg-white px-4 py-2">
       {isSearch ? (
         <Button
           onClick={() => {

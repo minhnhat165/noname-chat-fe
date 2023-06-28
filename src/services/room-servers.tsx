@@ -12,4 +12,8 @@ export const roomApi = {
   getRooms: (params: CursorPaginationParams): Promise<CursorPaginationResponse<Room>> => {
     return axios.get(BASE_URL, { params });
   },
+  findParitipantsByUserId:(q:string):Promise<SingleResponse<string[]>> => {
+
+    return axios.get(`${BASE_URL}/participants`, { params: { q } })
+  }
 };
