@@ -1,72 +1,99 @@
-import Peer, { MediaConnection } from 'peerjs';
+'use-client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export const usePeerJs = () => {
-  const [peer, setPeer] = useState<Peer | null>(null);
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRefs = useRef<{ [userId: string]: HTMLVideoElement | null }>({});
-  const [localMedia, setLocalMedia] = useState<MediaStream | null>(null);
-  const [calls, setCalls] = useState<{ [userId: string]: MediaConnection }>({});
+import Peer from 'peerjs';
+import { useMediaControl } from './useMediaControl';
+import { useSocketStore } from '@/stores/socket';
 
-  const getUserMedia = useCallback(async (constraints: MediaStreamConstraints) => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      setLocalMedia(stream);
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-        localVideoRef.current.play();
+type CallPayload = {
+  _id: string;
+  host: string;
+  peerId: string;
+  participants: string[];
+};
+export const usePeerJs = (
+  callId: string,
+  isCaller: boolean,
+  userId: string,
+  participants: string[],
+  isAccepted?: boolean,
+) => {
+  const socket = useSocketStore((state) => state.socket);
+  const [hasRemoteStream, setHasRemoteStream] = useState<boolean>(false);
+  const [isEnded, setIsEnded] = useState<boolean>(false);
+  const [peer, setPeer] = useState<Peer | null>(null);
+  const [peerId, setPeerId] = useState<string | null>(null);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const { localMedia, setLocalMedia, audioEnabled, toggleAudio, toggleVideo, videoEnabled } =
+    useMediaControl({
+      defaultVideoEnabled: true,
+      defaultAudioEnabled: false,
+    });
+
+  const getUserMedia = useCallback(
+    async (constraints: MediaStreamConstraints): Promise<MediaStream | null> => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        setLocalMedia(stream);
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+          localVideoRef.current.play();
+        }
+        return stream;
+      } catch (err) {
+        console.log(err);
+        return null;
       }
-    } catch (err) {
-      console.log(err);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  const initializePeer = async () => {
+    const localMedia = await getUserMedia({ video: true, audio: true });
+    if (!localMedia) {
+      return;
     }
-  }, []);
+    const newPeer = new Peer();
+    setPeer(newPeer);
+
+    newPeer.on('connection', (conn) => {
+      console.log('connection');
+    });
+
+    newPeer.on('open', (id) => {
+      setPeerId(id);
+      if (isCaller) {
+        const callPayload: CallPayload = {
+          _id: callId,
+          host: userId,
+          peerId: id,
+          participants,
+        };
+        socket?.emit('create-call', callPayload);
+      }
+    });
+
+    newPeer.on('error', (err) => {
+      console.log('error', err);
+    });
+
+    newPeer.on('call', (call) => {
+      const userId = call.peer;
+      call.answer(localMedia);
+      call.on('stream', (stream) => {
+        if (remoteVideoRef.current) {
+          setHasRemoteStream(true);
+          remoteVideoRef.current.srcObject = stream;
+          remoteVideoRef.current.play();
+        }
+      });
+    });
+  };
 
   useEffect(() => {
-    const initializePeer = () => {
-      const newPeer = new Peer();
-      setPeer(newPeer);
-
-      newPeer.on('connection', (conn) => {
-        console.log('connection');
-      });
-
-      newPeer.on('open', (id) => {
-        console.log('open', id);
-      });
-
-      newPeer.on('error', (err) => {
-        console.log('error', err);
-      });
-
-      newPeer.on('call', (call) => {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-          const userId = call.peer;
-          const existingCall = calls[userId];
-          if (existingCall) {
-            existingCall.close();
-          }
-
-          setCalls((prevCalls) => ({ ...prevCalls, [userId]: call }));
-
-          call.answer(stream);
-          setLocalMedia(stream);
-          if (localVideoRef.current) {
-            localVideoRef.current.srcObject = stream;
-            localVideoRef.current.play();
-          }
-          call.on('stream', (stream) => {
-            const remoteVideoRef = remoteVideoRefs.current[userId];
-            if (remoteVideoRef) {
-              remoteVideoRef.srcObject = stream;
-              remoteVideoRef.play();
-            }
-          });
-        });
-      });
-    };
-
     initializePeer();
-
     return () => {
       if (peer) {
         peer.destroy();
@@ -74,55 +101,78 @@ export const usePeerJs = () => {
     };
   }, []);
 
-  const connectPeer = useCallback(
-    async (callId: string, remoteVideoRef: HTMLVideoElement) => {
-      if (peer) {
-        const conn = peer.connect(callId);
-        const localMedia = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        const call = peer.call(callId, localMedia);
-        setLocalMedia(localMedia);
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = localMedia;
-          localVideoRef.current.play();
+  useEffect(() => {
+    if (socket) {
+      socket.emit(`join-call`, {
+        callId,
+        userId,
+      });
+      socket.on('receive-peer-id', (peerIdFromServer) => {
+        if (peerIdFromServer) {
+          console.log('receive-peer-id', peerIdFromServer);
+          setPeerId(peerIdFromServer);
         }
-        call.on('stream', (stream) => {
-          remoteVideoRef.srcObject = stream;
-          remoteVideoRef.play();
-        });
-
-        setCalls((prevCalls) => ({ ...prevCalls, [callId]: call }));
-        remoteVideoRefs.current[callId] = remoteVideoRef;
-      } else {
-        console.log('peer is null', callId);
+      });
+      socket.on('call-ended', () => {
+        setIsEnded(true);
+        console.log('call-ended');
+      });
+    }
+    return () => {
+      if (socket) {
+        socket.off(`join-call`);
+        socket.off(`signal`);
+        socket.off(`user-joined`);
+        socket.emit(`leave-call`, callId);
       }
-    },
-    [peer],
-  );
+    };
+  }, [callId, isCaller, peerId, socket, userId]);
 
-  const toggleVideo = () => {
-    if (localMedia) {
-      const videoTrack = localMedia.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-      }
+  const connectPeer = async (peerIds: string) => {
+    if (peer && peerId) {
+      const conn = peer.connect(peerId);
+      const call = peer.call(peerId, localMedia!);
+      call.on('stream', (stream) => {
+        if (remoteVideoRef.current) {
+          setHasRemoteStream(true);
+          remoteVideoRef.current.srcObject = stream;
+          remoteVideoRef.current.play();
+        }
+      });
+    } else {
+      console.log('peer is null', callId);
     }
   };
 
-  const toggleAudio = () => {
-    if (localMedia) {
-      const audioTrack = localMedia.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-      }
+  const endCall = () => {
+    if (peer) {
+      socket?.emit('end-call', callId);
+      peer.destroy();
     }
   };
+
+  useEffect(() => {
+    if (isAccepted && peer && peerId) {
+      if (peerId) {
+        connectPeer(peerId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAccepted, peer, peerId]);
 
   return {
     peer,
+    peerId,
     connectPeer,
     localVideoRef,
-    remoteVideoRefs,
+    remoteVideoRef,
     toggleVideo,
     toggleAudio,
+    videoEnabled,
+    audioEnabled,
+    hasRemoteStream,
+    endCall,
+    isEnded,
+    setIsEnded,
   };
 };

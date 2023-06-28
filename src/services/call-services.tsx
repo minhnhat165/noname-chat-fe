@@ -2,7 +2,6 @@ import { ListParams, ListResponse, SingleResponse, SuccessResponse } from '@/typ
 
 import { Call } from '@/types/call';
 import { Message } from '@/types/message';
-import Peer from 'peerjs';
 import { User } from '@/types/user';
 import { axios } from '@/lib';
 
@@ -20,10 +19,6 @@ export const callApi = {
     return axios.get(url);
   },
   createCall: (roomId: string): Promise<SingleResponse<Call>> => {
-    const peer = new Peer();
-    peer.on('open', (id) => {
-      console.log('peer id', id);
-    });
     return axios.post(BASE_URL, {
       roomId: roomId,
     });
