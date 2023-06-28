@@ -16,6 +16,6 @@ export type Message = {
   read: boolean;
   type: MessageType;
   call?: Call;
-  images?: string;
+  images?: string[];
   createdAt?: string;
 } & BaseEntity;

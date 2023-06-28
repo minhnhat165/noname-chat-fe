@@ -92,7 +92,7 @@ const MessageFooter = (props: Props) => {
   //upload ảnh
   // const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [croppedFile, setCroppedFile] = useState<Blob[]>([]);
+  const [imageList, setImageList] = useState<string[]>([]);
 
   const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
     setFileList(newFileList);
@@ -138,11 +138,33 @@ const MessageFooter = (props: Props) => {
   //     </div>
   //   );
   const submit = async () => {
-    if (fileList) {
-      const { secure_url } = await uploadImage(fileList[0].originFileObj as Blob);
+    if (fileList.length > 0) {
+      for (let file of fileList) {
+        let { secure_url } = await uploadImage(file.originFileObj as Blob);
+        const tempArr = [secure_url];
+        setImageList([...imageList, ...tempArr]);
+      }
     }
   };
+  const handleEnter = async () => {
+    let type = MessageType.TEXT;
+    if (selectImage === true) {
+      type = MessageType.IMAGE;
+      await submit();
+    }
 
+    const message = {
+      content: inputElement?.current?.value,
+      type: type,
+      room: props.roomId,
+      images: type === MessageType.IMAGE ? imageList : [],
+    };
+    setInputChat('');
+    setFileList([]);
+    setImageList([]);
+    setSelectImage(false);
+    mutation.mutate(message);
+  };
   return (
     <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
       <div className=" flex min-h-[56px] w-full items-center">
@@ -174,14 +196,7 @@ const MessageFooter = (props: Props) => {
                 listType="picture-card"
                 fileList={fileList}
                 onChange={onChange}
-                //onPreview={onPreview}
-                // customRequest={({ file }) => {
-                // const filet = file as UploadFile;
-                // console.log(file, filet);
-                // setFileList([...fileList, filet]);
-                // const newFile = file as Blob;
-                // setCroppedFile([...croppedFile, newFile]);
-                // }}
+                onPreview={onPreview}
               >
                 <button type="button" ref={labelImage}>
                   + Upload
@@ -191,7 +206,7 @@ const MessageFooter = (props: Props) => {
             </ImgCrop>
           )}
           {/* end test */}
-          <button onClick={submit}></button>
+
           <input
             placeholder="Message"
             className="block h-12 w-full text-black focus:outline-none"
@@ -202,13 +217,7 @@ const MessageFooter = (props: Props) => {
             ref={inputElement}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                const message = {
-                  content: inputElement?.current?.value,
-                  type: MessageType.TEXT,
-                  room: props.roomId,
-                };
-                setInputChat('');
-                mutation.mutate(message);
+                handleEnter();
               }
             }}
           />
