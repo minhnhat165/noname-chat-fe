@@ -1,19 +1,18 @@
 import { messageApi } from '@/services/message-services';
 import { MessageType } from '@/types/message';
+import { uploadImage } from '@/utils/upload-image';
 import {
   FileImageOutlined,
   FileTextOutlined,
   LinkOutlined,
   SmileOutlined,
-  UploadOutlined,
 } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Dropdown, MenuProps, UploadFile, UploadProps } from 'antd';
+import { Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
+import ImgCrop from 'antd-img-crop';
 import { RcFile } from 'antd/es/upload';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Upload } from 'antd';
-import ImgCrop from 'antd-img-crop';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type Props = { roomId: string };
 
@@ -25,7 +24,6 @@ const MessageFooter = (props: Props) => {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const [selectImage, setSelectImage] = useState(false);
   const labelImage = useRef<HTMLButtonElement>(null);
-  console.log('gtr', selectImage);
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
     const currentPosition = inputElement?.current?.selectionStart ?? 0;
@@ -92,10 +90,13 @@ const MessageFooter = (props: Props) => {
   //   },
   // });
   //upload ảnh
+  // const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [croppedFile, setCroppedFile] = useState<Blob[]>([]);
 
   const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
     setFileList(newFileList);
+    console.log('new ', newFileList);
   };
 
   const onPreview = async (file: UploadFile) => {
@@ -136,6 +137,12 @@ const MessageFooter = (props: Props) => {
   //       </button>
   //     </div>
   //   );
+  const submit = async () => {
+    if (fileList) {
+      const { secure_url } = await uploadImage(fileList[0].originFileObj as Blob);
+    }
+  };
+
   return (
     <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
       <div className=" flex min-h-[56px] w-full items-center">
@@ -163,19 +170,20 @@ const MessageFooter = (props: Props) => {
           {selectImage && (
             <ImgCrop rotationSlider>
               <Upload
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                //  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
                 listType="picture-card"
                 fileList={fileList}
                 onChange={onChange}
-                onPreview={onPreview}
+                //onPreview={onPreview}
+                // customRequest={({ file }) => {
+                // const filet = file as UploadFile;
+                // console.log(file, filet);
+                // setFileList([...fileList, filet]);
+                // const newFile = file as Blob;
+                // setCroppedFile([...croppedFile, newFile]);
+                // }}
               >
-                <button
-                  onClick={() => {
-                    console.log('hh');
-                  }}
-                  type="button"
-                  ref={labelImage}
-                >
+                <button type="button" ref={labelImage}>
                   + Upload
                 </button>
                 {/* {fileList.length < 5 && '+ Upload'} */}
@@ -183,7 +191,7 @@ const MessageFooter = (props: Props) => {
             </ImgCrop>
           )}
           {/* end test */}
-
+          <button onClick={submit}></button>
           <input
             placeholder="Message"
             className="block h-12 w-full text-black focus:outline-none"
