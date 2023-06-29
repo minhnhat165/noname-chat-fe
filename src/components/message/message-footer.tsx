@@ -6,9 +6,10 @@ import {
   FileTextOutlined,
   LinkOutlined,
   SmileOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
+import { Button, Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
 import ImgCrop from 'antd-img-crop';
 import { RcFile } from 'antd/es/upload';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
@@ -22,8 +23,9 @@ const MessageFooter = (props: Props) => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const inputElement = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const [selectImage, setSelectImage] = useState(false);
+  const [selectType, setSelectType] = useState(MessageType.TEXT);
   const labelImage = useRef<HTMLButtonElement>(null);
+  const labelFile = useRef<HTMLButtonElement>(null);
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
     const currentPosition = inputElement?.current?.selectionStart ?? 0;
@@ -56,10 +58,10 @@ const MessageFooter = (props: Props) => {
   const onClick: MenuProps['onClick'] = ({ key }) => {
     switch (key) {
       case '1':
-        setSelectImage(true);
+        setSelectType(MessageType.IMAGE);
         break;
       case '2':
-        // openBlock();
+        setSelectType(MessageType.FILE);
         break;
     }
   };
@@ -92,13 +94,17 @@ const MessageFooter = (props: Props) => {
   //upload ảnh
   // const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [imageList, setImageList] = useState<string[]>([]);
+  const [listFile, setListFile] = useState<UploadFile[]>([]);
+  // const [imageList, setImageList] = useState<string[]>([]);
 
   const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
+    console.log('new', newFileList);
     setFileList(newFileList);
-    console.log('new ', newFileList);
   };
-
+  const onChangeFile: UploadProps['onChange'] = ({ fileList: newFileList }) => {
+    console.log('new', newFileList);
+    setListFile(newFileList);
+  };
   const onPreview = async (file: UploadFile) => {
     let src = file.url as string;
     if (!src) {
@@ -114,11 +120,18 @@ const MessageFooter = (props: Props) => {
     imgWindow?.document.write(image.outerHTML);
   };
   useMemo(() => {
-    if (fileList.length === 0) setSelectImage(false);
+    if (fileList.length === 0) setSelectType(MessageType.TEXT);
   }, [fileList]);
+  useMemo(() => {
+    if (listFile.length === 0) setSelectType(MessageType.TEXT);
+  }, [listFile]);
   useEffect(() => {
-    if (selectImage === true && labelImage.current) labelImage.current.click();
-  }, [selectImage]);
+    if (selectType === MessageType.IMAGE && labelImage.current) labelImage.current.click();
+  }, [selectType]);
+  useEffect(() => {
+    if ((selectType === MessageType.FILE || selectType === MessageType.IMAGE) && labelFile.current)
+      labelFile.current.click();
+  }, [selectType]);
   //   const myInput = useRef<HTMLButtonElement>(null);
   //   useEffect(() => {
   //     if (myInput.current) {
@@ -137,33 +150,47 @@ const MessageFooter = (props: Props) => {
   //       </button>
   //     </div>
   //   );
-  const submit = async () => {
-    if (fileList.length > 0) {
-      for (let file of fileList) {
-        let { secure_url } = await uploadImage(file.originFileObj as Blob);
-        const tempArr = [secure_url];
-        setImageList([...imageList, ...tempArr]);
-      }
+  const submit = async (list: UploadFile[]) => {
+    console.log('lits', list);
+    let listTemp: string[] = [];
+    if (list.length > 0) {
+      // for (let file of fileList) {
+      //   let { secure_url } = await uploadImage(file.originFileObj as Blob);
+      //   imageList = [...imageList, secure_url];
+      // }
+      const resultPromise: any = [];
+      list.forEach((file) => resultPromise.push(uploadImage(file.originFileObj as Blob)));
+      const result = await Promise.all(resultPromise);
+      console.log('res', result);
+      listTemp = result.map((image) => image.secure_url);
     }
+    return listTemp;
   };
+
   const handleEnter = async () => {
     let type = MessageType.TEXT;
-    if (selectImage === true) {
+    let list: string[] = [];
+    if (selectType === MessageType.IMAGE) {
       type = MessageType.IMAGE;
-      await submit();
+      list = await submit(listFile);
+    } else if (selectType === MessageType.FILE) {
+      console.log('hihi');
+      type = MessageType.FILE;
+      console.log(fileList);
+      list = await submit(fileList);
     }
 
     const message = {
       content: inputElement?.current?.value,
       type: type,
       room: props.roomId,
-      images: type === MessageType.IMAGE ? imageList : [],
+      images: type === MessageType.IMAGE ? list : [],
+      files: type === MessageType.FILE ? list : [],
     };
     setInputChat('');
     setFileList([]);
-    setImageList([]);
-    setSelectImage(false);
-    mutation.mutate(message);
+    setSelectType(MessageType.TEXT);
+    // mutation.mutate(message);
   };
   return (
     <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
@@ -189,23 +216,33 @@ const MessageFooter = (props: Props) => {
         </div>
         <div className="block h-fit flex-1 ">
           {/* test */}
-          {selectImage && (
-            <ImgCrop rotationSlider>
-              <Upload
-                //  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                listType="picture-card"
-                fileList={fileList}
-                onChange={onChange}
-                onPreview={onPreview}
-              >
-                <button type="button" ref={labelImage}>
-                  + Upload
-                </button>
-                {/* {fileList.length < 5 && '+ Upload'} */}
-              </Upload>
-            </ImgCrop>
+          {selectType === MessageType.IMAGE && (
+            <Upload
+              listType="picture-card"
+              accept="image/png, image/jpeg"
+              fileList={fileList}
+              onChange={onChange}
+              onPreview={onPreview}
+            >
+              <button type="button" ref={labelImage}>
+                + Upload
+              </button>
+            </Upload>
           )}
           {/* end test */}
+          {selectType === MessageType.FILE && (
+            <Upload
+              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+              listType="picture-card"
+              className="flex gap-12 "
+              accept=".pdf, .txt, .docx"
+              onChange={onChangeFile}
+            >
+              <button type="button" ref={labelFile}>
+                + Upload
+              </button>
+            </Upload>
+          )}
 
           <input
             placeholder="Message"

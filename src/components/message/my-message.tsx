@@ -1,9 +1,9 @@
 'use client';
 import { messageApi } from '@/services/message-services';
-import { Message } from '@/types/message';
+import { Message, MessageType } from '@/types/message';
 import { DeleteFilled } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Modal, Tooltip } from 'antd';
+import { Button, Image, Modal, Tooltip } from 'antd';
 import { useState } from 'react';
 
 export interface MessageProps {
@@ -56,10 +56,26 @@ const MyMessage = (message: MessageProps) => {
       ) : (
         ''
       )}
-
-      <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
-        {message.message.content}
-      </div>
+      {message.message.type === MessageType.TEXT && (
+        <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
+          {message.message.content}
+        </div>
+      )}
+      {message.message.type === MessageType.IMAGE && (
+        <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
+          <p>{message.message.content}</p>
+          <Image.PreviewGroup
+            preview={{
+              onChange: (current, prev) =>
+                console.log(`current index: ${current}, prev index: ${prev}`),
+            }}
+          >
+            {message.message.images?.map((image, index) => (
+              <Image key={index} alt="image" src={image} />
+            ))}
+          </Image.PreviewGroup>
+        </div>
+      )}
 
       <Modal
         title="Delete this message"
