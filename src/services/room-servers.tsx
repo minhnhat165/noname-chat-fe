@@ -1,6 +1,7 @@
 import { CursorPaginationParams, CursorPaginationResponse, SingleResponse } from '@/types/api';
 
 import { Room } from '@/types/room';
+import { User } from '@/types/user';
 import { axios } from '@/lib';
 
 const BASE_URL = 'rooms';
@@ -9,11 +10,14 @@ export const roomApi = {
     const url = `${BASE_URL}/${id}`;
     return axios.get(url);
   },
-  getRooms: (params: CursorPaginationParams): Promise<CursorPaginationResponse<Room>> => {
+  getRooms: (
+    params: CursorPaginationParams & {
+      type?: 'all' | 'direct' | 'group';
+    },
+  ): Promise<CursorPaginationResponse<Room>> => {
     return axios.get(BASE_URL, { params });
   },
-  findParitipantsByUserId:(q:string):Promise<SingleResponse<string[]>> => {
-
-    return axios.get(`${BASE_URL}/participants`, { params: { q } })
-  }
+  findParticipantsByUserId: (q: string): Promise<SingleResponse<User[]>> => {
+    return axios.get(`${BASE_URL}/participants`, { params: { q } });
+  },
 };
