@@ -1,9 +1,15 @@
 'use client';
 import { messageApi } from '@/services/message-services';
 import { Message, MessageType } from '@/types/message';
-import { DeleteFilled } from '@ant-design/icons';
+import {
+  DeleteFilled,
+  DownCircleFilled,
+  DownloadOutlined,
+  FileTextFilled,
+  FileTextOutlined,
+} from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Image, Modal, Tooltip } from 'antd';
+import { Button, Image, Modal, Tooltip, Upload } from 'antd';
 import { useState } from 'react';
 
 export interface MessageProps {
@@ -76,7 +82,23 @@ const MyMessage = (message: MessageProps) => {
           </Image.PreviewGroup>
         </div>
       )}
-
+      {message.message.type === MessageType.FILE && (
+        <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2">
+          {!!message.message.content && (
+            <div className=" rounded-md bg-white">{message.message.content}</div>
+          )}
+          {message.message.files?.map((file, index) => (
+            <div key={index} className=" my-[2px] rounded-md  bg-white  py-1 ">
+              <a href={file.link} className="inline-block h-3 w-fit">
+                <div className="flex items-center">
+                  <FileTextFilled style={{ fontSize: '40px', color: '#3390ec' }} />
+                  <p className="ml-1 font-medium">{file.name}</p>
+                </div>
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
       <Modal
         title="Delete this message"
         okText="Confirm"

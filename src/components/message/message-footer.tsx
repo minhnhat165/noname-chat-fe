@@ -6,11 +6,9 @@ import {
   FileTextOutlined,
   LinkOutlined,
   SmileOutlined,
-  UploadOutlined,
 } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
-import ImgCrop from 'antd-img-crop';
+import { Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
 import { RcFile } from 'antd/es/upload';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -93,17 +91,17 @@ const MessageFooter = (props: Props) => {
   // });
   //upload ảnh
   // const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [imageList, setImageList] = useState<UploadFile[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [listFile, setListFile] = useState<UploadFile[]>([]);
   // const [imageList, setImageList] = useState<string[]>([]);
 
   const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
     console.log('new', newFileList);
-    setFileList(newFileList);
+    setImageList(newFileList);
   };
   const onChangeFile: UploadProps['onChange'] = ({ fileList: newFileList }) => {
     console.log('new', newFileList);
-    setListFile(newFileList);
+    setFileList(newFileList);
   };
   const onPreview = async (file: UploadFile) => {
     let src = file.url as string;
@@ -123,15 +121,13 @@ const MessageFooter = (props: Props) => {
     if (fileList.length === 0) setSelectType(MessageType.TEXT);
   }, [fileList]);
   useMemo(() => {
-    if (listFile.length === 0) setSelectType(MessageType.TEXT);
-  }, [listFile]);
+    if (imageList.length === 0) setSelectType(MessageType.TEXT);
+  }, [imageList]);
   useEffect(() => {
     if (selectType === MessageType.IMAGE && labelImage.current) labelImage.current.click();
+    else if (selectType === MessageType.FILE && labelFile.current) labelFile.current.click();
   }, [selectType]);
-  useEffect(() => {
-    if ((selectType === MessageType.FILE || selectType === MessageType.IMAGE) && labelFile.current)
-      labelFile.current.click();
-  }, [selectType]);
+
   //   const myInput = useRef<HTMLButtonElement>(null);
   //   useEffect(() => {
   //     if (myInput.current) {
@@ -150,47 +146,58 @@ const MessageFooter = (props: Props) => {
   //       </button>
   //     </div>
   //   );
-  const submit = async (list: UploadFile[]) => {
-    console.log('lits', list);
-    let listTemp: string[] = [];
+  type fileType = {
+    link: any;
+    name: any;
+  };
+  const submitImage = async (list: UploadFile[]) => {
+    let listImage: string[] = [];
     if (list.length > 0) {
-      // for (let file of fileList) {
-      //   let { secure_url } = await uploadImage(file.originFileObj as Blob);
-      //   imageList = [...imageList, secure_url];
-      // }
       const resultPromise: any = [];
       list.forEach((file) => resultPromise.push(uploadImage(file.originFileObj as Blob)));
       const result = await Promise.all(resultPromise);
-      console.log('res', result);
-      listTemp = result.map((image) => image.secure_url);
+      listImage = result.map((image) => image.secure_url);
     }
-    return listTemp;
+    return listImage;
+  };
+  const submitFile = async (list: UploadFile[]) => {
+    let listFile: fileType[] = [];
+    if (list.length > 0) {
+      const resultPromise: any = [];
+      list.forEach((file) => resultPromise.push(uploadImage(file.originFileObj as Blob)));
+      const result = await Promise.all(resultPromise);
+      listFile = result.map((file) => ({
+        link: file.secure_url,
+        name: file.original_filename,
+      }));
+    }
+    return listFile;
   };
 
   const handleEnter = async () => {
     let type = MessageType.TEXT;
-    let list: string[] = [];
+    let listImage: string[] = [];
+    let listFile: fileType[] = [];
     if (selectType === MessageType.IMAGE) {
       type = MessageType.IMAGE;
-      list = await submit(listFile);
+      listImage = await submitImage(imageList);
     } else if (selectType === MessageType.FILE) {
-      console.log('hihi');
       type = MessageType.FILE;
       console.log(fileList);
-      list = await submit(fileList);
+      listFile = await submitFile(fileList);
     }
-
     const message = {
       content: inputElement?.current?.value,
       type: type,
       room: props.roomId,
-      images: type === MessageType.IMAGE ? list : [],
-      files: type === MessageType.FILE ? list : [],
+      images: type === MessageType.IMAGE ? listImage : [],
+      files: type === MessageType.FILE ? listFile : [],
     };
+    mutation.mutate(message);
     setInputChat('');
     setFileList([]);
+    setImageList([]);
     setSelectType(MessageType.TEXT);
-    // mutation.mutate(message);
   };
   return (
     <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
@@ -220,7 +227,7 @@ const MessageFooter = (props: Props) => {
             <Upload
               listType="picture-card"
               accept="image/png, image/jpeg"
-              fileList={fileList}
+              fileList={imageList}
               onChange={onChange}
               onPreview={onPreview}
             >
