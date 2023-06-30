@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Avatar } from '../common/avatar';
 import { Button } from 'antd';
 import { Room } from '@/types/room';
-import { extractRoomByCurrentUser } from '../room';
+import { extractRoomByCurrentUser } from '@/utils';
 import { useCreateCall } from '@/hooks/call/use-create-call';
 import { useMemo } from 'react';
 
@@ -23,7 +23,6 @@ export const RepairCallPanel = ({ room: _room }: RepairCallPanelProps) => {
   }, [_room, user]);
   const { mutate, isLoading } = useCreateCall({
     onSuccess(data, variables, context) {
-      console.log(data);
       router.push(`${pathname}?call_id=${data.data._id}`);
     },
   });

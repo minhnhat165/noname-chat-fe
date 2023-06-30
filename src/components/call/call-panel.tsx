@@ -2,16 +2,16 @@
 
 import { AudioOutlined, PhoneOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { Button, ButtonProps } from 'antd';
-import { useMemo, useState } from 'react';
+import { Call, CallStatus } from '@/types/call';
+import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { Avatar } from '../common/avatar';
 import { CLOSE_CALL_MESSAGE } from '@/constants';
-import { Call } from '@/types/call';
-import { Room } from '@/types/room';
 import { callApi } from '@/services/call-services';
-import { extractRoomByCurrentUser } from '../room';
+import { extractRoomByCurrentUser } from '@/utils';
 import { useMutation } from '@tanstack/react-query';
+import { usePeerJs } from '@/hooks/call/use-peerjs';
 import { useUserStore } from '@/stores/user';
 
 export interface CallPanelProps {
@@ -20,21 +20,33 @@ export interface CallPanelProps {
 
 export const CallPanel = ({ call }: CallPanelProps) => {
   const user = useUserStore((state) => state.data!);
-
   const room = useMemo(() => {
     return extractRoomByCurrentUser(call.room, user!);
   }, [call.room, user]);
+  const isCaller = call.caller._id === user._id;
+  const [isAccepted, setIsAccepted] = useState(call.acceptedUsers.some((u) => u._id === user._id));
+  const {
+    isEnded,
+    peerId,
+    connectPeer,
+    localVideoRef,
+    remoteVideoRef,
+    toggleVideo,
+    toggleAudio,
+    audioEnabled,
+    videoEnabled,
+    hasRemoteStream,
+    endCall,
+  } = usePeerJs(
+    call._id,
+    isCaller,
+    user._id,
+    room.participants.map((p) => p._id),
+    isAccepted,
+  );
 
   const router = useRouter();
-
   const pathname = usePathname();
-
-  const isCaller = true;
-
-  const [isUseVideo, setIsUseVideo] = useState(false);
-  const [isUseAudio, setIsUseAudio] = useState(true);
-  const [isAccepted, setIsAccepted] = useState(call.acceptedUsers.some((u) => u._id === user._id));
-
   const acceptMutation = useMutation({
     mutationFn: callApi.acceptCall,
     onSuccess() {
@@ -70,6 +82,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
   const handleAcceptCall = () => {
     acceptMutation.mutate(call._id);
     setIsAccepted(true);
+    connectPeer(peerId!);
   };
 
   const handleRejectCall = () => {
@@ -77,30 +90,46 @@ export const CallPanel = ({ call }: CallPanelProps) => {
   };
 
   const handleToggleVideo: ButtonProps['onClick'] = () => {
-    setIsUseVideo((prev) => !prev);
+    toggleVideo();
   };
 
   const handleToggleAudio: ButtonProps['onClick'] = () => {
-    setIsUseAudio((prev) => !prev);
+    toggleAudio();
   };
 
   const handleClickPhone: ButtonProps['onClick'] = () => {
     handleAcceptCall();
   };
+
   const handleClickOffPhone: ButtonProps['onClick'] = () => {
+    if (!room.isGroup) {
+      endCall();
+    }
     isAccepted ? handleEndCall() : handleRejectCall();
   };
 
+  if (call.status === CallStatus.ENDED || isEnded) {
+    router.push(pathname as string);
+  }
+
   return (
     <div className="flex h-full flex-col items-center justify-items-center py-10">
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <Avatar src={room.avatar} size="xLarge" />
-        <div className="mb-10 mt-3 text-center">
-          <h2 className="text-lg font-bold">{room.name}</h2>
-          <p className="text-sm text-gray-500">{isCaller ? 'Calling...' : 'Incoming call...'}</p>
+      <video ref={remoteVideoRef} className="absolute left-0 top-0 h-full w-full" />
+      <video
+        ref={localVideoRef}
+        className="absolute bottom-10 right-10 min-w-[200px] max-w-[20%] rounded-lg bg-blue-300"
+      ></video>
+
+      {!hasRemoteStream && (
+        <div className="flex flex-1 flex-col items-center justify-center">
+          <Avatar src={room.avatar} size="xLarge" />
+          <div className="mb-10 mt-3 text-center">
+            <h2 className="text-lg font-bold">{room.name}</h2>
+            <p className="text-sm text-gray-500">{isCaller ? 'Calling...' : 'Incoming call...'}</p>
+          </div>
         </div>
-      </div>
-      <div className="flex gap-4 justify-self-end">
+      )}
+      <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 gap-4 justify-self-end">
         <div className="relative">
           <Button
             type="default"
@@ -109,7 +138,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
             icon={<VideoCameraOutlined />}
             onClick={handleToggleVideo}
           />
-          {!isUseVideo && (
+          {!videoEnabled && (
             <div className="absolute right-1/2 top-1/2 h-6 w-[1px] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-black" />
           )}
         </div>
@@ -121,7 +150,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
             icon={<AudioOutlined />}
             onClick={handleToggleAudio}
           />
-          {!isUseAudio && (
+          {!audioEnabled && (
             <div className="absolute right-1/2 top-1/2 h-6 w-[1px] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-black" />
           )}
         </div>

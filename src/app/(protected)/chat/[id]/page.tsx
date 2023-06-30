@@ -1,8 +1,13 @@
 'use client';
 
-import { Avatar, Button, Dropdown, MenuProps, Modal } from 'antd';
+import { DisplayAvatar, DisplayName } from '@/components/message/display-info';
+import MyMessage from '@/components/message/my-message';
+import { messageApi } from '@/services/message-services';
+import { useMessagesStore } from '@/stores/messages/messages-store';
+import { useSocketStore } from '@/stores/socket';
+import { Message, MessageType } from '@/types/message';
+import { User } from '@/types/user';
 import {
-  DeleteOutlined,
   LinkOutlined,
   MoreOutlined,
   PhoneOutlined,
@@ -10,9 +15,12 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import { Avatar, Dropdown, MenuProps, Spin } from 'antd';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
+import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-
+import InfiniteScroll from 'react-infinite-scroll-component';
 export interface PageProps {
   params: {
     id: string;
@@ -26,27 +34,10 @@ const Page = ({ params }: PageProps) => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const inputElement = useRef<HTMLInputElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const childHover = useRef<HTMLDivElement>(null);
+  const socket = useSocketStore((state) => state.socket);
 
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-
-  const showModal = () => {
-    setOpen(true);
-  };
-
-  const handleOk = () => {
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  const handleCancel = () => {
-    console.log('Clicked cancel button');
-    setOpen(false);
-  };
+  const messages = useMessagesStore((state) => state.messages);
+  const { setMessages, removeMessage, addMessage } = useMessagesStore();
 
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
@@ -79,17 +70,6 @@ const Page = ({ params }: PageProps) => {
     inputElement?.current?.focus();
   }, [cursorPosition]);
 
-  const handleHover = () => {
-    if (childHover.current) {
-      childHover.current.classList.remove('hidden');
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (childHover.current) {
-      childHover.current.classList.add('hidden');
-    }
-  };
   const items: MenuProps['items'] = [
     {
       key: '1',
@@ -117,10 +97,87 @@ const Page = ({ params }: PageProps) => {
     },
   ];
   const emojiStyle: EmojiStyle = EmojiStyle.NATIVE;
+  //socket
+  useEffect(() => {
+    socket?.emit('join-room', roomId);
+  }, [socket]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const messageReceived = (message: Message) => {
+    addMessage(message);
+  };
+
+  useEffect(() => {
+    socket?.on('message.create', messageReceived);
+    return () => {
+      socket?.off('message.create', messageReceived);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageReceived, socket]);
+  //eslint-disable-next-line react-hooks/exhaustive-deps
+  const messageRemoved = (id: string) => {
+    removeMessage(id);
+  };
+  useEffect(() => {
+    socket?.on('message.delete', messageRemoved);
+    return () => {
+      socket?.off('message.delete', messageRemoved);
+    };
+  }, [messageRemoved, socket]);
+  //api
+
+  const roomId = useParams()?.id as string;
+  // const { data: messages } = useQuery({
+  //   queryKey: ['message', roomId],
+  //   queryFn: () => messageApi.getMessages(roomId!),
+  //   enabled: !!roomId,
+  //   onError(err) {
+  //     console.log(err);
+  //   },
+  // });
+  const _id = '6492b1c0867f0cdeb5fc2869';
+  const mutation = useMutation({
+    mutationFn: messageApi.createMessage,
+  });
+  // useUserStore.getState().data!;
+
+  // const { isLoading, isError, data, error } = useQuery({
+  //   queryKey: ['todos', roomId],
+  //   queryFn: messageApi.getMessages(roomId),
+  //   enabled: !!roomId,
+  //   onError(err) {
+  //     console.log(err);
+  //   },
+  // });
+  //pagination
+  const {
+    data,
+    fetchNextPage,
+    fetchPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    ...result
+  } = useInfiniteQuery({
+    queryKey: ['messages', roomId],
+    queryFn: ({ pageParam = 1 }) => messageApi.getMessages(roomId, pageParam, 20),
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    // getPreviousPageParam: (firstPage, allPages) => firstPage.prevCursor,
+  });
+
+  // useMessagesStore((state)=> state.setMessages(allMessage));
+
+  useEffect(() => {
+    const allMessage: Message[] = [];
+    data?.pages.forEach((page) => {
+      return page.data.forEach((message: Message) => allMessage.push(message));
+    });
+    setMessages(allMessage);
+  }, [data]);
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 w-full items-center justify-between bg-white px-5">
+      <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
         <div className="flex items-center">
           <Avatar size="large" icon={<UserOutlined />} />
           <span className="ml-2 font-bold text-gray-800">Khánh Vi</span>
@@ -133,44 +190,45 @@ const Page = ({ params }: PageProps) => {
           </Dropdown>
         </div>
       </div>
-      <div className="flex flex-grow flex-col items-center">
-        <div className="mb-1 flex w-[630px] flex-grow flex-col-reverse">
-          <div className="mr-1 flex items-end">
-            <Avatar size="small" icon={<UserOutlined />} />
-            <div className="ml-1 w-full">
-              <div>Khánh Vi</div>
-              <div
-                className="flex w-full items-center"
-                onMouseEnter={handleHover}
-                onMouseLeave={handleMouseLeave}
-              >
-                <div className="mr-2 rounded-md bg-white p-1">hihihihihi</div>
-                <Button
-                  type="primary"
-                  className="bg-transparent text-black shadow-none hover:!bg-transparent hover:!text-black"
-                  shape="circle"
-                  size="small"
-                  onClick={showModal}
-                  icon={<DeleteOutlined />}
-                  ref={childHover}
-                />
-                <Modal
-                  title="Confirm deletion"
-                  open={open}
-                  onOk={handleOk}
-                  confirmLoading={confirmLoading}
-                  onCancel={handleCancel}
-                  okText="Confirm"
-                >
-                  <p>Confirm delete this message</p>
-                </Modal>
-              </div>
-            </div>
-          </div>
+
+      <div className="flex flex-grow flex-col items-center overflow-hidden">
+        <div
+          className="mb-1 flex w-[730px] flex-grow flex-col-reverse overflow-y-auto"
+          id="scrollableDiv"
+        >
+          <InfiniteScroll
+            dataLength={messages.length || 0}
+            next={fetchNextPage}
+            hasMore={hasNextPage || false}
+            className="!overflow-y-hidden"
+            style={{ display: 'flex', flexDirection: 'column-reverse' }}
+            loader={<Spin size="small" />}
+            inverse={true}
+            scrollableTarget="scrollableDiv"
+          >
+            {messages?.map((message, index) => {
+              return _id == (message.sender as User)._id ? (
+                <MyMessage key={message._id} message={message} />
+              ) : (
+                <div key={message._id} className="mr-1 flex items-end">
+                  <div className="my-[2px]">
+                    <DisplayName messages={messages} index={index} />
+
+                    <div className="flex">
+                      <div className="h-[34px] w-[34px]">
+                        <DisplayAvatar messages={messages} index={index} />
+                      </div>
+                      <div className="ml-2 rounded-md bg-white p-2">{message.content}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </InfiniteScroll>
         </div>
         {/* footer */}
-        <div className="mb-5 h-14 h-fit w-[630px] rounded-lg bg-white">
-          <div className="flex h-full w-full items-center">
+        <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
+          <div className=" flex h-14 w-full items-center">
             <div
               className="relative flex h-9 w-14 items-center justify-center"
               ref={emojiPickerRef}
@@ -205,10 +263,11 @@ const Page = ({ params }: PageProps) => {
                 if (e.key === 'Enter') {
                   const message = {
                     content: inputElement?.current?.value,
-                    // conversationId: conversationId,
+                    type: MessageType.TEXT,
+                    room: roomId,
                   };
                   setInputChat('');
-                  // createMessageMutation.mutate(message);
+                  mutation.mutate(message);
                 }
               }}
             />

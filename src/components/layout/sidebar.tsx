@@ -25,7 +25,7 @@ interface SidebarContextProps {
   isStep2CreateGroup: boolean;
   setIsStep2CreateGroup: (isStep2CreateGroup: boolean) => void;
   username: string;
-  setUsername: (value:string) => void
+  setUsername: (value: string) => void;
 }
 
 export const SidebarContext = createContext<SidebarContextProps>({} as SidebarContextProps);
@@ -65,18 +65,27 @@ export const Sidebar = () => {
         isCreateGroup,
         setIsCreateGroup,
         isStep2CreateGroup,
-        setIsStep2CreateGroup,username, setUsername
+        setIsStep2CreateGroup,
+        username,
+        setUsername,
       }}
     >
       {/* old 372px */}
       <div className="relative flex h-full w-[400px] flex-col border-r border-r-2 bg-slate-100">
         {/* {isStep2CreateGroup && <GroupName />} */}
-        {!isCreateGroup ? <Header /> : !isStep2CreateGroup && <HeaderGroup username={username} setUsername={setUsername} />}
-        <div className=" flex-1 overflow-y-scroll">
+        {!isCreateGroup ? (
+          <Header />
+        ) : (
+          !isStep2CreateGroup && <HeaderGroup username={username} setUsername={setUsername} />
+        )}
+        <div className=" overflow-y-overlay flex-1 ">
           {!isSearch && !isCreateGroup && <RoomFolder />}
           {isSearch && !isCreateGroup && <SidebarSearch searchResult={searchResult} />}
           {isCreateGroup && <GroupCreate />}
           {!isCreateGroup ? <CreateChat /> : ''}
+          <div className={isSearch || isCreateGroup || isStep2CreateGroup ? 'hidden' : 'block'}>
+            <RoomFolder />
+          </div>
         </div>
       </div>
     </SidebarContext.Provider>
