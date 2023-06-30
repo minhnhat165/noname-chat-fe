@@ -78,7 +78,7 @@ const Header = () => {
       )}
       <Search
         size="large"
-        placeholder="input search text"
+        placeholder="search"
         allowClear
         onFocus={() => {
           setIsSearch(true);

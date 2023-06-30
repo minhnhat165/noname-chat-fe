@@ -9,7 +9,11 @@ export const roomApi = {
     const url = `${BASE_URL}/${id}`;
     return axios.get(url);
   },
-  getRooms: (params: CursorPaginationParams): Promise<CursorPaginationResponse<Room>> => {
+  getRooms: (
+    params: CursorPaginationParams & {
+      type?: 'all' | 'direct' | 'group';
+    },
+  ): Promise<CursorPaginationResponse<Room>> => {
     return axios.get(BASE_URL, { params });
   },
 };

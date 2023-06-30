@@ -4,11 +4,13 @@ import { UserStore, useUserStore } from '@/stores/user';
 import { cn, extractRoomByCurrentUser, generateRoomLink } from '@/utils';
 
 import { Avatar } from '../common/avatar';
+import { Badge } from 'antd';
 import Link from 'next/link';
 import { MessageType } from '@/types/message';
 import { PhoneOutlined } from '@ant-design/icons';
 import { Room } from '@/types/room';
 import { RoomItemMenuAction } from './room-item-menu-action';
+import { useAppStore } from '@/stores/app';
 import { useMemo } from 'react';
 import { useTimeDisplay } from '@/hooks/use-time-display';
 
@@ -20,6 +22,7 @@ export interface RoomItemProps {
 
 export const RoomItem = ({ room: _room, isActive, shorted }: RoomItemProps) => {
   const user = useUserStore((state: UserStore) => state.data);
+  const usersOnline = useAppStore((state) => state.data.usersOnline);
   const room = useMemo(() => {
     return extractRoomByCurrentUser(_room, user!);
   }, [_room, user]);
@@ -40,6 +43,10 @@ export const RoomItem = ({ room: _room, isActive, shorted }: RoomItemProps) => {
     );
   };
 
+  const isOnline = room.participants.some(
+    (p) => usersOnline.includes(p._id) && p._id !== user!._id,
+  );
+
   return (
     <>
       <Link
@@ -49,7 +56,9 @@ export const RoomItem = ({ room: _room, isActive, shorted }: RoomItemProps) => {
           isActive ? 'bg-slate-200' : 'bg-white hover:bg-slate-100',
         )}
       >
-        <Avatar src={room.avatar} />
+        <Badge size="small" status="success" offset={[-9, 44]} dot={isOnline}>
+          <Avatar src={room.avatar} />
+        </Badge>
         {!shorted && (
           <>
             <div className="flex flex-1 flex-col justify-between px-2">
