@@ -9,6 +9,11 @@ export enum MessageType {
   IMAGE = 'IMAGE',
   CALL = 'CALL',
 }
+
+type fileType = {
+  link: any;
+  name: any;
+};
 export type Message = {
   content?: string;
   sender: String | User;
@@ -16,6 +21,7 @@ export type Message = {
   read: boolean;
   type: MessageType;
   call?: Call;
-  images?: string;
+  images?: string[];
+  files?: fileType[];
   createdAt?: string;
 } & BaseEntity;

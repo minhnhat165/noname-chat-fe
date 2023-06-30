@@ -333,6 +333,11 @@ video {
 .ant-table {
   border-radius: 8px !important;
 }
+.ant-upload-list-item-container,
+.ant-upload-select {
+  width: 58px !important;
+  height: 58px !important;
+}
 .ant-input-affix-wrapper,
 .ant-input-affix-wrapper > input {
   background-color: #e2e8f0;
