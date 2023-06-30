@@ -1,17 +1,22 @@
 import { InitializeUserStore, useUserStore } from '@/stores/user';
+import { checkIsLogin, getToken } from '@/utils/auth';
 
-import { checkIsLogin } from '@/utils/auth';
-import { redirect } from 'next/navigation';
-import { user } from '@/stores/data-test';
+import { CallIncoming } from '@/components/call/call-incoming';
 import SocketClient from '@/components/socket/socket-client';
+import { redirect } from 'next/navigation';
 
 export interface AuthLayoutProps {
   children: React.ReactNode;
 }
 async function getUserInfo() {
   try {
-    // const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_API_URL}/users/${1}`);
-    // const res = await response.json();
+    const token = getToken();
+    const res = await fetch(`${process.env.SERVER_API_URL}/api/auth/info`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const { user } = await res.json();
     return user;
   } catch (error) {
     throw new Error('Failed to fetch data');
@@ -24,6 +29,7 @@ const ProtectedLayout = async ({ children }: AuthLayoutProps) => {
     redirect('/');
   }
   const user = await getUserInfo();
+  console.log(user);
   useUserStore.setState({ data: user });
   return (
     <>

@@ -54,7 +54,7 @@ export const EditProfilePanel = forwardRef<EditProfilePanelRef, EditProfilePanel
     }));
 
     return (
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center ">
         <div className="relative">
           <Avatar bordered src={imgPreview} size="xLarge" alt={username} />
           <ImgCrop rotationSlider>
