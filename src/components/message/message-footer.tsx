@@ -222,7 +222,6 @@ const MessageFooter = (props: Props) => {
           )}
         </div>
         <div className="block h-fit flex-1 ">
-          {/* test */}
           {selectType === MessageType.IMAGE && (
             <Upload
               listType="picture-card"
@@ -236,7 +235,6 @@ const MessageFooter = (props: Props) => {
               </button>
             </Upload>
           )}
-          {/* end test */}
           {selectType === MessageType.FILE && (
             <Upload
               action="https://www.mocky.io/v2/5cc8019d300000980a055e76"

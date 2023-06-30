@@ -14,7 +14,7 @@ const Page = ({ params }: PageProps) => {
   const roomId = useParams()?.id as string;
   return (
     <div className="flex h-full flex-col">
-      <MessageHeader />
+      <MessageHeader roomId={roomId} />
       <div className="flex flex-grow flex-col items-center overflow-hidden">
         <MessageBody roomId={roomId} />
         <MessageFooter roomId={roomId} />

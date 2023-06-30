@@ -2,10 +2,11 @@ import { messageApi } from '@/services/message-services';
 import { useMessagesStore } from '@/stores/messages/messages-store';
 import { useSocketStore } from '@/stores/socket';
 import { UserStore, useUserStore } from '@/stores/user';
-import { Message } from '@/types/message';
+import { Message, MessageType } from '@/types/message';
 import { User } from '@/types/user';
+import { FileTextFilled } from '@ant-design/icons';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Spin } from 'antd';
+import { Image, Spin } from 'antd';
 import { useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { DisplayAvatar, DisplayName } from './display-info';
@@ -23,6 +24,8 @@ const MessageBody = (props: Props) => {
   //socket
   useEffect(() => {
     socket?.emit('join-room', props.roomId);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +95,43 @@ const MessageBody = (props: Props) => {
                     <div className="h-[34px] w-[34px]">
                       <DisplayAvatar messages={messages} index={index} />
                     </div>
-                    <div className="ml-2 rounded-md bg-white p-2">{message.content}</div>
+                    {message.type === MessageType.TEXT && (
+                      <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
+                        {message.content}
+                      </div>
+                    )}
+                    {message.type === MessageType.IMAGE && (
+                      <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
+                        <p>{message.content}</p>
+                        <Image.PreviewGroup
+                          preview={{
+                            onChange: (current, prev) =>
+                              console.log(`current index: ${current}, prev index: ${prev}`),
+                          }}
+                        >
+                          {message.images?.map((image, index) => (
+                            <Image key={index} alt="image" src={image} />
+                          ))}
+                        </Image.PreviewGroup>
+                      </div>
+                    )}
+                    {message.type === MessageType.FILE && (
+                      <div className="ml-4 mr-2 max-w-[60%] rounded-md bg-white px-3 py-2">
+                        {!!message.content && (
+                          <div className=" rounded-md bg-white">{message.content}</div>
+                        )}
+                        {message.files?.map((file, index) => (
+                          <div key={index} className=" my-[2px] mr-5  rounded-md bg-white py-1">
+                            <a href={file.link} className="inline-block h-3 w-fit">
+                              <div className="flex items-center">
+                                <FileTextFilled style={{ fontSize: '40px', color: '#3390ec' }} />
+                                <p className="ml-1 font-medium">{file.name}</p>
+                              </div>
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

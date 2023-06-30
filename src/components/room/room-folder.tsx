@@ -27,7 +27,7 @@ export const RoomFolder = (props: RoomFolderProps) => {
   const activeId = param?.id as string | null;
 
   return (
-    <div className="">
+    <div>
       <RoomList rooms={rooms} activeId={activeId} />
       {(isFetching || hasNextPage) && (
         <div ref={sentryRef} className="gap-2">

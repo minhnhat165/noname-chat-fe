@@ -88,7 +88,7 @@ const MyMessage = (message: MessageProps) => {
             <div className=" rounded-md bg-white">{message.message.content}</div>
           )}
           {message.message.files?.map((file, index) => (
-            <div key={index} className=" my-[2px] rounded-md  bg-white  py-1 ">
+            <div key={index} className=" my-[2px] mr-5  rounded-md bg-white py-1">
               <a href={file.link} className="inline-block h-3 w-fit">
                 <div className="flex items-center">
                   <FileTextFilled style={{ fontSize: '40px', color: '#3390ec' }} />

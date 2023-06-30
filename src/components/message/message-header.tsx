@@ -1,11 +1,23 @@
+import { roomApi } from '@/services/room-servers';
 import { MoreOutlined, PhoneOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
 import { Avatar, Dropdown, MenuProps } from 'antd';
 
 import React from 'react';
 
-type Props = {};
+type Props = {
+  roomId: string;
+};
 
 const MessageHeader = (props: Props) => {
+  const { data: room, isLoading } = useQuery({
+    queryKey: ['room', props.roomId],
+    queryFn: () => roomApi.getRoom(props.roomId!),
+    enabled: !!props.roomId,
+    onError(err) {
+      console.log(err);
+    },
+  });
   const items: MenuProps['items'] = [
     {
       key: '1',
@@ -41,8 +53,8 @@ const MessageHeader = (props: Props) => {
     <div>
       <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
         <div className="flex items-center">
-          <Avatar size="large" icon={<UserOutlined />} />
-          <span className="ml-2 font-bold text-gray-800">Khánh Vi</span>
+          <Avatar size="large" src={room?.data.avatar} />
+          <span className="ml-2 font-bold text-gray-800">{room?.data.name}</span>
         </div>
         <div className="flex w-24 justify-between">
           <SearchOutlined />
