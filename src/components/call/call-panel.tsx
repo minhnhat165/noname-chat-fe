@@ -1,17 +1,16 @@
 'use client';
 
 import { AudioOutlined, PhoneOutlined, VideoCameraOutlined } from '@ant-design/icons';
-import { Button, ButtonProps } from 'antd';
+import { Button, ButtonProps, message } from 'antd';
 import { Call, CallStatus } from '@/types/call';
-import { useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { Avatar } from '../common/avatar';
 import { CLOSE_CALL_MESSAGE } from '@/constants';
-import { callApi } from '@/services/call-services';
 import { extractRoomByCurrentUser } from '@/utils';
-import { useMutation } from '@tanstack/react-query';
 import { usePeerJs } from '@/hooks/call/use-peerjs';
+import { useSocketStore } from '@/stores/socket';
 import { useUserStore } from '@/stores/user';
 
 export interface CallPanelProps {
@@ -27,8 +26,6 @@ export const CallPanel = ({ call }: CallPanelProps) => {
   const [isAccepted, setIsAccepted] = useState(call.acceptedUsers.some((u) => u._id === user._id));
   const {
     isEnded,
-    peerId,
-    connectPeer,
     localVideoRef,
     remoteVideoRef,
     toggleVideo,
@@ -37,37 +34,35 @@ export const CallPanel = ({ call }: CallPanelProps) => {
     videoEnabled,
     hasRemoteStream,
     endCall,
+    acceptCall,
+    rejectCall,
+    acceptCallLoading,
+    endCallLoading,
+    rejectCallLoading,
   } = usePeerJs(
     call._id,
     isCaller,
     user._id,
     room.participants.map((p) => p._id),
     isAccepted,
+    {
+      onRejected: () => {
+        message.error('Call has been rejected');
+        redirectToCallRepair();
+      },
+      onEnded: () => {
+        message.error('Call has been ended');
+        redirectToCallRepair();
+      },
+    },
   );
 
   const router = useRouter();
   const pathname = usePathname();
-  const acceptMutation = useMutation({
-    mutationFn: callApi.acceptCall,
-    onSuccess() {
-      setIsAccepted(true);
-    },
-  });
 
-  const rejectMutation = useMutation({
-    mutationFn: callApi.rejectCall,
-    onSuccess() {
-      closeCall();
-    },
-  });
-
-  const endMutation = useMutation({
-    mutationFn: callApi.endCall,
-    onSuccess() {
-      closeCall();
-      router.push(pathname as string);
-    },
-  });
+  const redirectToCallRepair = () => {
+    router.push(pathname as string);
+  };
 
   const closeCall = () => {
     if (window.opener) {
@@ -75,26 +70,20 @@ export const CallPanel = ({ call }: CallPanelProps) => {
     }
   };
 
-  const handleEndCall = () => {
-    endMutation.mutate(call._id);
+  const handleEndCall = async () => {
+    await endCall(call._id);
+    closeCall();
+    redirectToCallRepair();
   };
 
   const handleAcceptCall = () => {
-    acceptMutation.mutate(call._id);
+    acceptCall(call._id);
     setIsAccepted(true);
-    connectPeer(peerId!);
   };
 
-  const handleRejectCall = () => {
-    rejectMutation.mutate(call._id);
-  };
-
-  const handleToggleVideo: ButtonProps['onClick'] = () => {
-    toggleVideo();
-  };
-
-  const handleToggleAudio: ButtonProps['onClick'] = () => {
-    toggleAudio();
+  const handleRejectCall = async () => {
+    await rejectCall(call._id);
+    closeCall();
   };
 
   const handleClickPhone: ButtonProps['onClick'] = () => {
@@ -102,15 +91,27 @@ export const CallPanel = ({ call }: CallPanelProps) => {
   };
 
   const handleClickOffPhone: ButtonProps['onClick'] = () => {
-    if (!room.isGroup) {
-      endCall();
+    if (isAccepted) {
+      handleEndCall();
+      return;
     }
-    isAccepted ? handleEndCall() : handleRejectCall();
+    handleRejectCall();
   };
 
   if (call.status === CallStatus.ENDED || isEnded) {
-    router.push(pathname as string);
+    redirectToCallRepair();
   }
+
+  const socket = useSocketStore((state) => state.socket);
+
+  useEffect(() => {
+    return () => {
+      if (socket) {
+        console.log('leave call');
+        socket?.emit('leave-call', call._id);
+      }
+    };
+  }, [call._id, socket]);
 
   return (
     <div className="flex h-full flex-col items-center justify-items-center py-10">
@@ -136,7 +137,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
             size="large"
             shape="circle"
             icon={<VideoCameraOutlined />}
-            onClick={handleToggleVideo}
+            onClick={toggleVideo}
           />
           {!videoEnabled && (
             <div className="absolute right-1/2 top-1/2 h-6 w-[1px] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-black" />
@@ -148,7 +149,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
             size="large"
             shape="circle"
             icon={<AudioOutlined />}
-            onClick={handleToggleAudio}
+            onClick={toggleAudio}
           />
           {!audioEnabled && (
             <div className="absolute right-1/2 top-1/2 h-6 w-[1px] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-black" />
@@ -157,7 +158,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
 
         {!isAccepted && (
           <Button
-            loading={acceptMutation.isLoading}
+            loading={acceptCallLoading}
             type="primary"
             size="large"
             shape="circle"
@@ -167,7 +168,7 @@ export const CallPanel = ({ call }: CallPanelProps) => {
         )}
 
         <Button
-          loading={acceptMutation.isLoading || rejectMutation.isLoading || endMutation.isLoading}
+          loading={endCallLoading || rejectCallLoading}
           type="primary"
           size="large"
           danger

@@ -1,12 +1,8 @@
 'use client';
 
+import { Avatar, Dropdown, MenuProps, Spin } from 'antd';
 import { DisplayAvatar, DisplayName } from '@/components/message/display-info';
-import MyMessage from '@/components/message/my-message';
-import { messageApi } from '@/services/message-services';
-import { useMessagesStore } from '@/stores/messages/messages-store';
-import { useSocketStore } from '@/stores/socket';
-import { Message, MessageType } from '@/types/message';
-import { User } from '@/types/user';
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import {
   LinkOutlined,
   MoreOutlined,
@@ -15,12 +11,18 @@ import {
   SmileOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
-import { Avatar, Dropdown, MenuProps, Spin } from 'antd';
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
-import { useParams } from 'next/navigation';
+import { Message, MessageType } from '@/types/message';
 import { useEffect, useRef, useState } from 'react';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+
 import InfiniteScroll from 'react-infinite-scroll-component';
+import MyMessage from '@/components/message/my-message';
+import { User } from '@/types/user';
+import { messageApi } from '@/services/message-services';
+import { useMessagesStore } from '@/stores/messages/messages-store';
+import { useParams } from 'next/navigation';
+import { useSocketStore } from '@/stores/socket';
+
 export interface PageProps {
   params: {
     id: string;
@@ -191,11 +193,8 @@ const Page = ({ params }: PageProps) => {
         </div>
       </div>
 
-      <div className="flex flex-grow flex-col items-center overflow-hidden">
-        <div
-          className="mb-1 flex w-[730px] flex-grow flex-col-reverse overflow-y-auto"
-          id="scrollableDiv"
-        >
+      <div className="flex flex-grow flex-col items-center overflow-hidden px-10">
+        <div className="mb-1 w-full flex-grow flex-col-reverse overflow-y-auto" id="scrollableDiv">
           <InfiniteScroll
             dataLength={messages.length || 0}
             next={fetchNextPage}

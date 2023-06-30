@@ -15,9 +15,10 @@ import { useTimeDisplay } from '@/hooks/use-time-display';
 export interface RoomItemProps {
   room: Room;
   isActive?: boolean;
+  shorted?: boolean;
 }
 
-export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
+export const RoomItem = ({ room: _room, isActive, shorted }: RoomItemProps) => {
   const user = useUserStore((state: UserStore) => state.data);
   const room = useMemo(() => {
     return extractRoomByCurrentUser(_room, user!);
@@ -49,16 +50,20 @@ export const RoomItem = ({ room: _room, isActive }: RoomItemProps) => {
         )}
       >
         <Avatar src={room.avatar} />
-        <div className="flex flex-1 flex-col justify-between px-2">
-          <div className="flex">
-            <span className="font-semibold text-gray-800">{room.name}</span>
-            {lastMessage && <TimeDisplay time={lastMessage.createdAt} />}
-          </div>
-          {renderSubTitle()}
-        </div>
-        <div className="invisible absolute right-3 top-1/2 -translate-y-1/2 transition-all group-hover/item:visible">
-          <RoomItemMenuAction room={room} />
-        </div>
+        {!shorted && (
+          <>
+            <div className="flex flex-1 flex-col justify-between px-2">
+              <div className="flex">
+                <span className="font-semibold text-gray-800">{room.name}</span>
+                {lastMessage && <TimeDisplay time={lastMessage.createdAt} />}
+              </div>
+              {renderSubTitle()}
+            </div>
+            <div className="invisible absolute right-3 top-1/2 -translate-y-1/2 transition-all group-hover/item:visible">
+              <RoomItemMenuAction room={room} />
+            </div>
+          </>
+        )}
       </Link>
     </>
   );

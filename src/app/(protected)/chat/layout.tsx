@@ -1,5 +1,6 @@
 import { CallIncoming } from '@/components/call/call-incoming';
 import { Sidebar } from '@/components/layout/sidebar';
+import { SidebarNavigate } from '@/components/layout/sidebar-navigate';
 
 export interface LayoutProps {
   children: React.ReactNode;
@@ -10,9 +11,7 @@ const Layout = ({ children }: LayoutProps) => {
     <>
       <CallIncoming />
       <div className="flex h-screen">
-        <aside className="hidden md:block ">
-          <Sidebar />
-        </aside>
+        <Sidebar />
         <div className="flex-1">{children}</div>
       </div>
     </>

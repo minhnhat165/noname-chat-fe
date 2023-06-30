@@ -1,20 +1,18 @@
 'use client';
 
-import { ArrowLeftOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { Button, Drawer, Input } from 'antd';
+import { Button, Input } from 'antd';
 import { Search, SidebarSearch } from './sidebar-search';
 import { createContext, useContext, useState } from 'react';
 import { rooms, users } from '@/stores/data-test';
 
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import { RoomFolder } from '../room/room-folder';
-import { SidebarMenu } from './sidebar-menu';
+import { cn } from '@/utils';
+import { useSettingStore } from '@/stores/setting';
 
 interface SidebarContextProps {
-  showMenu: () => void;
-  closeMenu: () => void;
   isSearch: boolean;
   setIsSearch: (isSearch: boolean) => void;
-  menuVisible: boolean;
   searchValue: string;
   setSearchValue: (value: string) => void;
 }
@@ -24,39 +22,36 @@ export const SidebarContext = createContext<SidebarContextProps>({} as SidebarCo
 export const useSidebar = () => useContext(SidebarContext);
 
 export const Sidebar = () => {
-  const [menuVisible, setMenuVisible] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+
+  const screen = useSettingStore((state) => state.data.screen);
 
   const [searchResult, setSearchResult] = useState<Search>({
     rooms: rooms,
     users: users.slice(1, 4),
   });
 
-  const showMenu = () => {
-    setMenuVisible(true);
-  };
-  const closeMenu = () => {
-    setMenuVisible(false);
-  };
   return (
     <SidebarContext.Provider
       value={{
-        showMenu,
-        closeMenu,
-        menuVisible,
         isSearch,
         setIsSearch,
         searchValue,
         setSearchValue,
       }}
     >
-      <div className="flex h-full w-[372px] flex-col border-r bg-white">
+      <div
+        className={cn(
+          'flex h-full flex-col border-r bg-white',
+          screen == 'mobile' ? 'w-20' : 'w-[360px]',
+        )}
+      >
         <Header />
         <div className="overflow-y-overlay flex-1 p-2">
           {isSearch && <SidebarSearch searchResult={searchResult} />}
           <div className={isSearch ? 'hidden' : 'block'}>
-            <RoomFolder />
+            <RoomFolder shorted={screen == 'mobile'} />
           </div>
         </div>
       </div>
@@ -65,12 +60,11 @@ export const Sidebar = () => {
 };
 
 const Header = () => {
-  const { showMenu, closeMenu, menuVisible, isSearch, setIsSearch, searchValue, setSearchValue } =
-    useSidebar();
+  const { isSearch, setIsSearch, searchValue, setSearchValue } = useSidebar();
   const { Search } = Input;
   return (
     <div className="flex h-14 items-center justify-between px-4 py-2">
-      {isSearch ? (
+      {isSearch && (
         <Button
           onClick={() => {
             setIsSearch(false);
@@ -79,15 +73,6 @@ const Header = () => {
           className="mr-2"
           shape="circle"
           icon={<ArrowLeftOutlined />}
-          size="large"
-        />
-      ) : (
-        <Button
-          onClick={showMenu}
-          type="text"
-          className="mr-2"
-          shape="circle"
-          icon={<MenuUnfoldOutlined />}
           size="large"
         />
       )}
@@ -103,18 +88,6 @@ const Header = () => {
           setSearchValue(e.target.value);
         }}
       />
-      <Drawer
-        placement="left"
-        closable={false}
-        bodyStyle={{
-          padding: '0rem',
-        }}
-        onClose={closeMenu}
-        open={menuVisible}
-        width={280}
-      >
-        <SidebarMenu />
-      </Drawer>
     </div>
   );
 };

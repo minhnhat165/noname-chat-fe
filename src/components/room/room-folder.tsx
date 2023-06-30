@@ -5,9 +5,11 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { useParams } from 'next/navigation';
 
-export interface RoomFolderProps {}
+export interface RoomFolderProps {
+  shorted?: boolean;
+}
 
-export const RoomFolder = (props: RoomFolderProps) => {
+export const RoomFolder = ({ shorted }: RoomFolderProps) => {
   const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
     useInfiniteQuery({
       queryKey: ['rooms'],
@@ -28,7 +30,7 @@ export const RoomFolder = (props: RoomFolderProps) => {
 
   return (
     <div className="">
-      <RoomList rooms={rooms} activeId={activeId} />
+      <RoomList rooms={rooms} activeId={activeId} shorted={shorted} />
       {(isFetching || hasNextPage) && (
         <div ref={sentryRef} className="gap-2">
           <RoomItemSkeleton />
