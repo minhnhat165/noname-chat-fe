@@ -8,7 +8,7 @@ import { Avatar } from '@/components/common/avatar';
 import { useState, Dispatch, SetStateAction } from 'react';
 import ImgCrop from 'antd-img-crop';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { roomApi } from '@/services/room-servers';
 import { UserStore, useUserStore } from '@/stores/user';
 
@@ -19,7 +19,7 @@ export interface GroupCreateProps {}
 export const GroupCreate = ({}: GroupCreateProps) => {
   const currentUser = useUserStore((state: UserStore) => state.data!);
 
-  const { isStep2CreateGroup ,username} = useSidebar();
+  const { isStep2CreateGroup, username } = useSidebar();
   // const [username, setUsername] = useState<string>('');
   const [groupName, setGroupName] = useState<string>('');
   const [participants, setParticipants] = useState<string[]>([]);
@@ -51,7 +51,11 @@ export const GroupCreate = ({}: GroupCreateProps) => {
         </div>
       ) : (
         <div className="h-full bg-slate-200">
-          <SidebarPeople participants={participants} setParticipants={setParticipants} />
+          <SidebarPeople
+            data={participantsAll?.data}
+            participants={participants}
+            setParticipants={setParticipants}
+          />
         </div>
       )}
     </>
