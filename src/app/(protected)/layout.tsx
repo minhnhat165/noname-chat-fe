@@ -1,10 +1,8 @@
 import { InitializeUserStore, useUserStore } from '@/stores/user';
 import { checkIsLogin, getToken } from '@/utils/auth';
 
-import { CallIncoming } from '@/components/call/call-incoming';
 import SocketClient from '@/components/socket/socket-client';
 import { redirect } from 'next/navigation';
-import { SidebarNavigate } from '@/components/layout/sidebar-navigate';
 
 export interface AuthLayoutProps {
   children: React.ReactNode;
@@ -36,10 +34,7 @@ const ProtectedLayout = async ({ children }: AuthLayoutProps) => {
     <>
       <SocketClient />
       <InitializeUserStore user={user} />
-      <div className="flex">
-        <SidebarNavigate />
-        {children}
-      </div>
+      {children}
     </>
   );
 };
