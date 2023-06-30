@@ -101,9 +101,12 @@ const MyMessage = (message: MessageProps) => {
       )}
       <Modal
         title="Delete this message"
-        okText="Confirm"
+        okText="Delete"
         open={open}
         onOk={handleOk}
+        okButtonProps={{
+          danger: true,
+        }}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
       >
