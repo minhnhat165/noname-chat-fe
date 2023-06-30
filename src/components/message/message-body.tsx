@@ -1,16 +1,17 @@
+import { DisplayAvatar, DisplayName } from './display-info';
+import { Image, Spin, message } from 'antd';
+import { Message, MessageType } from '@/types/message';
+import { UserStore, useUserStore } from '@/stores/user';
+
+import { FileTextFilled } from '@ant-design/icons';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import MyMessage from './my-message';
+import { User } from '@/types/user';
 import { messageApi } from '@/services/message-services';
+import { useEffect } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMessagesStore } from '@/stores/messages/messages-store';
 import { useSocketStore } from '@/stores/socket';
-import { UserStore, useUserStore } from '@/stores/user';
-import { Message, MessageType } from '@/types/message';
-import { User } from '@/types/user';
-import { FileTextFilled } from '@ant-design/icons';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { Image, Spin, message } from 'antd';
-import { useEffect } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { DisplayAvatar, DisplayName } from './display-info';
-import MyMessage from './my-message';
 
 type Props = {
   roomId: string;
@@ -24,9 +25,7 @@ const MessageBody = (props: Props) => {
   //socket
   useEffect(() => {
     socket?.emit('join-room', props.roomId);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket]);
+  }, [props.roomId, socket]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageReceived = (message: Message) => {
@@ -57,6 +56,8 @@ const MessageBody = (props: Props) => {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
+  console.log(props.roomId);
+
   useEffect(() => {
     const allMessage: Message[] = [];
     console.log(data?.pages);
@@ -64,7 +65,6 @@ const MessageBody = (props: Props) => {
       allMessage.push(message),
     );
     setMessages([...messages, ...allMessage]);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 

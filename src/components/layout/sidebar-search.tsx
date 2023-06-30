@@ -41,10 +41,6 @@ export const SidebarSearch = ({ searchResult }: SidebarSearchProps) => {
   });
   console.log(data?.data);
   const users = data?.data || [];
-  // const { rooms, users } = data || {
-  //   rooms: [],
-  //   users: [],
-  // };
 
   return (
     <div>
