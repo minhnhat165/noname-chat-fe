@@ -34,6 +34,7 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
   return (
     <div className="">
       <Tabs
+        size="small"
         defaultActiveKey="1"
         type="card"
         className="-mx-2"

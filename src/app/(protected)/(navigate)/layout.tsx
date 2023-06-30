@@ -8,7 +8,7 @@ const NavigateLayout = async ({ children }: NavigateLayout) => {
   return (
     <div className="flex">
       <SidebarNavigate />
-      {children}
+      <div className="flex-1"> {children}</div>
     </div>
   );
 };
