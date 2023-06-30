@@ -203,39 +203,18 @@ Use the modern Firefox focus style for all focusable elements.
   outline: auto;
 }
 
-/*
-Remove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)
-*/
-
 :-moz-ui-invalid {
   box-shadow: none;
 }
-
-/*
-Add the correct vertical alignment in Chrome and Firefox.
-*/
 
 progress {
   vertical-align: baseline;
 }
 
-/*
-Correct the cursor style of increment and decrement buttons in Safari.
-*/
-
 ::-webkit-inner-spin-button,
 ::-webkit-outer-spin-button {
   height: auto;
 }
-
-/*
-1. Correct the odd appearance in Chrome and Safari.
-2. Correct the outline style in Safari.
-*/
-
-/*
-Remove the inner padding in Chrome and Safari on macOS.
-*/
 
 ::-webkit-search-decoration {
   -webkit-appearance: none;
@@ -304,20 +283,11 @@ textarea {
   resize: vertical;
 }
 
-/*
-1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)
-2. Set the default placeholder color to the user's configured gray 400 color.
-*/
-
 input::placeholder,
 textarea::placeholder {
   opacity: 1; /* 1 */
   color: theme('colors.gray.400', #9ca3af); /* 2 */
 }
-
-/*
-Set the default cursor for buttons.
-*/
 
 button,
 [role='button'] {
@@ -362,4 +332,12 @@ video {
 
 .ant-table {
   border-radius: 8px !important;
+}
+.ant-input-affix-wrapper,
+.ant-input-affix-wrapper > input {
+  background-color: #e2e8f0;
+}
+
+.ant-input-affix-wrapper > input::placeholder {
+  color: #474849 !important;
 }

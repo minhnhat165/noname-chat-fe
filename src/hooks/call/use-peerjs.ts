@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import Peer from 'peerjs';
+import { useCallAction } from './use-call-action';
 import { useMediaControl } from './useMediaControl';
 import { useSocketStore } from '@/stores/socket';
 
@@ -12,12 +13,18 @@ type CallPayload = {
   peerId: string;
   participants: string[];
 };
+type Options = {
+  onRejected?: () => void;
+  onAccepted?: () => void;
+  onEnded?: () => void;
+};
 export const usePeerJs = (
   callId: string,
   isCaller: boolean,
   userId: string,
   participants: string[],
   isAccepted?: boolean,
+  options?: Options,
 ) => {
   const socket = useSocketStore((state) => state.socket);
   const [hasRemoteStream, setHasRemoteStream] = useState<boolean>(false);
@@ -26,6 +33,15 @@ export const usePeerJs = (
   const [peerId, setPeerId] = useState<string | null>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const { acceptCall, rejectCall, endCall, acceptCallLoading, endCallLoading, rejectCallLoading } =
+    useCallAction({
+      onEndSuccess: () => {
+        peer?.destroy();
+      },
+      onAcceptSuccess: () => {
+        connectPeer(peerId!);
+      },
+    });
   const { localMedia, setLocalMedia, audioEnabled, toggleAudio, toggleVideo, videoEnabled } =
     useMediaControl({
       defaultVideoEnabled: true,
@@ -109,13 +125,15 @@ export const usePeerJs = (
       });
       socket.on('receive-peer-id', (peerIdFromServer) => {
         if (peerIdFromServer) {
-          console.log('receive-peer-id', peerIdFromServer);
           setPeerId(peerIdFromServer);
         }
       });
+      socket.on('call-rejected', () => {
+        options?.onRejected?.();
+      });
       socket.on('call-ended', () => {
         setIsEnded(true);
-        console.log('call-ended');
+        options?.onEnded?.();
       });
     }
     return () => {
@@ -123,9 +141,11 @@ export const usePeerJs = (
         socket.off(`join-call`);
         socket.off(`signal`);
         socket.off(`user-joined`);
-        socket.emit(`leave-call`, callId);
+        socket.off('call-rejected');
+        socket.off('call-ended');
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callId, isCaller, peerId, socket, userId]);
 
   const connectPeer = async (peerIds: string) => {
@@ -141,13 +161,6 @@ export const usePeerJs = (
       });
     } else {
       console.log('peer is null', callId);
-    }
-  };
-
-  const endCall = () => {
-    if (peer) {
-      socket?.emit('end-call', callId);
-      peer.destroy();
     }
   };
 
@@ -172,6 +185,11 @@ export const usePeerJs = (
     audioEnabled,
     hasRemoteStream,
     endCall,
+    acceptCall,
+    rejectCall,
+    acceptCallLoading,
+    rejectCallLoading,
+    endCallLoading,
     isEnded,
     setIsEnded,
   };

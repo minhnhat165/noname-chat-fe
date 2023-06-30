@@ -1,16 +1,17 @@
 'use client';
 
-import { useSidebar } from './sidebar';
+import { ArrowLeftOutlined, ArrowRightOutlined, CameraOutlined } from '@ant-design/icons';
 import { Button, Drawer, Input, Upload } from 'antd';
-import { ArrowLeftOutlined, CameraOutlined, ArrowRightOutlined } from '@ant-design/icons';
-import { SidebarPeople } from './sidebar-people';
-import { Avatar } from '@/components/common/avatar';
-import { useState, Dispatch, SetStateAction } from 'react';
-import ImgCrop from 'antd-img-crop';
+import { Dispatch, SetStateAction, useState } from 'react';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { roomApi } from '@/services/room-servers';
 import { UserStore, useUserStore } from '@/stores/user';
+import { useMutation, useQuery } from '@tanstack/react-query';
+
+import { Avatar } from '@/components/common/avatar';
+import ImgCrop from 'antd-img-crop';
+import { SidebarPeople } from './sidebar-people';
+import { roomApi } from '@/services/room-servers';
+import { useSidebar } from './sidebar';
 
 const ONE_MINUTE = 60 * 1000;
 
@@ -26,7 +27,7 @@ export const GroupCreate = ({}: GroupCreateProps) => {
 
   const { data: participantsAll } = useQuery({
     queryKey: ['participantsAll', username],
-    queryFn: () => roomApi.findParitipantsByUserId(username),
+    queryFn: () => roomApi.findParticipantsByUserId(username),
     enabled: !!currentUser?._id,
     staleTime: ONE_MINUTE,
     keepPreviousData: true,

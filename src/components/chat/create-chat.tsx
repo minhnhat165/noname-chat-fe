@@ -1,9 +1,9 @@
 'use client';
 
-import { ButtonNewChat } from './button-new';
 import { Button, Dropdown } from 'antd';
+import { EditFilled, UserAddOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+
 import type { MenuProps } from 'antd';
-import { EditFilled, UsergroupAddOutlined, UserAddOutlined } from '@ant-design/icons';
 import { useSidebar } from '../layout/sidebar';
 
 const ITEMS_KEY = {

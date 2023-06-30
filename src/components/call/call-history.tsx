@@ -1,8 +1,9 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { Call } from '@/types/call';
 import { CallItem } from './call-item';
 import { Spin } from 'antd';
 import { callApi } from '@/services/call-services';
-import { useQuery } from '@tanstack/react-query';
 
 export interface CallHistoryProps {
   onItemClicked?: (call: Call) => void;
@@ -13,6 +14,7 @@ export const CallHistory = ({ onItemClicked }: CallHistoryProps) => {
     queryKey: ['callHistory'],
     queryFn: callApi.getHistory,
   });
+  const queryClient = useQueryClient();
   const messages = data?.data || [];
   return (
     <div className="overflow-y-overlay relative -mx-2 mt-4 max-h-96 min-h-[480px]">
@@ -23,7 +25,17 @@ export const CallHistory = ({ onItemClicked }: CallHistoryProps) => {
         {messages.map((message) => {
           return (
             <li key={message._id} onClick={() => onItemClicked?.(message.call!)}>
-              <CallItem message={message} />
+              <CallItem
+                message={message}
+                onDeleted={() => {
+                  queryClient.setQueryData(['callHistory'], (old: any) => {
+                    return {
+                      ...old,
+                      data: old.data.filter((item: any) => item._id !== message._id),
+                    };
+                  });
+                }}
+              />
             </li>
           );
         })}
