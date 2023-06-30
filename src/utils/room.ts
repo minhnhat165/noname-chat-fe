@@ -20,5 +20,6 @@ export const generateRoomByOtherUser = (user: User, me: User): Room => {
     avatar: user.avatar,
     isGroup: false,
     participants: [me, user],
+    isUser: true,
   };
 };
