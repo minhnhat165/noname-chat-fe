@@ -6,7 +6,7 @@ import { Message, MessageType } from '@/types/message';
 import { User } from '@/types/user';
 import { FileTextFilled } from '@ant-design/icons';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Image, Spin } from 'antd';
+import { Image, Spin, message } from 'antd';
 import { useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { DisplayAvatar, DisplayName } from './display-info';
@@ -59,10 +59,11 @@ const MessageBody = (props: Props) => {
 
   useEffect(() => {
     const allMessage: Message[] = [];
-    data?.pages.forEach((page) => {
-      return page.data.forEach((message: Message) => allMessage.push(message));
-    });
-    setMessages(allMessage);
+    console.log(data?.pages);
+    data?.pages?.[data?.pages.length - 1].data.forEach((message: Message) =>
+      allMessage.push(message),
+    );
+    setMessages([...messages, ...allMessage]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
