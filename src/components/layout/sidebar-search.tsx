@@ -1,7 +1,6 @@
 import { UserStore, useUserStore } from '@/stores/user';
-import { rooms, user, users } from '@/stores/data-test';
+import { rooms, users } from '@/stores/data-test';
 
-import { Divider } from 'antd';
 import { Room } from '@/types/room';
 import { RoomList } from '../room';
 import { User } from '@/types/user';
@@ -65,7 +64,7 @@ export const SidebarSearch = ({ searchResult }: SidebarSearchProps) => {
 const SearchSection = ({ title, rooms }: { title: string; rooms: Room[] }) => {
   return (
     <div>
-      <h3 className="text-base font-bold">{title}</h3>
+      {/* <h3 className="text-base font-bold">{title}</h3> */}
       <RoomList rooms={rooms} />
     </div>
   );

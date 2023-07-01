@@ -1,9 +1,10 @@
-import { roomApi } from '@/services/room-servers';
-import { MoreOutlined, PhoneOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
-import { Avatar, Dropdown, MenuProps } from 'antd';
+import { Avatar, Button, Dropdown, MenuProps } from 'antd';
+import { MoreOutlined, PhoneOutlined, SearchOutlined } from '@ant-design/icons';
 
-import React from 'react';
+import { roomApi } from '@/services/room-servers';
+import { useCreateCall } from '@/hooks/call/use-create-call';
+import { useQuery } from '@tanstack/react-query';
+import { useWindowCall } from '@/hooks/call';
 
 type Props = {
   roomId: string;
@@ -49,6 +50,13 @@ const MessageHeader = (props: Props) => {
       ),
     },
   ];
+  const { openWindowCall } = useWindowCall();
+
+  const { mutate, isLoading: callLoading } = useCreateCall({
+    onSuccess(data, variables) {
+      openWindowCall(variables, data.data._id);
+    },
+  });
   return (
     <div>
       <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
@@ -56,11 +64,22 @@ const MessageHeader = (props: Props) => {
           <Avatar size="large" src={room?.data.avatar} />
           <span className="ml-2 font-bold text-gray-800">{room?.data.name}</span>
         </div>
-        <div className="flex w-24 justify-between">
-          <SearchOutlined />
-          <PhoneOutlined />
+        <div className="flex justify-between">
+          <Button shape="circle" type="text" size="large" icon={<SearchOutlined />} />
+          <Button
+            loading={callLoading}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              mutate(room?.data._id as string);
+            }}
+            shape="circle"
+            type="text"
+            size="large"
+            icon={<PhoneOutlined />}
+          />
           <Dropdown overlayClassName="w-40" menu={{ items }} placement="bottomRight">
-            <MoreOutlined />
+            <Button shape="circle" type="text" size="large" icon={<MoreOutlined />} />
           </Dropdown>
         </div>
       </div>
