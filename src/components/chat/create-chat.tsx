@@ -28,12 +28,12 @@ const items: MenuProps['items'] = [
 type Props = {};
 
 export const CreateChat = (props: Props) => {
-  const { setIsCreateGroup } = useSidebar();
+  const { setIsCreateGroup, setIsSearch } = useSidebar();
 
   const onClick: MenuProps['onClick'] = ({ key }) => {
     switch (key) {
       case ITEMS_KEY.NEW_CHAT:
-        alert('chat');
+        setIsSearch(true)
         break;
       case ITEMS_KEY.NEW_GROUP:
         setIsCreateGroup(true);
@@ -43,7 +43,7 @@ export const CreateChat = (props: Props) => {
 
   return (
     <>
-      <div className="absolute bottom-10 right-4">
+      <div className="absolute bottom-10 right-4 z-50">
         <Dropdown
           overlayClassName="shadow-lg m-1"
           trigger={['click']}

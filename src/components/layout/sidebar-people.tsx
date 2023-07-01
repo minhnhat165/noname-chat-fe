@@ -4,50 +4,53 @@ import { ArrowRightOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { useSidebar } from './sidebar';
 import { User } from '@/types/user';
+import { RoomItemSkeleton } from '../room/room-item-skeleton';
 
 type SidebarPeopleProps = {
   participants: string[];
   data?: User[];
+  isFetching: boolean;
   setParticipants: Dispatch<SetStateAction<string[]>>;
 };
 
-export const SidebarPeople = ({ data, participants, setParticipants }: SidebarPeopleProps) => {
+export const SidebarPeople = ({
+  isFetching,
+  data,
+  participants,
+  setParticipants,
+}: SidebarPeopleProps) => {
   const { setIsStep2CreateGroup } = useSidebar();
 
   return (
     <div className="h-full bg-white">
-      <UserChecklist data={data} participants={participants} setParticipants={setParticipants} />
+      {!isFetching ? (
+        <UserChecklist data={data} participants={participants} setParticipants={setParticipants} />
+      ) : (
+        <div className="gap-2">
+          <RoomItemSkeleton />
+          <RoomItemSkeleton />
+          <RoomItemSkeleton />
+        </div>
+      )}
       <div className="absolute bottom-10 right-4">
-        <Button
-          type="primary"
-          shape="circle"
-          icon={<ArrowRightOutlined />}
-          size={'large'}
-          onClick={() => {
-            setIsStep2CreateGroup(true);
-          }}
-        />
+        {participants.length > 1 ? (
+          <Button
+            type="primary"
+            shape="circle"
+            className={participants.length < 2 ? 'opacity-40' : ''}
+            // disabled={participants.length < 2 ? true : false}
+            icon={<ArrowRightOutlined />}
+            size={'large'}
+            onClick={() => {
+              if (participants.length > 1) {
+                setIsStep2CreateGroup(true);
+              }
+            }}
+          />
+        ) : (
+          ''
+        )}
       </div>
     </div>
   );
 };
-
-// export const AddMember = () => {
-//   const { setIsStep2CreateGroup } = useSidebar();
-//   return (
-//     <>
-//       <UserChecklist participants={participants} setParticipants={setParticipants} />
-//       <div className="absolute bottom-10 right-4">
-//         <Button
-//           type="primary"
-//           shape="circle"
-//           icon={<ArrowRightOutlined />}
-//           size={'large'}
-//           onClick={() => {
-//             setIsStep2CreateGroup(true);
-//           }}
-//         />
-//       </div>
-//     </>
-//   );
-// };

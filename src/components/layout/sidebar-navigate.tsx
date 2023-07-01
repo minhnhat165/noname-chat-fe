@@ -42,7 +42,7 @@ export const SidebarNavigate = (props: SidebarNavigateProps) => {
         )}
       >
         <UserMenu>
-          <Avatar size="small" src={user!.avatar} bordered />
+          <Avatar size="small" alt={user?.username || 'user'} src={user?.avatar} bordered />
           {isExpanded && <h3 className="font-bold"> {user?.username}</h3>}
         </UserMenu>
 
@@ -184,7 +184,7 @@ const MainNavigate = ({ isExpanded }: { isExpanded?: boolean }) => {
 
       {!isAdminSide ? (
         <>
-          <Button
+          {/* <Button
             type="text"
             className={cn(isExpanded && 'flex items-center')}
             shape="default"
@@ -192,7 +192,7 @@ const MainNavigate = ({ isExpanded }: { isExpanded?: boolean }) => {
             icon={<UsergroupAddOutlined />}
           >
             {isExpanded && 'Create Group'}
-          </Button>
+          </Button> */}
           <Button
             type="text"
             className={cn(isExpanded && 'flex items-center')}

@@ -11,4 +11,16 @@ export type Room = {
   isAdmin?: boolean;
   lastMessage?: Message;
   isTemp?: boolean;
+  isUser?: boolean;
+} & BaseEntity;
+
+export type RoomDto = {
+  avatar?: string;
+  name: string;
+  participants: string[];
+  isGroup: boolean;
+  admin?: User;
+  isAdmin?: boolean;
+  lastMessage?: Message;
+  isUser?: boolean;
 } & BaseEntity;

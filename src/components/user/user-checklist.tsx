@@ -21,13 +21,13 @@ export const UserChecklist = ({ setParticipants, data }: UserCheckListProps) => 
   };
 
   return (
-    <div className="pt-3">
+    <div className="px-2 pt-1">
       <Checkbox.Group onChange={onChange}>
-        <Row>
+        <div className="flex flex-col ">
           {data?.map((user: User) => (
             <UserItem key={user?._id} user={user} />
           ))}{' '}
-        </Row>
+        </div>
       </Checkbox.Group>
     </div>
   );
@@ -39,18 +39,16 @@ interface UserItemProp {
 
 const UserItem = ({ user }: UserItemProp) => {
   return (
-    <Col span={24}>
-      <div className="my-2 flex items-center gap-2 pl-7">
-        <Checkbox value={user?._id} className=""></Checkbox>
-        <div className="flex items-center gap-2">
-          <Avatar
-            src={
-              user?.avatar || 'blob:https://web.telegram.org/cbec96a0-6fd2-4367-8299-e6083d58c51a'
-            }
-          />{' '}
-          <span className="font-bold text-gray-800">{user?.username}</span>
-        </div>
+    // <Col span={24}>
+    <div className="group/item relative  flex w-full items-center gap-2 rounded-lg bg-white p-3 transition-all hover:bg-slate-100">
+      <Checkbox value={user?._id} className=""></Checkbox>
+      <div className="flex items-center gap-2">
+        <Avatar
+          src={user?.avatar || 'blob:https://web.telegram.org/cbec96a0-6fd2-4367-8299-e6083d58c51a'}
+        />{' '}
+        <span className="font-bold text-gray-800">{user?.username}</span>
       </div>
-    </Col>
+    </div>
+    // </Col>
   );
 };
