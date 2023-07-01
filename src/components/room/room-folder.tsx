@@ -65,7 +65,9 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
     });
   };
 
-  const handleRoomOuted = (data: RoomEvent) => {};
+  const handleRoomOuted = (data: RoomEvent) => {
+    rooms = rooms.filter((room: Room) => room._id !== data.payload._id);
+  };
 
   const handleReceivedEvent = (data: RoomEvent) => {
     switch (data.type) {

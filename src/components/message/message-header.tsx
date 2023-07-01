@@ -8,6 +8,7 @@ import { useCallback, useEffect } from 'react';
 import { MenuHeader } from './menu-header';
 import { useSocketStore } from '@/stores/socket/socket-store';
 import { RoomEvent } from '../room/room-folder';
+import { redirect } from 'next/navigation';
 
 type Props = {
   roomId: string;
@@ -18,7 +19,11 @@ const MessageHeader = (props: Props) => {
 
   const queryClient = useQueryClient();
 
-  const { data: room, isLoading } = useQuery({
+  const {
+    data: room,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['room', props.roomId],
     queryFn: () => roomApi.getRoom(props.roomId!),
     enabled: !!props.roomId,
@@ -37,12 +42,23 @@ const MessageHeader = (props: Props) => {
     [socket],
   );
 
+  const handleOuted = useCallback(async (data: RoomEvent) => {
+    // await redirect('/');
+  }, []);
+
   useEffect(() => {
     socket?.on('room-updated', handleRoomUpdated);
     return () => {
       socket?.off('room-updated', handleRoomUpdated);
     };
   }, [socket, handleRoomUpdated]);
+
+  useEffect(() => {
+    socket?.on('room.outed', handleOuted);
+    return () => {
+      socket?.off('room.outed', handleOuted);
+    };
+  }, [socket, handleOuted]);
 
   const items: MenuProps['items'] = [
     {

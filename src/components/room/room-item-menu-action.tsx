@@ -13,6 +13,8 @@ import { Room } from '@/types/room';
 import { useMemo } from 'react';
 import { useModal } from '@/hooks/use-modal';
 import GroupMenuModal from '../common/group-menu';
+import { roomApi } from '@/services/room-servers';
+import { useMutation } from '@tanstack/react-query';
 
 const MENU_ITEMS_KEYS = {
   REPORT: '0',
@@ -26,6 +28,11 @@ export const RoomItemMenuAction = ({ room }: { room: Room }) => {
   const { isOpen: isOpenDelete, close: closeDelete, open: openDelete } = useModal();
   const { isOpen: isOpenBlock, close: closeBlock, open: openBlock } = useModal();
   const { isOpen: isOpenLeave, close: closeLeave, open: openLeave } = useModal();
+
+  const { mutate: leaveGroup } = useMutation({
+    mutationFn: roomApi.outGroup,
+  });
+
   const menuItems: MenuProps['items'] = useMemo(() => {
     const items: MenuProps['items'] = [
       // {
@@ -161,10 +168,13 @@ export const RoomItemMenuAction = ({ room }: { room: Room }) => {
         <p>Are you sure you want to delete this chat?</p>
       </Modal>
       <Modal
-        title="Delete this chat"
+        title="Leave this chat"
         width={390}
         open={isOpenLeave}
-        onOk={closeLeave}
+        onOk={() => {
+          leaveGroup(room?._id);
+          closeLeave();
+        }}
         onCancel={closeLeave}
         okButtonProps={{
           danger: true,
@@ -172,7 +182,7 @@ export const RoomItemMenuAction = ({ room }: { room: Room }) => {
         okText="Delete"
         cancelText="Cancel"
       >
-        <p>Are you sure you want to delete this chat?</p>
+        <p>Are you sure you want to leave this chat?</p>
       </Modal>
     </>
   );
