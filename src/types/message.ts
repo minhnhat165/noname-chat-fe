@@ -16,8 +16,8 @@ type fileType = {
 };
 export type Message = {
   content?: string;
-  sender: String | User;
-  room?: String;
+  sender: string | User;
+  room?: string;
   read: boolean;
   type: MessageType;
   call?: Call;
@@ -25,3 +25,7 @@ export type Message = {
   files?: fileType[];
   createdAt?: string;
 } & BaseEntity;
+export type MessageCreate = {
+  message: Partial<Message>;
+  isNotTemp: boolean;
+};

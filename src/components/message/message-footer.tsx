@@ -7,14 +7,17 @@ import {
   SmileOutlined,
 } from '@ant-design/icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
-
 import { MessageType } from '@/types/message';
-import { RcFile } from 'antd/es/upload';
-import { messageApi } from '@/services/message-services';
-import { uploadImage } from '@/utils/upload-image';
 import { useMutation } from '@tanstack/react-query';
+import { messageApi } from '@/services/message-services';
+import { RcFile } from 'antd/es/upload';
+import { uploadImage } from '@/utils/upload-image';
 
-type Props = { roomId: string };
+type Props = {
+  roomId: string;
+  flag: boolean;
+  setRoomId: React.Dispatch<React.SetStateAction<string>>;
+};
 
 const MessageFooter = (props: Props) => {
   const [inputChat, setInputChat] = useState('');
@@ -79,6 +82,13 @@ const MessageFooter = (props: Props) => {
   // });
   const mutation = useMutation({
     mutationFn: messageApi.createMessage,
+    onSuccess: (message) => {
+      console.log('mess', message.room);
+      console.log(props.flag);
+      if (!props.flag && !!message) {
+        props.setRoomId(message.room || '');
+      }
+    },
   });
   // useUserStore.getState().data!;
 
@@ -187,6 +197,7 @@ const MessageFooter = (props: Props) => {
       console.log(fileList);
       listFile = await submitFile(fileList);
     }
+    console.log('check', props.roomId);
     const message = {
       content: inputElement?.current?.value,
       type: type,
@@ -194,26 +205,34 @@ const MessageFooter = (props: Props) => {
       images: type === MessageType.IMAGE ? listImage : [],
       files: type === MessageType.FILE ? listFile : [],
     };
-    mutation.mutate(message);
+    const mess = {
+      message,
+      isNotTemp: props.flag,
+    };
+    mutation.mutate(mess);
     setInputChat('');
     setFileList([]);
     setImageList([]);
     setSelectType(MessageType.TEXT);
   };
   return (
-    <div className="mb-5 custom mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
+    <div className="custom mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
       <div className=" flex min-h-[56px] w-full items-center">
         <div className="relative flex h-9 w-14 items-center justify-center" ref={emojiPickerRef}>
           <div
-            onClick={() => {
+            onMouseEnter={() => {
               inputElement?.current?.focus();
-              setDisplayEmoji((prev) => !prev);
+              setDisplayEmoji(true);
+            }}
+            onMouseLeave={() => {
+              inputElement?.current?.focus();
+              setDisplayEmoji(false);
             }}
           >
             <SmileOutlined className="cursor:cursor-pointer text-[22px] text-gray-500" />
           </div>
           {displayEmoji && (
-            <div className="absolute bottom-14 left-0 drop-shadow-xl">
+            <div className="absolute bottom-14 left-0 z-10 drop-shadow-xl">
               <EmojiPicker
                 onEmojiClick={(emoji: { emoji: string }) => pickerEmoji(emoji.emoji)}
                 emojiStyle={emojiStyle}
@@ -230,6 +249,7 @@ const MessageFooter = (props: Props) => {
               fileList={imageList}
               onChange={onChange}
               onPreview={onPreview}
+              beforeUpload={() => false}
             >
               <button type="button" ref={labelImage}>
                 + Upload
@@ -241,8 +261,9 @@ const MessageFooter = (props: Props) => {
               action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
               listType="picture-card"
               className="flex gap-12 "
-              accept=".pdf, .txt, .docx"
+              accept=".pdf, .txt, .docx, .pptx"
               onChange={onChangeFile}
+              beforeUpload={() => false}
             >
               <button type="button" ref={labelFile}>
                 + Upload
