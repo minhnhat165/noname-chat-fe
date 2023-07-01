@@ -18,9 +18,10 @@ export interface RoomItemProps {
   room: Room;
   isActive?: boolean;
   shorted?: boolean;
+  onDeleted?: (room: Room) => void;
 }
 
-export const RoomItem = ({ room: _room, isActive, shorted }: RoomItemProps) => {
+export const RoomItem = ({ room: _room, isActive, shorted, onDeleted }: RoomItemProps) => {
   const user = useUserStore((state: UserStore) => state.data);
   const usersOnline = useAppStore((state) => state.data.usersOnline);
   const room = useMemo(() => {
@@ -69,7 +70,7 @@ export const RoomItem = ({ room: _room, isActive, shorted }: RoomItemProps) => {
               {renderSubTitle()}
             </div>
             <div className="invisible absolute right-3 top-1/2 -translate-y-1/2 transition-all group-hover/item:visible">
-              <RoomItemMenuAction room={room} />
+              <RoomItemMenuAction room={room} onDeleted={onDeleted} />
             </div>
           </>
         )}

@@ -20,4 +20,7 @@ export const roomApi = {
   findParticipantsByUserId: (q: string): Promise<SingleResponse<User[]>> => {
     return axios.get(`${BASE_URL}/participants`, { params: { q } });
   },
+  deleteRoom: (id: string): Promise<SingleResponse<Room>> => {
+    return axios.delete(`${BASE_URL}/${id}`);
+  },
 };

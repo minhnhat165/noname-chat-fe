@@ -10,5 +10,5 @@ export type Room = {
   admin?: User;
   isAdmin?: boolean;
   lastMessage?: Message;
-  isUser?:boolean;
+  isTemp?: boolean;
 } & BaseEntity;
