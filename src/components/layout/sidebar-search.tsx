@@ -1,7 +1,6 @@
 import { UserStore, useUserStore } from '@/stores/user';
-import { rooms, user, users } from '@/stores/data-test';
+import { rooms, users } from '@/stores/data-test';
 
-import { Divider } from 'antd';
 import { Room } from '@/types/room';
 import { RoomList } from '../room';
 import { User } from '@/types/user';
