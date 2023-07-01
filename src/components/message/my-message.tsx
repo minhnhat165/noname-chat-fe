@@ -1,4 +1,5 @@
 'use client';
+import { formatDateTime } from '@/hooks/use-time-display';
 import { messageApi } from '@/services/message-services';
 import { Message, MessageType } from '@/types/message';
 import {
@@ -7,6 +8,7 @@ import {
   DownloadOutlined,
   FileTextFilled,
   FileTextOutlined,
+  PhoneOutlined,
 } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Image, Modal, Tooltip, Upload } from 'antd';
@@ -97,6 +99,16 @@ const MyMessage = (message: MessageProps) => {
               </a>
             </div>
           ))}
+        </div>
+      )}
+      {message.message.type === MessageType.CALL && (
+        <div className="ml-[10px] mr-2 flex max-w-[60%] items-center rounded-md bg-white px-3 py-2 ">
+          <div className="mr-2">
+            <p className="mb-1 font-medium">Message Call</p>
+            <p className="text-xs text-slate-400">{formatDateTime(message.message.createdAt)}</p>
+          </div>
+
+          <PhoneOutlined style={{ fontSize: '40px', color: '#3390ec' }} />
         </div>
       )}
       <Modal

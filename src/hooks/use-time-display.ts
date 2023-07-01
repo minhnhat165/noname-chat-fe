@@ -61,6 +61,17 @@ const milliseconds: Record<ShortTimeUnits, number> = {
   y: 1000 * 60 * 60 * 24 * 365,
 };
 
+export const formatDateTime = (date: any) => {
+  if (date) {
+    const dt = new Date(date);
+    const month = dt.getMonth() + 1 < 10 ? '0' + (dt.getMonth() + 1) : dt.getMonth() + 1;
+    const day = dt.getDate() < 10 ? '0' + dt.getDate() : dt.getDate();
+
+    return day + '/' + month + '/' + dt.getFullYear() + ' ' + dt.getHours() + ':' + dt.getMinutes();
+  }
+  return '';
+};
+
 const getTimeUnit = (time: string) => {
   switch (time) {
     case 'now':
