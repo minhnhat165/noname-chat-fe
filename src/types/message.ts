@@ -16,8 +16,8 @@ type fileType = {
 };
 export type Message = {
   content?: string;
-  sender: String | User;
-  room?: String;
+  sender: string | User;
+  room?: string;
   read: boolean;
   type: MessageType;
   call?: Call;

@@ -15,7 +15,7 @@ export interface PageProps {
 
 const Page = ({ params }: PageProps) => {
   let Id = useParams()?.id as string;
-  const [roomId, setRoomId] = useState(Id);
+  const [roomId, setRoomId] = useState<string>(Id);
   const { data: room, isLoading } = useQuery({
     queryKey: ['room', roomId],
     queryFn: () => roomApi.checkRoom(roomId!),
@@ -27,6 +27,7 @@ const Page = ({ params }: PageProps) => {
   let flag = true;
   useMemo(() => {
     if (room?.data) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       flag = true;
       setRoomId(room.data._id);
     } else {

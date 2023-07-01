@@ -16,7 +16,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 type Props = {
   roomId: string;
   flag: boolean;
-  setRoomId: React.Dispatch<React.SetStateAction<String | undefined>>;
+  setRoomId: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const MessageFooter = (props: Props) => {
@@ -86,7 +86,7 @@ const MessageFooter = (props: Props) => {
       console.log('mess', message.room);
       console.log(props.flag);
       if (!props.flag && !!message) {
-        props.setRoomId(message.room);
+        props.setRoomId(message.room || '');
       }
     },
   });
