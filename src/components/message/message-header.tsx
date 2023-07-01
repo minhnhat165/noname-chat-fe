@@ -60,6 +60,22 @@ const MessageHeader = (props: Props) => {
     };
   }, [socket, handleOuted]);
 
+  const onRemoveMember = useCallback(
+    (data: RoomEvent) => {
+      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
+        return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      });
+    },
+    [queryClient],
+  );
+
+  useEffect(() => {
+    socket?.on('room.removed', onRemoveMember);
+    return () => {
+      socket?.off('room.removed', onRemoveMember);
+    };
+  }, [socket, onRemoveMember]);
+
   const items: MenuProps['items'] = [
     {
       key: '1',

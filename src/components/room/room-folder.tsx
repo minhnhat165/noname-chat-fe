@@ -65,6 +65,12 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
     });
   };
 
+  const handleRoomRemoved = (data: RoomEvent) => {
+    if(data.userId === user?._id){
+      rooms = rooms.filter((room: Room) => room._id !== data.payload._id);
+    }
+  };
+
   const handleRoomOuted = (data: RoomEvent) => {
     rooms = rooms.filter((room: Room) => room._id !== data.payload._id);
   };
@@ -80,6 +86,7 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
         break;
       }
       case 'room.removed': {
+        handleRoomRemoved(data)
         break;
       }
       case 'room.outed': {

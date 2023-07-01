@@ -23,4 +23,6 @@ export const roomApi = {
   createRoom: (data: Partial<RoomDto>) => axios.post(`${BASE_URL}`, data),
   updateRoom: (data: Partial<RoomDto>) => axios.patch(`${BASE_URL}/${data?._id}`, data),
   outGroup: (id: string = '') => axios.patch(`${BASE_URL}/${id}/out`),
+  deleteMember: (data: any) => axios.patch(`${BASE_URL}/${data?.id}/members/remove`, data),
+  addMember: (data: any) => axios.patch(`${BASE_URL}/${data?.id}/members/add`, data),
 };

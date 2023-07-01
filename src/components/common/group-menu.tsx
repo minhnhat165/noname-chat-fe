@@ -8,6 +8,7 @@ import { GroupName } from '../room/room-name';
 import { Room } from '@/types/room';
 import GroupEdit from '../group/group-edit';
 import { EditFilled } from '@ant-design/icons';
+import GroupMember from '../group/group-member';
 
 type GroupMenuModalProps = {
   room?: Room | undefined;
@@ -53,6 +54,7 @@ const GroupMenuModal: React.FC<GroupMenuModalProps> = ({ room, open, onCancel, o
       {!isEditGroup ? (
         <>
           <HeaderGroup setIsEditGroup={setIsEditGroup} room={room} />
+          <GroupMember room={room} />
         </>
       ) : (
         <GroupEdit isOpen={isEditGroup} setIsOpen={setIsEditGroup} room={room} />
