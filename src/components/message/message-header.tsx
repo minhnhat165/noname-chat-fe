@@ -1,17 +1,28 @@
-import { Avatar, Button, Dropdown, MenuProps } from 'antd';
-import { MoreOutlined, PhoneOutlined, SearchOutlined } from '@ant-design/icons';
+'use client';
 
+import { useCallback, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { Avatar } from 'antd';
+import { MenuHeader } from './menu-header';
+import { RoomEvent } from '../room/room-folder';
 import { roomApi } from '@/services/room-servers';
-import { useCreateCall } from '@/hooks/call/use-create-call';
-import { useQuery } from '@tanstack/react-query';
-import { useWindowCall } from '@/hooks/call';
+import { useSocketStore } from '@/stores/socket/socket-store';
 
 type Props = {
   roomId: string;
 };
 
 const MessageHeader = (props: Props) => {
-  const { data: room, isLoading } = useQuery({
+  const socket = useSocketStore((state) => state.socket);
+
+  const queryClient = useQueryClient();
+
+  const {
+    data: room,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['room', props.roomId],
     queryFn: () => roomApi.getRoom(props.roomId!),
     enabled: !!props.roomId,
@@ -19,44 +30,51 @@ const MessageHeader = (props: Props) => {
       console.log(err);
     },
   });
-  const items: MenuProps['items'] = [
-    {
-      key: '1',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-          1st menu item
-        </a>
-      ),
-    },
-    {
-      key: '2',
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-          className="text-base"
-        >
-          2nd menu item
-        </a>
-      ),
-    },
-    {
-      key: '3',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-          3rd menu item
-        </a>
-      ),
-    },
-  ];
-  const { openWindowCall } = useWindowCall();
 
-  const { mutate, isLoading: callLoading } = useCreateCall({
-    onSuccess(data, variables) {
-      openWindowCall(variables, data.data._id);
+  const handleRoomUpdated = useCallback(
+    (data: RoomEvent) => {
+      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
+        return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      });
     },
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [socket],
+  );
+
+  const handleOuted = useCallback(async (data: RoomEvent) => {
+    // await redirect('/');
+  }, []);
+
+  useEffect(() => {
+    socket?.on('room-updated', handleRoomUpdated);
+    return () => {
+      socket?.off('room-updated', handleRoomUpdated);
+    };
+  }, [socket, handleRoomUpdated]);
+
+  useEffect(() => {
+    socket?.on('room.outed', handleOuted);
+    return () => {
+      socket?.off('room.outed', handleOuted);
+    };
+  }, [socket, handleOuted]);
+
+  const onRemoveMember = useCallback(
+    (data: RoomEvent) => {
+      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
+        return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      });
+    },
+    [queryClient],
+  );
+
+  useEffect(() => {
+    socket?.on('room.removed', onRemoveMember);
+    return () => {
+      socket?.off('room.removed', onRemoveMember);
+    };
+  }, [socket, onRemoveMember]);
+
   return (
     <div>
       <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
@@ -64,24 +82,7 @@ const MessageHeader = (props: Props) => {
           <Avatar size="large" src={room?.data.avatar} />
           <span className="ml-2 font-bold text-gray-800">{room?.data.name}</span>
         </div>
-        <div className="flex justify-between">
-          <Button shape="circle" type="text" size="large" icon={<SearchOutlined />} />
-          <Button
-            loading={callLoading}
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              mutate(room?.data._id as string);
-            }}
-            shape="circle"
-            type="text"
-            size="large"
-            icon={<PhoneOutlined />}
-          />
-          <Dropdown overlayClassName="w-40" menu={{ items }} placement="bottomRight">
-            <Button shape="circle" type="text" size="large" icon={<MoreOutlined />} />
-          </Dropdown>
-        </div>
+        <MenuHeader room={room?.data} />
       </div>
     </div>
   );
