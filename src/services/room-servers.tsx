@@ -1,6 +1,6 @@
 import { CursorPaginationParams, CursorPaginationResponse, SingleResponse } from '@/types/api';
+import { Room, RoomDto } from '@/types/room';
 
-import { Room } from '@/types/room';
 import { User } from '@/types/user';
 import { axios } from '@/lib';
 
@@ -24,4 +24,12 @@ export const roomApi = {
     const url = `${BASE_URL}/${id}/checkroom`;
     return axios.get(url);
   },
+  deleteRoom: (id: string): Promise<SingleResponse<Room>> => {
+    return axios.delete(`${BASE_URL}/${id}`);
+  },
+  createRoom: (data: Partial<RoomDto>) => axios.post(`${BASE_URL}`, data),
+  updateRoom: (data: Partial<RoomDto>) => axios.patch(`${BASE_URL}/${data?._id}`, data),
+  outGroup: (id: string = '') => axios.patch(`${BASE_URL}/${id}/out`),
+  deleteMember: (data: any) => axios.patch(`${BASE_URL}/${data?.id}/members/remove`, data),
+  addMember: (data: any) => axios.patch(`${BASE_URL}/${data?.id}/members/add`, data),
 };

@@ -1,17 +1,17 @@
-import { messageApi } from '@/services/message-services';
-import { MessageType } from '@/types/message';
-import { uploadImage } from '@/utils/upload-image';
+import { Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import {
   FileImageOutlined,
   FileTextOutlined,
   LinkOutlined,
   SmileOutlined,
 } from '@ant-design/icons';
-import { useMutation } from '@tanstack/react-query';
-import { Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
-import { RcFile } from 'antd/es/upload';
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { MessageType } from '@/types/message';
+import { useMutation } from '@tanstack/react-query';
+import { messageApi } from '@/services/message-services';
+import { RcFile } from 'antd/es/upload';
+import { uploadImage } from '@/utils/upload-image';
 
 type Props = {
   roomId: string;
@@ -216,7 +216,7 @@ const MessageFooter = (props: Props) => {
     setSelectType(MessageType.TEXT);
   };
   return (
-    <div className="mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
+    <div className="custom mb-5 mt-2 h-fit w-[730px] flex-shrink-0 rounded-lg bg-white">
       <div className=" flex min-h-[56px] w-full items-center">
         <div className="relative flex h-9 w-14 items-center justify-center" ref={emojiPickerRef}>
           <div

@@ -2,11 +2,17 @@ import { roomApi } from '@/services/room-servers';
 import { userApi } from '@/services/user-services';
 import { UserStore, useUserStore } from '@/stores/user';
 import { extractRoomByCurrentUser, generateRoomByOtherUser } from '@/utils';
-import { MoreOutlined, PhoneOutlined, SearchOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
-import { Avatar, Dropdown, MenuProps } from 'antd';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Avatar, MenuProps } from 'antd';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+('use client');
+
+import { useCallback, useEffect } from 'react';
+
+import { useSocketStore } from '@/stores/socket';
+import { RoomEvent } from '../room/room-folder';
+import { MenuHeader } from './menu-header';
 
 type Props = {
   roomId: string;
@@ -14,19 +20,20 @@ type Props = {
 };
 
 const MessageHeader = (props: Props) => {
-  const [avatar, setAvatar] = useState<string>();
-  const [name, setName] = useState<string>();
   const userCur = useUserStore((state: UserStore) => state.data);
-  const { data: room, isLoading } = useQuery({
+  const socket = useSocketStore((state) => state.socket);
+
+  const queryClient = useQueryClient();
+  const {
+    data: room,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['room', props.roomId, props.flag],
     queryFn: () => roomApi.getRoom(props.roomId!),
     enabled: !!(props.roomId && props.flag),
     onError(err) {
       console.log(err);
-    },
-    onSuccess(data) {
-      setName(data?.data?.name);
-      setAvatar(data?.data?.avatar);
     },
   });
   //console.log('chek', !!(props.roomId && !props.flag));
@@ -36,10 +43,6 @@ const MessageHeader = (props: Props) => {
     enabled: !!(props.roomId && !props.flag),
     onError(err) {
       console.log(err);
-    },
-    onSuccess: (data) => {
-      setName(data?.username);
-      setAvatar(data?.avatar);
     },
   });
 
@@ -84,15 +87,52 @@ const MessageHeader = (props: Props) => {
         </a>
       ),
     },
-    {
-      key: '3',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-          3rd menu item
-        </a>
-      ),
-    },
   ];
+
+  const handleRoomUpdated = useCallback(
+    (data: RoomEvent) => {
+      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
+        return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [socket],
+  );
+
+  const handleOuted = useCallback(async (data: RoomEvent) => {
+    // await redirect('/');
+  }, []);
+
+  useEffect(() => {
+    socket?.on('room-updated', handleRoomUpdated);
+    return () => {
+      socket?.off('room-updated', handleRoomUpdated);
+    };
+  }, [socket, handleRoomUpdated]);
+
+  useEffect(() => {
+    socket?.on('room.outed', handleOuted);
+    return () => {
+      socket?.off('room.outed', handleOuted);
+    };
+  }, [socket, handleOuted]);
+
+  const onRemoveMember = useCallback(
+    (data: RoomEvent) => {
+      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
+        return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      });
+    },
+    [queryClient],
+  );
+
+  useEffect(() => {
+    socket?.on('room.removed', onRemoveMember);
+    return () => {
+      socket?.off('room.removed', onRemoveMember);
+    };
+  }, [socket, onRemoveMember]);
+
   return (
     <div>
       <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
@@ -100,13 +140,7 @@ const MessageHeader = (props: Props) => {
           <Avatar size="large" src={roomm?.avatar} />
           <span className="ml-2 font-bold text-gray-800">{roomm?.name}</span>
         </div>
-        <div className="flex w-24 justify-between">
-          <SearchOutlined />
-          <PhoneOutlined />
-          <Dropdown overlayClassName="w-40" menu={{ items }} placement="bottomRight">
-            <MoreOutlined />
-          </Dropdown>
-        </div>
+        <MenuHeader room={room?.data} />
       </div>
     </div>
   );
