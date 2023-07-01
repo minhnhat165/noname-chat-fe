@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Avatar, MenuProps } from 'antd';
 
 import { useMemo } from 'react';
-('use client');
 
 import { useCallback, useEffect } from 'react';
 
