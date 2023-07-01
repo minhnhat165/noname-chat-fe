@@ -27,7 +27,7 @@ export const roomApi = {
   deleteRoom: (id: string): Promise<SingleResponse<Room>> => {
     return axios.delete(`${BASE_URL}/${id}`);
   },
-  createRoom: (data: Partial<RoomDto>) => axios.post(`${BASE_URL}`, data),
+  createRoom: (data: Partial<RoomDto>): Promise<SingleResponse<Room>> => axios.post(`${BASE_URL}`, data),
   updateRoom: (data: Partial<RoomDto>) => axios.patch(`${BASE_URL}/${data?._id}`, data),
   outGroup: (id: string = '') => axios.patch(`${BASE_URL}/${id}/out`),
   deleteMember: (data: any) => axios.patch(`${BASE_URL}/${data?.id}/members/remove`, data),

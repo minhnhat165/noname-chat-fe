@@ -10,7 +10,6 @@ import {
   MenuUnfoldOutlined,
   MessageOutlined,
   UserOutlined,
-  UsergroupAddOutlined,
 } from '@ant-design/icons';
 import { EditProfilePanel, EditProfilePanelRef } from '../user';
 import { redirect, usePathname } from 'next/navigation';
@@ -121,7 +120,7 @@ const UserMenu = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     startTransition(() => {
       removeToken();
-      redirect('/login');
+      redirect('/');
     });
   };
 

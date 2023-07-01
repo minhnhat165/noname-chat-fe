@@ -1,9 +1,10 @@
 'use client';
-import { Checkbox, Row, Col } from 'antd';
-import type { CheckboxChangeEvent } from 'antd/es/checkbox';
-import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import { Avatar } from '../common/avatar';
+
 import { Dispatch, SetStateAction } from 'react';
+
+import { Avatar } from '../common/avatar';
+import { Checkbox } from 'antd';
+import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { User } from '@/types/user';
 
 interface UserCheckListProps {
@@ -22,8 +23,8 @@ export const UserChecklist = ({ setParticipants, data }: UserCheckListProps) => 
 
   return (
     <div className="px-2 pt-1">
-      <Checkbox.Group onChange={onChange}>
-        <div className="flex flex-col ">
+      <Checkbox.Group onChange={onChange} className="w-full">
+        <div className="flex w-full flex-col">
           {data?.map((user: User) => (
             <UserItem key={user?._id} user={user} />
           ))}{' '}

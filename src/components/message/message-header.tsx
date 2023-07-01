@@ -1,17 +1,18 @@
-import { roomApi } from '@/services/room-servers';
-import { userApi } from '@/services/user-services';
+'use client';
+
+import { Avatar, MenuProps } from 'antd';
 import { UserStore, useUserStore } from '@/stores/user';
 import { extractRoomByCurrentUser, generateRoomByOtherUser } from '@/utils';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Avatar, MenuProps } from 'antd';
-
-import { useMemo } from 'react';
-
 import { useCallback, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useSocketStore } from '@/stores/socket';
-import { RoomEvent } from '../room/room-folder';
 import { MenuHeader } from './menu-header';
+import { RoomEvent } from '../room/room-folder';
+import { roomApi } from '@/services/room-servers';
+import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSocketStore } from '@/stores/socket';
+import { userApi } from '@/services/user-services';
 
 type Props = {
   roomId: string;
@@ -21,10 +22,11 @@ type Props = {
 const MessageHeader = (props: Props) => {
   const userCur = useUserStore((state: UserStore) => state.data);
   const socket = useSocketStore((state) => state.socket);
+  const router = useRouter();
 
   const queryClient = useQueryClient();
   const {
-    data: room,
+    data: _room,
     isLoading,
     refetch,
   } = useQuery({
@@ -45,48 +47,15 @@ const MessageHeader = (props: Props) => {
     },
   });
 
-  const roomm = useMemo(() => {
-    if (room || user) {
-      let createRoom = room?.data;
+  const room = useMemo(() => {
+    if (_room || user) {
+      let createRoom = _room?.data;
       if (user) {
         createRoom = generateRoomByOtherUser(user!!, userCur!!);
       }
       return extractRoomByCurrentUser(createRoom!!, userCur!);
     }
-  }, [room, user, userCur]);
-  // useEffect(() => {
-  //   if (props.flag) {
-  //     setName(room?.data.avatar);
-  //     setAvatar(room?.data.avatar);
-  //   } else {
-  //     console.log('vo');
-  //     setName(user?.data.avatar);
-  //     setAvatar(user?.data.avatar);
-  //   }
-  // }, [props.flag, props.roomId]);
-  const items: MenuProps['items'] = [
-    {
-      key: '1',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-          1st menu item
-        </a>
-      ),
-    },
-    {
-      key: '2',
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-          className="text-base"
-        >
-          2nd menu item
-        </a>
-      ),
-    },
-  ];
+  }, [_room, user, userCur]);
 
   const handleRoomUpdated = useCallback(
     (data: RoomEvent) => {
@@ -99,7 +68,8 @@ const MessageHeader = (props: Props) => {
   );
 
   const handleOuted = useCallback(async (data: RoomEvent) => {
-    // await redirect('/');
+    router.push('/chat');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -136,10 +106,10 @@ const MessageHeader = (props: Props) => {
     <div>
       <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
         <div className="flex items-center">
-          <Avatar size="large" src={roomm?.avatar} />
-          <span className="ml-2 font-bold text-gray-800">{roomm?.name}</span>
+          <Avatar size="large" src={room?.avatar} />
+          <span className="ml-2 font-bold text-gray-800">{room?.name}</span>
         </div>
-        <MenuHeader room={room?.data} />
+        <MenuHeader room={room} />
       </div>
     </div>
   );

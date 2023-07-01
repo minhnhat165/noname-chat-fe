@@ -52,7 +52,6 @@ export const Sidebar = () => {
   useEffect(() => {
     if (socket && user) {
       socket?.on(`${user?._id}-event`, (data: any) => {
-        console.log('on here ', data);
         setEventData(data);
       });
     }
@@ -95,7 +94,7 @@ export const Sidebar = () => {
       <div
         className={cn(
           'relative flex h-full flex-col border-r bg-white',
-          screen == 'mobile' ? 'w-20' : 'w-[360px]',
+          screen !== 'desktop' ? 'w-20' : 'w-[360px]',
         )}
       >
         {!isCreateGroup ? (
@@ -108,7 +107,7 @@ export const Sidebar = () => {
           {isCreateGroup && <GroupCreate />}
           {!isCreateGroup ? <CreateChat /> : ''}
           <div className={isSearch || isCreateGroup || isStep2CreateGroup ? 'hidden' : 'block'}>
-            <RoomFolder shorted={screen == 'mobile'} />
+            <RoomFolder shorted={screen !== 'desktop'} />
           </div>
         </div>
       </div>
