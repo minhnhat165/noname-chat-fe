@@ -42,7 +42,7 @@ export const SidebarNavigate = (props: SidebarNavigateProps) => {
         )}
       >
         <UserMenu>
-          <Avatar size="small" src={user!.avatar} bordered />
+          <Avatar size="small" alt={user?.username || 'user'} src={user?.avatar} bordered />
           {isExpanded && <h3 className="font-bold"> {user?.username}</h3>}
         </UserMenu>
 

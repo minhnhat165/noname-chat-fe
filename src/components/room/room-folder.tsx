@@ -10,12 +10,24 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { useParams } from 'next/navigation';
 import { useSidebar } from '../layout/sidebar';
+import { useUserStore } from '@/stores/user/user-store';
+import { toast } from 'react-hot-toast';
 
 export interface RoomFolderProps {
   shorted?: boolean;
 }
 
+export interface RoomEvent {
+  userId: string;
+  payload: any;
+  type: string;
+}
+
 export const RoomFolder = ({ shorted }: RoomFolderProps) => {
+  const user = useUserStore((state) => state.data!);
+  const { eventData, setEventData, setIsCreateGroup, setIsStep2CreateGroup, setIsSearch } =
+    useSidebar();
+
   const [type, setType] = useState<'all' | 'direct' | 'group'>('all');
   const { data, refetch, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useInfiniteQuery({
@@ -26,10 +38,43 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
 
   const rooms = data?.pages.map((page) => page.data).flat() || [];
 
-  const { eventData, setEventData } = useSidebar();
+  const handleRoomCreated = (data: RoomEvent) => {
+    if (data.payload?.admin === user?._id) {
+      setIsCreateGroup(false);
+      setIsStep2CreateGroup(false);
+      setIsSearch(false);
+      toast.success('Create new group successfully!!!');
+    } else {
+      toast.success(`You have been added into a group ${data.payload?.name}`);
+    }
+    rooms.unshift(data.payload);
+  };
+
+  const handleReceivedEvent = (data: RoomEvent) => {
+    switch (data.type) {
+      case 'room.created': {
+        handleRoomCreated(data);
+        break;
+      }
+      case 'room.updated': {
+        break;
+      }
+      case 'room.removed': {
+        break;
+      }
+      case 'room.outed': {
+        break;
+      }
+      default: {
+        return;
+      }
+    }
+  };
+
   useEffect(() => {
     if (eventData) {
       refetch();
+      handleReceivedEvent(eventData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventData]);

@@ -23,7 +23,7 @@ export const SocketClient = (props: SocketClientProps) => {
 
   useEffect(() => {
     if (socket) {
-      socket.emit('join-app', user._id);
+      socket.emit('join-app', user?._id);
       socket.on('all-users-online', (userIds: string[]) => {
         setUsersOnline(userIds);
       });
@@ -35,7 +35,7 @@ export const SocketClient = (props: SocketClientProps) => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket, user._id]);
+  }, [socket, user?._id]);
   console.log(data.usersOnline);
   return <></>;
 };

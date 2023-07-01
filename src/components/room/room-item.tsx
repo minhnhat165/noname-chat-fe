@@ -57,7 +57,7 @@ export const RoomItem = ({ room: _room, isActive, shorted }: RoomItemProps) => {
         )}
       >
         <Badge size="small" status="success" offset={[-9, 44]} dot={isOnline}>
-          <Avatar src={room.avatar} />
+          <Avatar src={room.avatar} alt={room.name} />
         </Badge>
         {!shorted && (
           <>

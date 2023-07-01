@@ -1,6 +1,6 @@
 import { CursorPaginationParams, CursorPaginationResponse, SingleResponse } from '@/types/api';
 
-import { Room } from '@/types/room';
+import { RoomDto, Room } from '@/types/room';
 import { User } from '@/types/user';
 import { axios } from '@/lib';
 
@@ -20,4 +20,5 @@ export const roomApi = {
   findParticipantsByUserId: (q: string): Promise<SingleResponse<User[]>> => {
     return axios.get(`${BASE_URL}/participants`, { params: { q } });
   },
+  createRoom: (data: Partial<RoomDto>) => axios.post(`${BASE_URL}`, data),
 };

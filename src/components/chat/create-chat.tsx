@@ -43,7 +43,7 @@ export const CreateChat = (props: Props) => {
 
   return (
     <>
-      <div className="absolute bottom-10 right-4">
+      <div className="absolute bottom-10 right-4 z-50">
         <Dropdown
           overlayClassName="shadow-lg m-1"
           trigger={['click']}
