@@ -1,8 +1,10 @@
 'use client';
 
 import io from 'socket.io-client';
+import { removeToken } from '@/app/actions';
 import { useAppStore } from '@/stores/app';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSocketStore } from '@/stores/socket';
 import { useUserStore } from '@/stores/user';
 
@@ -21,6 +23,8 @@ export const SocketClient = (props: SocketClientProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const router = useRouter();
+
   useEffect(() => {
     if (socket) {
       socket.emit('join-app', user?._id);
@@ -32,6 +36,10 @@ export const SocketClient = (props: SocketClientProps) => {
       });
       socket.on('user-offline', (userId: string) => {
         removeUserOnline(userId);
+      });
+      socket.on('user.locked', () => {
+        router.push('/banned');
+        removeToken();
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

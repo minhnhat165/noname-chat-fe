@@ -14,6 +14,10 @@ type Token = {
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const token = url.searchParams.get('token');
+  const error = url.searchParams.get('error');
+  if (error) {
+    return redirect(`/banned`);
+  }
   const decoded: Token = jwt_decode(token!);
   if (token) {
     cookies().set({
