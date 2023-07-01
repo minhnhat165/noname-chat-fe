@@ -21,4 +21,5 @@ export const roomApi = {
     return axios.get(`${BASE_URL}/participants`, { params: { q } });
   },
   createRoom: (data: Partial<RoomDto>) => axios.post(`${BASE_URL}`, data),
+  updateRoom: (data: Partial<RoomDto>) => axios.patch(`${BASE_URL}/${data?._id}`, data),
 };

@@ -12,13 +12,14 @@ import { useParams } from 'next/navigation';
 import { useSidebar } from '../layout/sidebar';
 import { useUserStore } from '@/stores/user/user-store';
 import { toast } from 'react-hot-toast';
+import { Room } from '@/types/room';
 
 export interface RoomFolderProps {
   shorted?: boolean;
 }
 
 export interface RoomEvent {
-  userId: string;
+  userId?: string;
   payload: any;
   type: string;
 }
@@ -36,7 +37,7 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
       getNextPageParam: (lastPage) => lastPage.pageInfo.endCursor,
     });
 
-  const rooms = data?.pages.map((page) => page.data).flat() || [];
+  let rooms = data?.pages.map((page) => page.data).flat() || [];
 
   const handleRoomCreated = (data: RoomEvent) => {
     if (data.payload?.admin === user?._id) {
@@ -50,6 +51,22 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
     rooms.unshift(data.payload);
   };
 
+  const handleRoomUpdated = (data: RoomEvent) => {
+    // console.log('data updated ', data);
+    if (data.payload?.admin === user?._id) {
+      toast.success('Updated new group successfully!!!');
+    }
+    rooms = rooms.map((room: Room) => {
+      if (room._id === data.payload._id) {
+        // room = data.payload;
+        return data.payload;
+      }
+      return room;
+    });
+  };
+
+  const handleRoomOuted = (data: RoomEvent) => {};
+
   const handleReceivedEvent = (data: RoomEvent) => {
     switch (data.type) {
       case 'room.created': {
@@ -57,12 +74,14 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
         break;
       }
       case 'room.updated': {
+        handleRoomUpdated(data);
         break;
       }
       case 'room.removed': {
         break;
       }
       case 'room.outed': {
+        handleRoomOuted(data);
         break;
       }
       default: {

@@ -17,6 +17,7 @@ import { uploadImage } from '@/utils/upload-image';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 import toast from 'react-hot-toast';
+import { GroupName } from '../room/room-name';
 
 const ONE_MINUTE = 60 * 1000;
 
@@ -27,13 +28,18 @@ export const GroupCreate = ({}: GroupCreateProps) => {
 
   const { isStep2CreateGroup, username, setIsStep2CreateGroup } = useSidebar();
   const [croppedFile, setCroppedFile] = useState<Blob | undefined>(undefined);
-  const [groupName, setGroupName] = useState<string>('');
+  const [groupName, setGroupName] = useState<string | undefined>('');
   const [participants, setParticipants] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const { mutate, isLoading } = useMutation({
     mutationFn: roomApi.createRoom,
+    onSuccess: () => {
+      setIsUploading(false);
+    },
     onError: (error: any) => {
       toast.error(error?.message);
+      setIsUploading(false);
     },
   });
 
@@ -57,8 +63,9 @@ export const GroupCreate = ({}: GroupCreateProps) => {
     }
 
     let avatar: any = croppedFile;
+    setIsUploading(true);
     if (!croppedFile) {
-      avatar = await generateAvatar(groupName);
+      avatar = await generateAvatar(groupName || 'group');
     } else {
       const { secure_url } = await uploadImage(croppedFile);
       avatar = secure_url;
@@ -71,7 +78,7 @@ export const GroupCreate = ({}: GroupCreateProps) => {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isUploading) {
     return (
       <div className=" flex h-full w-full items-center">
         <Spin className="mx-auto" indicator={<LoadingOutlined style={{ fontSize: 45 }} spin />} />
@@ -85,6 +92,7 @@ export const GroupCreate = ({}: GroupCreateProps) => {
         <div>
           <div className="relative z-[100]">
             <GroupName
+              isEdit={false}
               groupName={groupName}
               setGroupName={setGroupName}
               setCroppedFile={setCroppedFile}
@@ -160,91 +168,6 @@ export const Header = ({
         <p className="mt-2 text-center text-[12px] italic text-red-500">
           At least two other members to create new group
         </p>
-      </div>
-    </div>
-  );
-};
-
-export const GroupName = ({
-  groupName,
-  setGroupName,
-  setCroppedFile,
-}: {
-  groupName: string;
-  setGroupName: Dispatch<SetStateAction<string>>;
-  setCroppedFile: Dispatch<SetStateAction<Blob | undefined>>;
-}) => {
-  const { isCreateGroup, setIsCreateGroup, setIsSearch, setSearchValue, setIsStep2CreateGroup } =
-    useSidebar();
-  const [imgPreview, setImgPreview] = useState<string | undefined>(undefined);
-
-  const onPreview = async (file: UploadFile) => {
-    let src = file.url as string;
-    if (!src) {
-      src = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file.originFileObj as RcFile);
-        reader.onload = () => resolve(reader.result as string);
-      });
-    }
-    const image = new Image();
-    image.src = src;
-    const imgWindow = window.open(src);
-    imgWindow?.document.write(image.outerHTML);
-  };
-
-  return (
-    <div className="mb-3 bg-white px-3 pb-3">
-      <div className="z-50 flex h-14 items-center justify-start bg-white px-4">
-        <Button
-          onClick={() => {
-            setIsCreateGroup(false);
-            setIsSearch(false);
-            setIsStep2CreateGroup(false);
-          }}
-          type="text"
-          className="mr-4"
-          shape="circle"
-          icon={<ArrowLeftOutlined />}
-          size="large"
-        />
-        <div>
-          <p className="text-lg font-bold">New Group</p>
-        </div>
-      </div>
-      <div className="relative flex justify-center py-6">
-        <Avatar bordered src={imgPreview} size="xLarge" alt={groupName} />
-        <ImgCrop rotationSlider>
-          <Upload
-            multiple={false}
-            maxCount={1}
-            onPreview={onPreview}
-            showUploadList={false}
-            customRequest={({ file }) => {
-              const newFile = file as Blob;
-              setCroppedFile(newFile);
-              setImgPreview(URL.createObjectURL(newFile));
-            }}
-          >
-            <div className="relative right-5 top-20 flex items-center justify-center rounded-full bg-white">
-              <Button shape="circle" type="default" icon={<CameraOutlined />} />
-            </div>
-          </Upload>
-        </ImgCrop>
-      </div>
-      <div>
-        <Input
-          size="large"
-          placeholder="Group Name ..."
-          allowClear
-          onFocus={() => {
-            setIsSearch(true);
-          }}
-          value={groupName}
-          onChange={(e) => {
-            setGroupName(e.target.value);
-          }}
-        />
       </div>
     </div>
   );

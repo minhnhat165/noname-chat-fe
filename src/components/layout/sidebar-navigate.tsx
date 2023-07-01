@@ -184,7 +184,7 @@ const MainNavigate = ({ isExpanded }: { isExpanded?: boolean }) => {
 
       {!isAdminSide ? (
         <>
-          <Button
+          {/* <Button
             type="text"
             className={cn(isExpanded && 'flex items-center')}
             shape="default"
@@ -192,7 +192,7 @@ const MainNavigate = ({ isExpanded }: { isExpanded?: boolean }) => {
             icon={<UsergroupAddOutlined />}
           >
             {isExpanded && 'Create Group'}
-          </Button>
+          </Button> */}
           <Button
             type="text"
             className={cn(isExpanded && 'flex items-center')}

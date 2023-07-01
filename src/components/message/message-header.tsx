@@ -1,15 +1,23 @@
-import { roomApi } from '@/services/room-servers';
-import { MoreOutlined, PhoneOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
-import { Avatar, Dropdown, MenuProps } from 'antd';
+'use client';
 
-import React from 'react';
+import { roomApi } from '@/services/room-servers';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Avatar, Dropdown, MenuProps, Button } from 'antd';
+
+import { useCallback, useEffect } from 'react';
+import { MenuHeader } from './menu-header';
+import { useSocketStore } from '@/stores/socket/socket-store';
+import { RoomEvent } from '../room/room-folder';
 
 type Props = {
   roomId: string;
 };
 
 const MessageHeader = (props: Props) => {
+  const socket = useSocketStore((state) => state.socket);
+
+  const queryClient = useQueryClient();
+
   const { data: room, isLoading } = useQuery({
     queryKey: ['room', props.roomId],
     queryFn: () => roomApi.getRoom(props.roomId!),
@@ -18,6 +26,24 @@ const MessageHeader = (props: Props) => {
       console.log(err);
     },
   });
+
+  const handleRoomUpdated = useCallback(
+    (data: RoomEvent) => {
+      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
+        return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [socket],
+  );
+
+  useEffect(() => {
+    socket?.on('room-updated', handleRoomUpdated);
+    return () => {
+      socket?.off('room-updated', handleRoomUpdated);
+    };
+  }, [socket, handleRoomUpdated]);
+
   const items: MenuProps['items'] = [
     {
       key: '1',
@@ -56,13 +82,15 @@ const MessageHeader = (props: Props) => {
           <Avatar size="large" src={room?.data.avatar} />
           <span className="ml-2 font-bold text-gray-800">{room?.data.name}</span>
         </div>
-        <div className="flex w-24 justify-between">
-          <SearchOutlined />
-          <PhoneOutlined />
-          <Dropdown overlayClassName="w-40" menu={{ items }} placement="bottomRight">
+        <MenuHeader room={room?.data} />
+        {/* <div className="flex w-24 items-center justify-between">
+        <SearchOutlined />
+        <PhoneOutlined />
+        <Button type="text" icon={<MoreOutlined />} onClick={openGroupMenu} />
+         <Dropdown overlayClassName="w-40" menu={{ items }} placement="bottomRight">
             <MoreOutlined />
-          </Dropdown>
-        </div>
+          </Dropdown> 
+      </div> */}
       </div>
     </div>
   );
