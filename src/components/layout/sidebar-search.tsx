@@ -65,7 +65,7 @@ export const SidebarSearch = ({ searchResult }: SidebarSearchProps) => {
 const SearchSection = ({ title, rooms }: { title: string; rooms: Room[] }) => {
   return (
     <div>
-      <h3 className="text-base font-bold">{title}</h3>
+      {/* <h3 className="text-base font-bold">{title}</h3> */}
       <RoomList rooms={rooms} />
     </div>
   );

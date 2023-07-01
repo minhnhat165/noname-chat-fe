@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowLeftOutlined, DeleteOutlined, PhoneOutlined } from '@ant-design/icons';
-import { Button, Popconfirm } from 'antd';
+import { Button, Popconfirm, message as messageAntd } from 'antd';
 import { Call, CallStatus } from '@/types/call';
 import { UserStore, useUserStore } from '@/stores/user';
 import { cn, extractRoomByCurrentUser } from '@/utils';
@@ -11,7 +11,9 @@ import Link from 'next/link';
 import { Message } from '@/types/message';
 import { User } from '@/types/user';
 import { generateRoomLink } from '@/utils/link';
+import { messageApi } from '@/services/message-services';
 import { useCreateCall } from '@/hooks/call/use-create-call';
+import { useMutation } from '@tanstack/react-query';
 import { useWindowCall } from '@/hooks/call';
 
 export interface CallItemProps {
@@ -32,6 +34,14 @@ export const CallItem = ({ message, onDeleted }: CallItemProps) => {
   const { mutate, isLoading } = useCreateCall({
     onSuccess(data, variables) {
       openWindowCall(variables, data.data._id);
+    },
+  });
+
+  const { mutate: deleteMessage, isLoading: deleteLoading } = useMutation({
+    mutationFn: messageApi.deleteMessage,
+    onSuccess: (_, id) => {
+      messageAntd.success('Delete message successfully');
+      onDeleted?.(call);
     },
   });
 
@@ -68,12 +78,13 @@ export const CallItem = ({ message, onDeleted }: CallItemProps) => {
           onConfirm={(e) => {
             e!.stopPropagation();
             e!.preventDefault();
-            onDeleted?.(call);
+            deleteMessage(message._id);
           }}
           okText="Yes"
           cancelText="No"
         >
           <Button
+            loading={deleteLoading}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
