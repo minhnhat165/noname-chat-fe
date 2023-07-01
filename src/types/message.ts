@@ -25,3 +25,7 @@ export type Message = {
   files?: fileType[];
   createdAt?: string;
 } & BaseEntity;
+export type MessageCreate = {
+  message: Partial<Message>;
+  isNotTemp: boolean;
+};

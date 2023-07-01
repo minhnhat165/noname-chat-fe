@@ -13,7 +13,11 @@ import { RcFile } from 'antd/es/upload';
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-type Props = { roomId: string };
+type Props = {
+  roomId: string;
+  flag: boolean;
+  setRoomId: React.Dispatch<React.SetStateAction<String | undefined>>;
+};
 
 const MessageFooter = (props: Props) => {
   const [inputChat, setInputChat] = useState('');
@@ -78,6 +82,13 @@ const MessageFooter = (props: Props) => {
   // });
   const mutation = useMutation({
     mutationFn: messageApi.createMessage,
+    onSuccess: (message) => {
+      console.log('mess', message.room);
+      console.log(props.flag);
+      if (!props.flag && !!message) {
+        props.setRoomId(message.room);
+      }
+    },
   });
   // useUserStore.getState().data!;
 
@@ -186,6 +197,7 @@ const MessageFooter = (props: Props) => {
       console.log(fileList);
       listFile = await submitFile(fileList);
     }
+    console.log('check', props.roomId);
     const message = {
       content: inputElement?.current?.value,
       type: type,
@@ -193,7 +205,11 @@ const MessageFooter = (props: Props) => {
       images: type === MessageType.IMAGE ? listImage : [],
       files: type === MessageType.FILE ? listFile : [],
     };
-    mutation.mutate(message);
+    const mess = {
+      message,
+      isNotTemp: props.flag,
+    };
+    mutation.mutate(mess);
     setInputChat('');
     setFileList([]);
     setImageList([]);

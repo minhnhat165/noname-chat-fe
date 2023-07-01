@@ -17,4 +17,8 @@ export const userApi = {
     const url = `/users`;
     return axios.patch(url, data);
   },
+  getMemberInfo: (id: string): Promise<User> => {
+    const url = `/users/${id}`;
+    return axios.get(url);
+  },
 };
