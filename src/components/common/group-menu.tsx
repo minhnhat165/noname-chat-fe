@@ -1,3 +1,4 @@
+'use client';
 import { Form, Input, Modal, Radio, Space, Button } from 'antd';
 import { Report, ReportType } from '@/types/report';
 import { Avatar } from '@/components/common/avatar';
@@ -54,6 +55,7 @@ const GroupMenuModal: React.FC<GroupMenuModalProps> = ({ room, open, onCancel, o
       {!isEditGroup ? (
         <>
           <HeaderGroup setIsEditGroup={setIsEditGroup} room={room} />
+          {console.log('modal ', room)}
           <GroupMember room={room} />
         </>
       ) : (
