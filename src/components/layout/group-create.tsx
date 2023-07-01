@@ -1,23 +1,21 @@
 'use client';
 
-import { ArrowLeftOutlined, ArrowRightOutlined, CameraOutlined } from '@ant-design/icons';
-import { Button, Drawer, Input, Upload } from 'antd';
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { Button, Input } from 'antd';
 import { Dispatch, SetStateAction, useState } from 'react';
-import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 import { UserStore, useUserStore } from '@/stores/user';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { Avatar } from '@/components/common/avatar';
-import ImgCrop from 'antd-img-crop';
-import { SidebarPeople } from './sidebar-people';
-import { roomApi } from '@/services/room-servers';
-import { useSidebar } from './sidebar';
-import { generateAvatar } from '@/utils/generate-avatar';
-import { uploadImage } from '@/utils/upload-image';
-import { LoadingOutlined } from '@ant-design/icons';
-import { Spin } from 'antd';
-import toast from 'react-hot-toast';
 import { GroupName } from '../room/room-name';
+import { LoadingOutlined } from '@ant-design/icons';
+import { SidebarPeople } from './sidebar-people';
+import { Spin } from 'antd';
+import { generateAvatar } from '@/utils/generate-avatar';
+import { roomApi } from '@/services/room-servers';
+import toast from 'react-hot-toast';
+import { uploadImage } from '@/utils/upload-image';
+import { useRouter } from 'next/navigation';
+import { useSidebar } from './sidebar';
 
 const ONE_MINUTE = 60 * 1000;
 
@@ -31,13 +29,16 @@ export const GroupCreate = ({}: GroupCreateProps) => {
   const [groupName, setGroupName] = useState<string | undefined>('');
   const [participants, setParticipants] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const router = useRouter();
 
   const { mutate, isLoading } = useMutation({
     mutationFn: roomApi.createRoom,
-    onSuccess: () => {
+    onSuccess: (data) => {
       setIsUploading(false);
+      router.push(`/chat/${data.data._id}`);
     },
     onError: (error: any) => {
+      console.log(error);
       toast.error(error?.message);
       setIsUploading(false);
     },
@@ -52,10 +53,6 @@ export const GroupCreate = ({}: GroupCreateProps) => {
   });
 
   const handleCreateGroupChat = async () => {
-    // console.log('name ', groupName);
-    // console.log('croppedFile ', croppedFile);
-    // console.log('participants ', participants);
-
     if (participants.length < 2) {
       setIsStep2CreateGroup(false);
       toast.error('At least two other member to create group');

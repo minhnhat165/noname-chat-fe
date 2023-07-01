@@ -6,6 +6,7 @@ import {
   MenuOutlined,
   StopOutlined,
 } from '@ant-design/icons';
+import { useParams, useRouter } from 'next/navigation';
 
 import GroupMenuModal from '../common/group-menu';
 import { Room } from '@/types/room';
@@ -28,31 +29,39 @@ export const RoomItemMenuAction = ({
   room: Room;
   onDeleted?: (room: Room) => void;
 }) => {
-  const { isOpen: isOpenReport, close: closeReport, open: openReport } = useModal();
   const { isOpen: isOpenDelete, close: closeDelete, open: openDelete } = useModal();
   const { isOpen: isOpenBlock, close: closeBlock, open: openBlock } = useModal();
   const { isOpen: isOpenLeave, close: closeLeave, open: openLeave } = useModal();
   const { isOpen: isOpenGroupMenu, close: closeGroupMenu, open: openGroupMenu } = useModal();
+  const params = useParams();
+  const router = useRouter();
   const { mutate, isLoading } = useMutation({
     mutationFn: roomApi.deleteRoom,
     onSuccess: () => {
       message.success('Delete room successfully');
+      const id = params?.id;
+      console.log(id, room._id);
+      if (id === room._id) {
+        router.push('/chat');
+      }
       onDeleted?.(room);
     },
   });
 
   const { mutate: leaveGroup } = useMutation({
     mutationFn: roomApi.outGroup,
+    onSuccess: () => {
+      message.success('Leave group successfully');
+      const id = params?.id;
+      if (id === room._id) {
+        router.push('/chat');
+      }
+      onDeleted?.(room);
+    },
   });
 
   const menuItems: MenuProps['items'] = useMemo(() => {
-    const items: MenuProps['items'] = [
-      // {
-      //   key: MENU_ITEMS_KEYS.REPORT,
-      //   icon: <FlagOutlined />,
-      //   label: 'Report',
-      // },
-    ];
+    const items: MenuProps['items'] = [];
 
     if (room.isGroup) {
       items.push({
@@ -143,14 +152,7 @@ export const RoomItemMenuAction = ({
           closeGroupMenu();
         }}
       />
-      {/* <ReportModal
-        open={isOpenGroupMenu}
-        onCancel={closeGroupMenu}
-        onSubmit={(data) => {
-          console.log(data);
-          closeGroupMenu();
-        }}
-      /> */}
+
       <Modal
         title="Block user"
         width={390}
@@ -195,7 +197,7 @@ export const RoomItemMenuAction = ({
         okButtonProps={{
           danger: true,
         }}
-        okText="Delete"
+        okText="Leave"
         cancelText="Cancel"
       >
         <p>Are you sure you want to leave this chat?</p>

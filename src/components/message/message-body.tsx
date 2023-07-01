@@ -1,18 +1,20 @@
 'use client';
+
+import { DisplayAvatar, DisplayName } from './display-info';
+import { FileTextFilled, PhoneOutlined } from '@ant-design/icons';
+import { Image, Spin } from 'antd';
+import { Message, MessageType } from '@/types/message';
+import { UserStore, useUserStore } from '@/stores/user';
+
+import InfiniteScroll from 'react-infinite-scroll-component';
+import MyMessage from './my-message';
+import { User } from '@/types/user';
+import { formatDateTime } from '@/hooks/use-time-display';
 import { messageApi } from '@/services/message-services';
+import { useEffect } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMessagesStore } from '@/stores/messages/messages-store';
 import { useSocketStore } from '@/stores/socket';
-import { UserStore, useUserStore } from '@/stores/user';
-import { Message, MessageType } from '@/types/message';
-import { User } from '@/types/user';
-import { FileTextFilled, PhoneOutlined } from '@ant-design/icons';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { Image, Spin } from 'antd';
-import { useEffect } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { DisplayAvatar, DisplayName } from './display-info';
-import MyMessage from './my-message';
-import { formatDateTime } from '@/hooks/use-time-display';
 
 type Props = {
   roomId: string;
@@ -21,7 +23,6 @@ type Props = {
 const MessageBody = (props: Props) => {
   const user = useUserStore((state: UserStore) => state.data);
   const messages = useMessagesStore((state) => state.messages);
-  console.log('message', messages);
   const { setMessages, removeMessage, addMessage } = useMessagesStore();
   const socket = useSocketStore((state) => state.socket);
   //socket
@@ -31,7 +32,6 @@ const MessageBody = (props: Props) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageReceived = (message: Message) => {
-    console.log(message);
     addMessage(message);
   };
 

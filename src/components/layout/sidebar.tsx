@@ -52,7 +52,6 @@ export const Sidebar = () => {
   useEffect(() => {
     if (socket && user) {
       socket?.on(`${user?._id}-event`, (data: any) => {
-        console.log('on here ', data);
         setEventData(data);
       });
     }
