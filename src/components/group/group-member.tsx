@@ -34,6 +34,9 @@ export const GroupMember = ({ room }: Props) => {
 
   const { mutate: DeleteMember } = useMutation({
     mutationFn: roomApi.deleteMember,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['room', room?._id])
+    },
     onError: (error: any) => {
       toast.error(error?.message);
     },
