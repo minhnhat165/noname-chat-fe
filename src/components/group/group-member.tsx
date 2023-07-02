@@ -11,27 +11,24 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useSocketStore } from '@/stores/socket/socket-store';
 import { RoomEvent } from '../room/room-folder';
+import { UserStore, useUserStore } from '@/stores/user/user-store';
 
 type Props = {
   room?: Room | undefined;
 };
 
 export const GroupMember = ({ room }: Props) => {
+  console.log('room member  ', room);
+
   const { isOpen: isOpenDelete, close: closeDelete, open: openDelete } = useModal();
   const [memberId, setMemberId] = useState('');
-  const [members, setMembers] = useState<User[]>([]);
+  const currentUser = useUserStore((state: UserStore) => state.data!);
 
   const queryClient = useQueryClient();
   const handleDeleteMember = () => {
     closeDelete();
     DeleteMember({ id: room?._id, memberId: memberId });
   };
-
-  useEffect(() => {
-    if (room) {
-      setMembers(room?.participants);
-    }
-  }, [room]);
 
   const socket = useSocketStore((state) => state.socket);
 
@@ -42,31 +39,32 @@ export const GroupMember = ({ room }: Props) => {
     },
   });
 
-  const onRemoveMember = useCallback(
-    (data: RoomEvent) => {
-      queryClient.setQueryData(['room', room?._id], (oldData: any) => {
-        return { ...oldData, data: { ...oldData.data, ...data.payload } };
-      });
-      // setMembers(data.payload?.participants);
-      // console.log('member ', members, data?.payload.participants);
-    },
-    [queryClient],
-  );
+  // const onRemoveMember = useCallback(
+  //   (data: RoomEvent) => {
+  //     queryClient.invalidateQueries(['room', room?._id]);
+  //   },
+  //   [queryClient],
+  // );
 
-  useEffect(() => {
-    socket?.on('room.removed', onRemoveMember);
-    return () => {
-      socket?.off('room.removed', onRemoveMember);
-    };
-  }, [socket, onRemoveMember]);
+  // useEffect(() => {
+  //   socket?.on('room.removed', onRemoveMember);
+  //   return () => {
+  //     socket?.off('room.removed', onRemoveMember);
+  //   };
+  // }, [socket, onRemoveMember]);
 
   return (
     <div className="overflow-y-overlay mt-2 max-h-[300px] flex-1">
       <p className="mb-2 text-center text-xl font-bold">Members</p>
       <ul className="bg-white p-2">
-        {members.map((user) => (
+        {room?.participants.map((user) => (
           <li key={user._id}>
-            <MemberItem user={user} openDelete={openDelete} setMemberId={setMemberId} />
+            <MemberItem
+              isAdminGroup={room?.admin?._id == currentUser?._id}
+              user={user}
+              openDelete={openDelete}
+              setMemberId={setMemberId}
+            />
           </li>
         ))}
       </ul>
@@ -95,8 +93,10 @@ export const MemberItem = ({
   user,
   openDelete,
   setMemberId,
+  isAdminGroup,
 }: {
   user: User;
+  isAdminGroup: boolean;
   openDelete: () => void;
   setMemberId: (memberId: string) => void;
 }) => {
@@ -112,15 +112,19 @@ export const MemberItem = ({
         />{' '}
         <span className="font-bold text-gray-800">{user?.username}</span>
       </div>
-      <Button
-        type="primary"
-        onClick={() => {
-          setMemberId(user?._id);
-          openDelete();
-        }}
-      >
-        Delete
-      </Button>
+      {isAdminGroup ? (
+        <Button
+          type="primary"
+          onClick={() => {
+            setMemberId(user?._id);
+            openDelete();
+          }}
+        >
+          Delete
+        </Button>
+      ) : (
+        ''
+      )}
     </div>
   );
 };

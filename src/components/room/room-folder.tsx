@@ -14,7 +14,7 @@ import { useParams } from 'next/navigation';
 import { useSidebar } from '../layout/sidebar';
 import { useSocketStore } from '@/stores/socket';
 import { useUserStore } from '@/stores/user/user-store';
-
+// import {useQueryClient} from ''
 export interface RoomFolderProps {
   shorted?: boolean;
 }
@@ -54,6 +54,15 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
     rooms.unshift(data.payload);
   };
 
+  const handleRoomAdded = (data: RoomEvent) => {
+    if (data.payload?.admin != user?._id) {
+      toast.success(`You have been added into a group ${data.payload?.name}`);
+      rooms.unshift(data.payload);
+    }
+
+    queryClient.invalidateQueries(['room', data.payload._id]);
+  };
+
   const handleRoomUpdated = (data: RoomEvent) => {
     // console.log('data updated ', data);
     if (data.payload?.admin === user?._id) {
@@ -86,6 +95,11 @@ export const RoomFolder = ({ shorted }: RoomFolderProps) => {
       }
       case 'room.updated': {
         handleRoomUpdated(data);
+        break;
+      }
+      case 'room.added': {
+        handleRoomAdded(data);
+
         break;
       }
       case 'room.removed': {
