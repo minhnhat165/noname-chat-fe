@@ -11,14 +11,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useSocketStore } from '@/stores/socket/socket-store';
 import { RoomEvent } from '../room/room-folder';
+import { UserStore, useUserStore } from '@/stores/user/user-store';
 
 type Props = {
   room?: Room | undefined;
 };
 
 export const GroupMember = ({ room }: Props) => {
+  console.log('room member  ', room);
+
   const { isOpen: isOpenDelete, close: closeDelete, open: openDelete } = useModal();
   const [memberId, setMemberId] = useState('');
+  const currentUser = useUserStore((state: UserStore) => state.data!);
 
   const queryClient = useQueryClient();
   const handleDeleteMember = () => {
@@ -34,8 +38,6 @@ export const GroupMember = ({ room }: Props) => {
       toast.error(error?.message);
     },
   });
-
-  console.log('room member  ', room);
 
   // const onRemoveMember = useCallback(
   //   (data: RoomEvent) => {
@@ -57,7 +59,12 @@ export const GroupMember = ({ room }: Props) => {
       <ul className="bg-white p-2">
         {room?.participants.map((user) => (
           <li key={user._id}>
-            <MemberItem user={user} openDelete={openDelete} setMemberId={setMemberId} />
+            <MemberItem
+              isAdminGroup={room?.admin?._id == currentUser?._id}
+              user={user}
+              openDelete={openDelete}
+              setMemberId={setMemberId}
+            />
           </li>
         ))}
       </ul>
@@ -86,8 +93,10 @@ export const MemberItem = ({
   user,
   openDelete,
   setMemberId,
+  isAdminGroup,
 }: {
   user: User;
+  isAdminGroup: boolean;
   openDelete: () => void;
   setMemberId: (memberId: string) => void;
 }) => {
@@ -103,15 +112,19 @@ export const MemberItem = ({
         />{' '}
         <span className="font-bold text-gray-800">{user?.username}</span>
       </div>
-      <Button
-        type="primary"
-        onClick={() => {
-          setMemberId(user?._id);
-          openDelete();
-        }}
-      >
-        Delete
-      </Button>
+      {isAdminGroup ? (
+        <Button
+          type="primary"
+          onClick={() => {
+            setMemberId(user?._id);
+            openDelete();
+          }}
+        >
+          Delete
+        </Button>
+      ) : (
+        ''
+      )}
     </div>
   );
 };

@@ -20,6 +20,9 @@ export const roomApi = {
   findParticipantsByUserId: (q: string): Promise<SingleResponse<User[]>> => {
     return axios.get(`${BASE_URL}/participants`, { params: { q } });
   },
+  findParticipantsByUserIdNotInRoom: ({id, q}:{id:string,q: string}): Promise<SingleResponse<User[]>> => {
+    return axios.get(`${BASE_URL}/${id}/participants`, { params: { q } });
+  },
   checkRoom: (id: string): Promise<SingleResponse<Room>> => {
     const url = `${BASE_URL}/${id}/checkroom`;
     return axios.get(url);
