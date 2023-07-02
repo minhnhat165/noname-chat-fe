@@ -4,7 +4,7 @@ import { Report, ReportType } from '@/types/report';
 import { Avatar } from '@/components/common/avatar';
 
 import { useForm } from 'antd/lib/form/Form';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GroupName } from '../room/room-name';
 import { Room } from '@/types/room';
 import GroupEdit from '../group/group-edit';
@@ -28,6 +28,11 @@ const GroupMenuModal: React.FC<GroupMenuModalProps> = ({ room, open, onCancel, o
   const [isEditGroup, setIsEditGroup] = useState(false);
   const [isAddMember, setIsAddMember] = useState(false);
   const currentUser = useUserStore((state: UserStore) => state.data!);
+
+  const [test, setTest] = useState(false);
+  useEffect(() => {
+    setTest(true);
+  }, [room]);
 
   const handleOk = async () => {
     try {

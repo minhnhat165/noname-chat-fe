@@ -35,11 +35,11 @@ export const AddMember = ({ room, setIsAddMember }: Props) => {
   });
 
   const { data: participantsAll, isFetching } = useQuery({
-    queryKey: ['participantsAll', username, room?._id, username],
+    queryKey: ['participantsAll', username, room?._id, currentUser?._id],
     queryFn: () => roomApi.findParticipantsByUserIdNotInRoom({ id: room?._id || '', q: username }),
     enabled: !!currentUser?._id && !!room?._id,
-    staleTime: ONE_MINUTE,
-    keepPreviousData: true,
+    // staleTime: ONE_MINUTE,
+    // keepPreviousData: true,
   });
 
   return (
