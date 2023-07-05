@@ -23,6 +23,8 @@ export const MenuHeader = ({ room }: MenuHeaderProps) => {
       openWindowCall(variables, data.data._id);
     },
   });
+
+  console.log('menu heder ', room)
   return (
     <div>
       <div className="flex items-center justify-between">

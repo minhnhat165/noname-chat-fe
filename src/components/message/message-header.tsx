@@ -59,9 +59,11 @@ const MessageHeader = (props: Props) => {
 
   const handleRoomUpdated = useCallback(
     (data: RoomEvent) => {
-      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
-        return { ...oldData, data: { ...oldData.data, ...data.payload } };
-      });
+      // queryClient.setQueryData(['room', props.roomId, props.flag], (oldData: any) => {
+      //   return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      // });
+      // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
+      queryClient.invalidateQueries(['room', props.roomId]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [socket],
@@ -88,12 +90,18 @@ const MessageHeader = (props: Props) => {
 
   const onRemoveMember = useCallback(
     (data: RoomEvent) => {
-      queryClient.setQueryData(['room', data.payload._id], (oldData: any) => {
-        return { ...oldData, data: { ...oldData.data, ...data.payload } };
-      });
+      console.log('data ', data, user?._id)
+      if (data.userId == user?._id) {
+        router.push('/chat');
+      }
+      // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
+      queryClient.invalidateQueries(['room', props.roomId]);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [queryClient],
   );
+
+  console.log('_room ', _room);
 
   useEffect(() => {
     socket?.on('room.removed', onRemoveMember);
@@ -106,10 +114,10 @@ const MessageHeader = (props: Props) => {
     <div>
       <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
         <div className="flex items-center">
-          <Avatar size="large" src={room?.avatar} />
-          <span className="ml-2 font-bold text-gray-800">{room?.name}</span>
+          <Avatar size="large" src={_room?.data?.avatar} />
+          <span className="ml-2 font-bold text-gray-800">{_room?.data?.name}</span>
         </div>
-        <MenuHeader room={room} />
+        <MenuHeader room={_room?.data} />
       </div>
     </div>
   );

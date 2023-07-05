@@ -1,14 +1,17 @@
+'use client';
 import { Form, Input, Modal, Radio, Space, Button } from 'antd';
 import { Report, ReportType } from '@/types/report';
 import { Avatar } from '@/components/common/avatar';
 
 import { useForm } from 'antd/lib/form/Form';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GroupName } from '../room/room-name';
 import { Room } from '@/types/room';
 import GroupEdit from '../group/group-edit';
 import { EditFilled } from '@ant-design/icons';
 import GroupMember from '../group/group-member';
+import AddMember from '../group/add-member';
+import { UserStore, useUserStore } from '@/stores/user/user-store';
 
 type GroupMenuModalProps = {
   room?: Room | undefined;
@@ -23,6 +26,13 @@ const GroupMenuModal: React.FC<GroupMenuModalProps> = ({ room, open, onCancel, o
   const [groupName, setGroupName] = useState(room?.name);
   const [croppedFile, setCroppedFile] = useState<Blob | undefined>(undefined);
   const [isEditGroup, setIsEditGroup] = useState(false);
+  const [isAddMember, setIsAddMember] = useState(false);
+  const currentUser = useUserStore((state: UserStore) => state.data!);
+
+  const [test, setTest] = useState(false);
+  useEffect(() => {
+    setTest(true);
+  }, [room]);
 
   const handleOk = async () => {
     try {
@@ -38,35 +48,33 @@ const GroupMenuModal: React.FC<GroupMenuModalProps> = ({ room, open, onCancel, o
 
   return (
     <Modal
-      // title="Report"
       style={{ top: 20 }}
       width={500}
       open={open}
       onCancel={onCancel}
-      // onOk={handleOk}
-      // okText="Confirm"
-      // okButtonProps={{
-      //   danger: true,
-      // }}
       footer={null}
       confirmLoading={loading}
     >
-      {!isEditGroup ? (
+      {!isEditGroup && !isAddMember ? (
         <>
           <HeaderGroup setIsEditGroup={setIsEditGroup} room={room} />
+          {/* {console.log('modal ', room)} */}
+          {room?.isAdmin ? (
+            <Button className="mt-3" type="primary" onClick={() => setIsAddMember(true)}>
+              Add member{' '}
+            </Button>
+          ) : (
+            ''
+          )}
+
           <GroupMember room={room} />
         </>
       ) : (
-        <GroupEdit isOpen={isEditGroup} setIsOpen={setIsEditGroup} room={room} />
+        ''
       )}
+      {isEditGroup ? <GroupEdit isOpen={isEditGroup} setIsOpen={setIsEditGroup} room={room} /> : ''}
 
-      {/* <GroupName
-        isEdit={true}
-        groupName={groupName}
-        setGroupName={setGroupName}
-        setCroppedFile={setCroppedFile}
-      /> */}
-      {/* <HeaderGroup groupName={groupName} avatar={room?.avatar} /> */}
+      {isAddMember ? <AddMember room={room} setIsAddMember={setIsAddMember} /> : ''}
     </Modal>
   );
 };
