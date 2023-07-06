@@ -1,61 +1,65 @@
 'use client';
 
-import { Avatar, MenuProps } from 'antd';
 import { UserStore, useUserStore } from '@/stores/user';
 import { extractRoomByCurrentUser, generateRoomByOtherUser } from '@/utils';
-import { useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Avatar } from 'antd';
+import { useCallback, useEffect } from 'react';
 
-import { MenuHeader } from './menu-header';
-import { RoomEvent } from '../room/room-folder';
-import { roomApi } from '@/services/room-servers';
-import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSocketStore } from '@/stores/socket';
 import { userApi } from '@/services/user-services';
+import { useSocketStore } from '@/stores/socket';
+import { Room } from '@/types/room';
+import { useParams, useRouter } from 'next/navigation';
+import { useMemo } from 'react';
+import { RoomEvent } from '../room/room-folder';
+import { MenuHeader } from './menu-header';
 
 type Props = {
-  roomId: string;
+  room: Room | undefined;
   flag: boolean;
 };
 
 const MessageHeader = (props: Props) => {
   const userCur = useUserStore((state: UserStore) => state.data);
   const socket = useSocketStore((state) => state.socket);
+  const Id = useParams()?.id as string;
   const router = useRouter();
-
+  let userId = Id;
+  // console.log(props.room);
+  // useMemo(() => {
+  //   if (!props.room?.isGroup) {
+  //     props.room?.participants.forEach((participant) => {
+  //       if (participant !== userCur?._id) {
+  //         // eslint-disable-next-line react-hooks/exhaustive-deps
+  //         userId = participant;
+  //       }
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.room]);
   const queryClient = useQueryClient();
-  const {
-    data: _room,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ['room', props.roomId, props.flag],
-    queryFn: () => roomApi.getRoom(props.roomId!),
-    enabled: !!(props.roomId && props.flag),
-    onError(err) {
-      console.log(err);
-    },
-  });
-  //console.log('chek', !!(props.roomId && !props.flag));
   const { data: user } = useQuery({
-    queryKey: ['user', props.roomId, props.flag],
-    queryFn: () => userApi.getMemberInfo(props.roomId!),
-    enabled: !!(props.roomId && !props.flag),
-    onError(err) {
-      console.log(err);
-    },
+    queryKey: ['user', Id],
+    queryFn: () => userApi.getMemberInfo(userId),
+    enabled: props.room === null,
   });
 
-  const room = useMemo(() => {
-    if (_room || user) {
-      let createRoom = _room?.data;
+  const _room = useMemo(() => {
+    if (!!props.room || user) {
+      let createRoom = props.room;
       if (user) {
         createRoom = generateRoomByOtherUser(user!!, userCur!!);
       }
+      if (!props.room?.isGroup) {
+        props.room?.participants.forEach((participant) => {
+          if (participant._id !== userCur?._id) {
+            createRoom = generateRoomByOtherUser(participant, userCur!!);
+          }
+        });
+      }
       return extractRoomByCurrentUser(createRoom!!, userCur!);
     }
-  }, [_room, user, userCur]);
+  }, [props.room, user, userCur]);
 
   const handleRoomUpdated = useCallback(
     (data: RoomEvent) => {
@@ -63,7 +67,7 @@ const MessageHeader = (props: Props) => {
       //   return { ...oldData, data: { ...oldData.data, ...data.payload } };
       // });
       // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
-      queryClient.invalidateQueries(['room', props.roomId]);
+      queryClient.invalidateQueries(['room', Id]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [socket],
@@ -90,18 +94,15 @@ const MessageHeader = (props: Props) => {
 
   const onRemoveMember = useCallback(
     (data: RoomEvent) => {
-      console.log('data ', data, user?._id)
       if (data.userId == user?._id) {
         router.push('/chat');
       }
       // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
-      queryClient.invalidateQueries(['room', props.roomId]);
+      queryClient.invalidateQueries(['room', Id]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [queryClient],
   );
-
-  console.log('_room ', _room);
 
   useEffect(() => {
     socket?.on('room.removed', onRemoveMember);
@@ -114,10 +115,10 @@ const MessageHeader = (props: Props) => {
     <div>
       <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
         <div className="flex items-center">
-          <Avatar size="large" src={_room?.data?.avatar} />
-          <span className="ml-2 font-bold text-gray-800">{_room?.data?.name}</span>
+          <Avatar size="large" src={_room?.avatar} />
+          <span className="ml-2 font-bold text-gray-800">{_room?.name}</span>
         </div>
-        <MenuHeader room={_room?.data} />
+        <MenuHeader room={props.room} />
       </div>
     </div>
   );

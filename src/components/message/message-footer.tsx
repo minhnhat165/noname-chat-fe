@@ -74,8 +74,6 @@ const MessageFooter = (props: Props) => {
   const mutation = useMutation({
     mutationFn: messageApi.createMessage,
     onSuccess: (message) => {
-      console.log('mess', message.room);
-      console.log(props.flag);
       if (!props.flag && !!message) {
         props.setRoomId(message.room || '');
       }
@@ -85,11 +83,9 @@ const MessageFooter = (props: Props) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const onChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-    console.log('new', newFileList);
     setImageList(newFileList);
   };
   const onChangeFile: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-    console.log('new', newFileList);
     setFileList(newFileList);
   };
   const onPreview = async (file: UploadFile) => {
@@ -154,10 +150,9 @@ const MessageFooter = (props: Props) => {
       listImage = await submitImage(imageList);
     } else if (selectType === MessageType.FILE) {
       type = MessageType.FILE;
-      console.log(fileList);
+
       listFile = await submitFile(fileList);
     }
-    console.log('check', props.roomId);
     const message = {
       content: inputElement?.current?.value,
       type: type,
@@ -176,7 +171,7 @@ const MessageFooter = (props: Props) => {
     setSelectType(MessageType.TEXT);
   };
   return (
-    <div className="px-4 w-full max-w-[730px]">
+    <div className="w-full max-w-[730px] px-4">
       <div className="custom mb-5 mt-2 h-fit  flex-shrink-0  rounded-lg bg-white">
         <div className=" flex min-h-[56px] w-full items-center">
           <div className="relative flex h-9 w-14 items-center justify-center" ref={emojiPickerRef}>

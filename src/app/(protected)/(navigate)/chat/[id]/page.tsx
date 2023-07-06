@@ -19,10 +19,7 @@ const Page = ({ params }: PageProps) => {
   const { data: room, isLoading } = useQuery({
     queryKey: ['room', roomId],
     queryFn: () => roomApi.checkRoom(roomId!),
-    enabled: !!roomId,
-    onError(err) {
-      console.log('object');
-    },
+    enabled: !!Id,
   });
   let flag = true;
   useMemo(() => {
@@ -34,10 +31,10 @@ const Page = ({ params }: PageProps) => {
       flag = false;
     }
   }, [roomId, room]);
-  console.log(flag);
+
   return (
     <div className="flex h-full flex-col">
-      <MessageHeader roomId={roomId} flag={flag} />
+      <MessageHeader room={room?.data} flag={flag} />
       <div className="flex flex-grow flex-col items-center overflow-hidden">
         <MessageBody roomId={roomId} />
         <MessageFooter roomId={roomId} setRoomId={setRoomId} flag={flag} />
