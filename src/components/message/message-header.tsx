@@ -16,7 +16,6 @@ import { MenuHeader } from './menu-header';
 
 type Props = {
   room: Room | undefined;
-  flag: boolean;
 };
 
 const MessageHeader = (props: Props) => {
@@ -47,9 +46,7 @@ const MessageHeader = (props: Props) => {
   const _room = useMemo(() => {
     if (!!props.room || user) {
       let createRoom = props.room;
-      if (user) {
-        createRoom = generateRoomByOtherUser(user!!, userCur!!);
-      }
+      if (user) createRoom = generateRoomByOtherUser(user!!, userCur!!);
       if (!props.room?.isGroup) {
         props.room?.participants.forEach((participant) => {
           if (participant._id !== userCur?._id) {

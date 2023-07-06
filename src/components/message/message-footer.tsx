@@ -16,7 +16,7 @@ import { useMutation } from '@tanstack/react-query';
 
 type Props = {
   roomId: string;
-  flag: boolean;
+  isNotTemp: boolean;
   setRoomId: React.Dispatch<React.SetStateAction<string>>;
 };
 
@@ -29,6 +29,7 @@ const MessageFooter = (props: Props) => {
   const [selectType, setSelectType] = useState(MessageType.TEXT);
   const labelImage = useRef<HTMLButtonElement>(null);
   const labelFile = useRef<HTMLButtonElement>(null);
+  const [isNotTemp, setIsNotTemp] = useState<boolean>(props.isNotTemp);
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
     const currentPosition = inputElement?.current?.selectionStart ?? 0;
@@ -74,9 +75,10 @@ const MessageFooter = (props: Props) => {
   const mutation = useMutation({
     mutationFn: messageApi.createMessage,
     onSuccess: (message) => {
-      if (!props.flag && !!message) {
+      if (!isNotTemp && !!message) {
         props.setRoomId(message.room || '');
       }
+      setIsNotTemp(true);
     },
   });
   const [imageList, setImageList] = useState<UploadFile[]>([]);
@@ -162,7 +164,7 @@ const MessageFooter = (props: Props) => {
     };
     const mess = {
       message,
-      isNotTemp: props.flag,
+      isNotTemp: isNotTemp,
     };
     mutation.mutate(mess);
     setInputChat('');

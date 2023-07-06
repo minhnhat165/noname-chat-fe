@@ -16,28 +16,27 @@ export interface PageProps {
 const Page = ({ params }: PageProps) => {
   let Id = useParams()?.id as string;
   const [roomId, setRoomId] = useState<string>(Id);
+  const [isNotTemp, setIsNotTemp] = useState<boolean>(false);
   const { data: room, isLoading } = useQuery({
-    queryKey: ['room', roomId],
+    queryKey: ['room', Id],
     queryFn: () => roomApi.checkRoom(roomId!),
     enabled: !!Id,
   });
-  let flag = true;
+
   useMemo(() => {
     if (room?.data) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      flag = true;
       setRoomId(room.data._id);
-    } else {
-      flag = false;
+      setIsNotTemp(true);
     }
-  }, [roomId, room]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Id, room]);
 
   return (
     <div className="flex h-full flex-col">
-      <MessageHeader room={room?.data} flag={flag} />
+      <MessageHeader room={room?.data} />
       <div className="flex flex-grow flex-col items-center overflow-hidden">
         <MessageBody roomId={roomId} />
-        <MessageFooter roomId={roomId} setRoomId={setRoomId} flag={flag} />
+        <MessageFooter roomId={roomId} isNotTemp={isNotTemp} setRoomId={setRoomId} />
       </div>
     </div>
   );
