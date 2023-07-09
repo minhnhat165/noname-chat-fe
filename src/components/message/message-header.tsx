@@ -110,7 +110,7 @@ const MessageHeader = (props: Props) => {
 
   return (
     <div>
-      <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
+      <div className="flex h-14 w-full flex-shrink-0 items-center justify-between  bg-white px-5 shadow">
         <div className="flex items-center">
           <Avatar size="large" src={_room?.avatar} />
           <span className="ml-2 font-bold text-gray-800">{_room?.name}</span>

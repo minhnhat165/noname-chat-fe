@@ -172,19 +172,16 @@ const MessageFooter = (props: Props) => {
     setImageList([]);
     setSelectType(MessageType.TEXT);
   };
+
   return (
     <div className="w-full max-w-[730px] px-4">
       <div className="custom mb-5 mt-2 h-fit  flex-shrink-0  rounded-lg bg-white">
         <div className=" flex min-h-[56px] w-full items-center">
           <div className="relative flex h-9 w-14 items-center justify-center" ref={emojiPickerRef}>
             <div
-              onMouseEnter={() => {
+              onClick={() => {
                 inputElement?.current?.focus();
-                setDisplayEmoji(true);
-              }}
-              onMouseLeave={() => {
-                inputElement?.current?.focus();
-                setDisplayEmoji(false);
+                setDisplayEmoji((prev) => !prev);
               }}
             >
               <SmileOutlined className="cursor:cursor-pointer text-[22px] text-gray-500" />

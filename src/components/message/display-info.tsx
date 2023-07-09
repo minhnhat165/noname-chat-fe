@@ -7,12 +7,13 @@ type Props = {
   index: number;
 };
 
-const _id = '6492b1c0867f0cdeb5fc2869';
 export const DisplayName = ({ messages, index }: Props) => {
   const message = messages[index];
   return message === messages[messages.length - 1] ||
     (message.sender as User)._id !== (messages[index + 1].sender as User)._id ? (
-    <div className="ml-[46px]">{(message.sender as User).username}</div>
+    <div className="mb-1 ml-[46px] font-medium text-slate-500">
+      {(message.sender as User).username}
+    </div>
   ) : (
     <></>
   );
