@@ -30,6 +30,9 @@ const MessageFooter = (props: Props) => {
   const labelImage = useRef<HTMLButtonElement>(null);
   const labelFile = useRef<HTMLButtonElement>(null);
   const [isNotTemp, setIsNotTemp] = useState<boolean>(props.isNotTemp);
+  useEffect(() => {
+    setIsNotTemp(props.isNotTemp);
+  }, [props.isNotTemp]);
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
     const currentPosition = inputElement?.current?.selectionStart ?? 0;
@@ -44,7 +47,6 @@ const MessageFooter = (props: Props) => {
     if (currentInputElement) {
       currentInputElement.selectionEnd = cursorPosition;
     }
-    // inputElement?.current?.selectionEnd = cursorPosition ?? 0;
     inputElement?.current?.focus();
   }, [cursorPosition]);
   const sendFileItem: MenuProps['items'] = [
@@ -63,6 +65,7 @@ const MessageFooter = (props: Props) => {
     switch (key) {
       case '1':
         setSelectType(MessageType.IMAGE);
+        labelImage?.current?.click();
         break;
       case '2':
         setSelectType(MessageType.FILE);
@@ -162,6 +165,7 @@ const MessageFooter = (props: Props) => {
       images: type === MessageType.IMAGE ? listImage : [],
       files: type === MessageType.FILE ? listFile : [],
     };
+
     const mess = {
       message,
       isNotTemp: isNotTemp,

@@ -55,21 +55,22 @@ const MessageBody = (props: Props) => {
   //pagination
   const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['messages', props.roomId],
-    queryFn: ({ pageParam = 1 }) => messageApi.getMessages(props.roomId, pageParam, 20),
+    queryFn: ({ pageParam }) =>
+      messageApi.getMessages(props.roomId, { cursor: pageParam, limit: 20 }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
   useEffect(() => {
     const allMessage: Message[] = [];
 
-    data?.pages.forEach((page) => {
-      return page.data.forEach((message: Message) => allMessage.push(message));
-    });
-    setMessages(allMessage);
-    // data?.pages?.[data?.pages.length - 1].data.forEach((message: Message) =>
-    //   allMessage.push(message),
-    // );
-    // setMessages([...messages, ...allMessage]);
+    // data?.pages.forEach((page) => {
+    //   return page.data.forEach((message: Message) => allMessage.push(message));
+    // });
+    // setMessages(allMessage);
+    data?.pages?.[data?.pages.length - 1].data.forEach((message: Message) =>
+      allMessage.push(message),
+    );
+    setMessages([...messages, ...allMessage]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);

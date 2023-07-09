@@ -9,12 +9,11 @@ export const messageApi = {
     return axios.post(url, data);
   },
   getMessages: (
-    roomId: String,
-    page: number,
-    limit: number,
+    roomId: string,
+    params: { cursor: string; limit: number },
   ): Promise<{ data: Message[]; nextCursor: number }> => {
-    const url = `${BASE_URL}/${roomId}?page=${page}&limit=${limit}`;
-    return axios.get(url);
+    const url = `${BASE_URL}/${roomId}`;
+    return axios.get(url, { params });
   },
   deleteMessage: (id: String): Promise<String> => {
     const url = `${BASE_URL}/${id}`;

@@ -19,7 +19,7 @@ const Page = ({ params }: PageProps) => {
   const [isNotTemp, setIsNotTemp] = useState<boolean>(false);
   const { data: room, isLoading } = useQuery({
     queryKey: ['room', Id],
-    queryFn: () => roomApi.checkRoom(roomId!),
+    queryFn: () => roomApi.checkRoom(Id!),
     enabled: !!Id,
   });
 
