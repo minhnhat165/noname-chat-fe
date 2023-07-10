@@ -23,7 +23,7 @@ export const DisplayAvatar = ({ messages, index }: Props) => {
   const message = messages[index];
   return message === messages[0] ||
     (message.sender as User)._id !== (messages[index - 1].sender as User)._id ? (
-    <Avatar size={34} src={(message.sender as User).avatar} />
+    <Avatar className="drop-shadow-md" size={34} src={(message.sender as User).avatar} />
   ) : (
     <></>
   );

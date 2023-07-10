@@ -54,7 +54,9 @@ export const RoomItem = ({ room: _room, isActive, shorted, onDeleted }: RoomItem
         href={generateRoomLink(room._id)}
         className={cn(
           'group/item relative flex w-full items-center rounded-lg p-2 transition-all',
-          isActive ? 'bg-slate-200' : 'bg-white hover:bg-slate-100',
+          isActive
+            ? 'bg-gradient-to-r  from-sky-400 to-purple-200  drop-shadow-lg'
+            : 'bg-white hover:bg-slate-100',
         )}
       >
         <Badge size="small" status="success" offset={[-9, 44]} dot={isOnline}>

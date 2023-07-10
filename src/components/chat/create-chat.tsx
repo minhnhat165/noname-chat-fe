@@ -33,7 +33,7 @@ export const CreateChat = (props: Props) => {
   const onClick: MenuProps['onClick'] = ({ key }) => {
     switch (key) {
       case ITEMS_KEY.NEW_CHAT:
-        setIsSearch(true)
+        setIsSearch(true);
         break;
       case ITEMS_KEY.NEW_GROUP:
         setIsCreateGroup(true);
@@ -43,7 +43,7 @@ export const CreateChat = (props: Props) => {
 
   return (
     <>
-      <div className="absolute bottom-10 right-4 z-50">
+      <div className="absolute bottom-10 right-4 z-50 ">
         <Dropdown
           overlayClassName="shadow-lg m-1"
           trigger={['click']}
@@ -53,6 +53,7 @@ export const CreateChat = (props: Props) => {
           <Button
             type="primary"
             shape="circle"
+            className="bg-sky-500 drop-shadow-lg"
             icon={<EditFilled />}
             size={'large'}
             onClick={(e) => {

@@ -109,8 +109,8 @@ const MessageHeader = (props: Props) => {
   }, [socket, onRemoveMember]);
 
   return (
-    <div>
-      <div className="flex h-14 w-full flex-shrink-0 items-center justify-between  bg-white px-5 shadow">
+    <div className="drop-shadow-md">
+      <div className="flex h-[62px] w-full flex-shrink-0 items-center justify-between bg-white px-5 shadow-sm">
         <div className="flex items-center">
           <Avatar size="large" src={_room?.avatar} />
           <span className="ml-2 font-bold text-gray-800">{_room?.name}</span>

@@ -34,7 +34,7 @@ const Page = ({ params }: PageProps) => {
   return (
     <div className="flex h-full flex-col">
       <MessageHeader room={room?.data} />
-      <div className="flex flex-grow flex-col items-center overflow-hidden">
+      <div className="flex flex-grow flex-col items-center overflow-hidden bg-[#edf3f4]">
         <MessageBody roomId={roomId} />
         <MessageFooter roomId={roomId} isNotTemp={isNotTemp} setRoomId={setRoomId} />
       </div>

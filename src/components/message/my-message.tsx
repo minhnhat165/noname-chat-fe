@@ -124,7 +124,7 @@ const MyMessage = (message: MessageProps) => {
 
 const MessageWrapper = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="ml-4 mr-2 max-w-[60%] rounded-lg bg-gradient-to-r from-blue-500 to-purple-500  px-3 py-2 text-white">
+    <div className="ml-4 mr-2 max-w-[60%] rounded-lg bg-gradient-to-r from-sky-500 to-purple-300 px-3  py-2 text-white drop-shadow-md">
       {children}
     </div>
   );

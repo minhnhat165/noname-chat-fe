@@ -93,7 +93,7 @@ export const Sidebar = () => {
     >
       <div
         className={cn(
-          'relative flex h-full flex-col border-r bg-white',
+          'relative flex h-full flex-col border-r bg-white drop-shadow-md',
           screen !== 'desktop' ? 'w-20' : 'w-[360px]',
         )}
       >
@@ -119,7 +119,7 @@ const Header = () => {
   const { isSearch, setIsSearch, searchValue, setSearchValue } = useSidebar();
   const { Search } = Input;
   return (
-    <div className="flex h-14 items-center justify-between px-4 py-2">
+    <div className="flex h-[62px] items-center justify-between px-4 py-2 shadow-sm">
       {isSearch && (
         <Button
           onClick={() => {
@@ -136,6 +136,7 @@ const Header = () => {
         size="large"
         placeholder="search"
         allowClear
+        className="drop-shadow-sm"
         onFocus={() => {
           setIsSearch(true);
         }}

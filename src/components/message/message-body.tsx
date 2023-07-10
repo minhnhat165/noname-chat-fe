@@ -1,20 +1,20 @@
 'use client';
 
-import { DisplayAvatar, DisplayName } from './display-info';
+import { UserStore, useUserStore } from '@/stores/user';
+import { Message, MessageType } from '@/types/message';
 import { FileTextFilled, PhoneOutlined } from '@ant-design/icons';
 import { Image, Spin } from 'antd';
-import { Message, MessageType } from '@/types/message';
-import { UserStore, useUserStore } from '@/stores/user';
+import { DisplayAvatar, DisplayName } from './display-info';
 
-import InfiniteScroll from 'react-infinite-scroll-component';
-import MyMessage from './my-message';
-import { User } from '@/types/user';
 import { formatDateTime } from '@/hooks/use-time-display';
 import { messageApi } from '@/services/message-services';
-import { useEffect } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMessagesStore } from '@/stores/messages/messages-store';
 import { useSocketStore } from '@/stores/socket';
+import { User } from '@/types/user';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import MyMessage from './my-message';
 
 type Props = {
   roomId: string;
@@ -22,8 +22,9 @@ type Props = {
 
 const MessageBody = (props: Props) => {
   const user = useUserStore((state: UserStore) => state.data);
-  const messages = useMessagesStore((state) => state.messages);
-  const { setMessages, removeMessage, addMessage } = useMessagesStore();
+  //const messages = useMessagesStore((state) => state.messages);
+  const [messages, setMessages] = useState<Message[]>([]);
+  // const { setMessages, removeMessage, addMessage } = useMessagesStore();
   const socket = useSocketStore((state) => state.socket);
   //socket
   useEffect(() => {
@@ -32,7 +33,7 @@ const MessageBody = (props: Props) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageReceived = (message: Message) => {
-    addMessage(message);
+    setMessages([message, ...messages]);
   };
 
   useEffect(() => {
@@ -44,7 +45,8 @@ const MessageBody = (props: Props) => {
   }, [messageReceived, socket]);
   //eslint-disable-next-line react-hooks/exhaustive-deps
   const messageRemoved = (id: string) => {
-    removeMessage(id);
+    setMessages([...messages.filter((message: Message) => message._id !== id)]);
+    // removeMessage(id);
   };
   useEffect(() => {
     socket?.on('message.delete', messageRemoved);
@@ -63,17 +65,20 @@ const MessageBody = (props: Props) => {
   useEffect(() => {
     const allMessage: Message[] = [];
 
-    // data?.pages.forEach((page) => {
-    //   return page.data.forEach((message: Message) => allMessage.push(message));
-    // });
-    // setMessages(allMessage);
-    data?.pages?.[data?.pages.length - 1].data.forEach((message: Message) =>
-      allMessage.push(message),
-    );
-    setMessages([...messages, ...allMessage]);
+    if (messages.length) {
+      data?.pages?.[data?.pages.length - 1].data.forEach((message: Message) =>
+        allMessage.push(message),
+      );
+      setMessages([...messages, ...allMessage]);
+      return;
+    }
+    data?.pages.forEach((page) => {
+      return page.data.forEach((message: Message) => allMessage.push(message));
+    });
+    setMessages(allMessage);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [data?.pages]);
 
   return (
     <div
@@ -105,12 +110,12 @@ const MessageBody = (props: Props) => {
                         <DisplayAvatar messages={messages} index={index} />
                       </div>
                       {message.type === MessageType.TEXT && (
-                        <div className="ml-[10px] mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
+                        <div className="ml-[10px] mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 drop-shadow-md ">
                           {message.content}
                         </div>
                       )}
                       {message.type === MessageType.IMAGE && (
-                        <div className="ml-[10px] mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 ">
+                        <div className="ml-[10px] mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 drop-shadow-md ">
                           <p>{message.content}</p>
                           <Image.PreviewGroup
                             preview={{
@@ -125,9 +130,11 @@ const MessageBody = (props: Props) => {
                         </div>
                       )}
                       {message.type === MessageType.FILE && (
-                        <div className="ml-[10px] mr-2 max-w-[60%] rounded-md bg-white px-3 py-2">
+                        <div className="ml-[10px] mr-2 max-w-[60%] rounded-md bg-white px-3 py-2 drop-shadow-md">
                           {!!message.content && (
-                            <div className=" rounded-md bg-white">{message.content}</div>
+                            <div className=" rounded-md bg-white drop-shadow-md">
+                              {message.content}
+                            </div>
                           )}
                           {message.files?.map((file, index) => (
                             <div key={index} className=" my-[2px] mr-5  rounded-md bg-white py-1">
