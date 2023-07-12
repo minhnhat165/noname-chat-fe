@@ -28,12 +28,6 @@ export default function Home() {
             Get Started
           </button>
         </Link>
-        <p className="font-semibold text-gray-700">
-          Already have an account?{' '}
-          <Link href="/login" className="text-blue-200 hover:underline">
-            login
-          </Link>
-        </p>
       </div>
     </main>
   );

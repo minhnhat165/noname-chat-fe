@@ -36,6 +36,7 @@
     "postcss": "8.4.23",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
     "react-infinite-scroll-component": "^6.1.0",
     "react-infinite-scroll-hook": "^4.1.1",
     "set-cookie-parser": "^2.6.0",
@@ -44,6 +45,8 @@
     "tailwindcss": "3.3.2",
     "tailwindcss-animate": "^1.0.5",
     "typescript": "5.0.4",
+    "use-sound": "^4.0.1",
+    "usehooks-ts": "^2.9.1",
     "zustand": "^4.3.8"
   },
   "devDependencies": {

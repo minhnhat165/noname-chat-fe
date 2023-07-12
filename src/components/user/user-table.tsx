@@ -27,13 +27,12 @@ export const UserTable = (props: UserTableProps) => {
     keepPreviousData: true,
   });
 
-  const {} = useToggleLockUser();
-
   const pageInfo = data?.pageInfo;
   const users = data?.data || [];
 
   const { toggleLock } = useToggleLockUser({
     onSuccess(data) {
+      console.log(data.data.status);
       queryClient.setQueryData<ListResponse<User>>([queryKeys.ADMIN_USERS, page], (oldData) => {
         const newData = oldData!.data.map((user) => {
           if (user._id === data.data._id) {

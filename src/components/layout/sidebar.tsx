@@ -1,25 +1,22 @@
 'use client';
 
-import { ArrowLeftOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { Button, Drawer, Input } from 'antd';
+import { Button, Input } from 'antd';
+import { GroupCreate, Header as HeaderGroup } from './group-create';
 import { Search, SidebarSearch } from './sidebar-search';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { rooms, users } from '@/stores/data-test';
 
-import { RoomFolder } from '../room/room-folder';
-import { RoomList } from '../room';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import { CreateChat } from '../chat';
-import { SidebarMenu } from './sidebar-menu';
-import { GroupCreate, Header as HeaderGroup, GroupName } from './group-create';
+import { RoomFolder } from '../room/room-folder';
+import { cn } from '@/utils';
+import { useSettingStore } from '@/stores/setting';
 import { useSocketStore } from '@/stores/socket';
 import { useUserStore } from '@/stores/user';
 
 interface SidebarContextProps {
-  showMenu: () => void;
-  closeMenu: () => void;
   isSearch: boolean;
   setIsSearch: (isSearch: boolean) => void;
-  menuVisible: boolean;
   searchValue: string;
   setSearchValue: (value: string) => void;
   isCreateGroup: boolean;
@@ -55,7 +52,6 @@ export const Sidebar = () => {
   useEffect(() => {
     if (socket && user) {
       socket?.on(`${user?._id}-event`, (data: any) => {
-        console.log('on here ', data);
         setEventData(data);
       });
     }
@@ -71,23 +67,16 @@ export const Sidebar = () => {
   const [isStep2CreateGroup, setIsStep2CreateGroup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
+  const screen = useSettingStore((state) => state.data.screen);
+
   const [searchResult, setSearchResult] = useState<Search>({
     rooms: rooms,
     users: users.slice(1, 4),
   });
 
-  const showMenu = () => {
-    setMenuVisible(true);
-  };
-  const closeMenu = () => {
-    setMenuVisible(false);
-  };
   return (
     <SidebarContext.Provider
       value={{
-        showMenu,
-        closeMenu,
-        menuVisible,
         isSearch,
         setIsSearch,
         searchValue,
@@ -102,21 +91,23 @@ export const Sidebar = () => {
         setEventData,
       }}
     >
-      {/* old 372px */}
-      <div className="relative flex h-full w-[400px] flex-col border-r border-r-2 bg-slate-100">
-        {/* {isStep2CreateGroup && <GroupName />} */}
+      <div
+        className={cn(
+          'relative flex h-full flex-col border-r bg-white drop-shadow-md',
+          screen !== 'desktop' ? 'w-20' : 'w-[360px]',
+        )}
+      >
         {!isCreateGroup ? (
           <Header />
         ) : (
           !isStep2CreateGroup && <HeaderGroup username={username} setUsername={setUsername} />
         )}
         <div className=" overflow-y-overlay flex-1 ">
-          {!isSearch && !isCreateGroup && <RoomFolder />}
           {isSearch && !isCreateGroup && <SidebarSearch searchResult={searchResult} />}
           {isCreateGroup && <GroupCreate />}
           {!isCreateGroup ? <CreateChat /> : ''}
           <div className={isSearch || isCreateGroup || isStep2CreateGroup ? 'hidden' : 'block'}>
-            <RoomFolder />
+            <RoomFolder shorted={screen !== 'desktop'} />
           </div>
         </div>
       </div>
@@ -125,12 +116,11 @@ export const Sidebar = () => {
 };
 
 const Header = () => {
-  const { showMenu, closeMenu, menuVisible, isSearch, setIsSearch, searchValue, setSearchValue } =
-    useSidebar();
+  const { isSearch, setIsSearch, searchValue, setSearchValue } = useSidebar();
   const { Search } = Input;
   return (
-    <div className="flex h-14 items-center justify-between bg-white px-4 py-2">
-      {isSearch ? (
+    <div className="flex h-[62px] items-center justify-between px-4 py-2 shadow-sm">
+      {isSearch && (
         <Button
           onClick={() => {
             setIsSearch(false);
@@ -141,20 +131,12 @@ const Header = () => {
           icon={<ArrowLeftOutlined />}
           size="large"
         />
-      ) : (
-        <Button
-          onClick={showMenu}
-          type="text"
-          className="mr-2"
-          shape="circle"
-          icon={<MenuUnfoldOutlined />}
-          size="large"
-        />
       )}
       <Search
         size="large"
-        placeholder="input search text"
+        placeholder="search"
         allowClear
+        className="drop-shadow-sm"
         onFocus={() => {
           setIsSearch(true);
         }}
@@ -163,18 +145,6 @@ const Header = () => {
           setSearchValue(e.target.value);
         }}
       />
-      <Drawer
-        placement="left"
-        closable={false}
-        bodyStyle={{
-          padding: '0rem',
-        }}
-        onClose={closeMenu}
-        open={menuVisible}
-        width={280}
-      >
-        <SidebarMenu />
-      </Drawer>
     </div>
   );
 };

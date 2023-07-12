@@ -1,68 +1,121 @@
-import { roomApi } from '@/services/room-servers';
-import { MoreOutlined, PhoneOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
-import { Avatar, Dropdown, MenuProps } from 'antd';
+'use client';
 
-import React from 'react';
+import { UserStore, useUserStore } from '@/stores/user';
+import { extractRoomByCurrentUser, generateRoomByOtherUser } from '@/utils';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Avatar } from 'antd';
+import { useCallback, useEffect } from 'react';
+
+import { userApi } from '@/services/user-services';
+import { useSocketStore } from '@/stores/socket';
+import { Room } from '@/types/room';
+import { useParams, useRouter } from 'next/navigation';
+import { useMemo } from 'react';
+import { RoomEvent } from '../room/room-folder';
+import { MenuHeader } from './menu-header';
 
 type Props = {
-  roomId: string;
+  room: Room | undefined;
 };
 
 const MessageHeader = (props: Props) => {
-  const { data: room, isLoading } = useQuery({
-    queryKey: ['room', props.roomId],
-    queryFn: () => roomApi.getRoom(props.roomId!),
-    enabled: !!props.roomId,
-    onError(err) {
-      console.log(err);
-    },
+  const userCur = useUserStore((state: UserStore) => state.data);
+  const socket = useSocketStore((state) => state.socket);
+  const Id = useParams()?.id as string;
+  const router = useRouter();
+  let userId = Id;
+  // console.log(props.room);
+  // useMemo(() => {
+  //   if (!props.room?.isGroup) {
+  //     props.room?.participants.forEach((participant) => {
+  //       if (participant !== userCur?._id) {
+  //         // eslint-disable-next-line react-hooks/exhaustive-deps
+  //         userId = participant;
+  //       }
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [props.room]);
+  const queryClient = useQueryClient();
+  const { data: user } = useQuery({
+    queryKey: ['user', Id],
+    queryFn: () => userApi.getMemberInfo(userId),
+    enabled: props.room === null,
   });
-  const items: MenuProps['items'] = [
-    {
-      key: '1',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-          1st menu item
-        </a>
-      ),
+
+  const _room = useMemo(() => {
+    if (!!props.room || user) {
+      let createRoom = props.room;
+      if (user) createRoom = generateRoomByOtherUser(user!!, userCur!!);
+      if (!props.room?.isGroup) {
+        props.room?.participants.forEach((participant) => {
+          if (participant._id !== userCur?._id) {
+            createRoom = generateRoomByOtherUser(participant, userCur!!);
+          }
+        });
+      }
+      return extractRoomByCurrentUser(createRoom!!, userCur!);
+    }
+  }, [props.room, user, userCur]);
+
+  const handleRoomUpdated = useCallback(
+    (data: RoomEvent) => {
+      // queryClient.setQueryData(['room', props.roomId, props.flag], (oldData: any) => {
+      //   return { ...oldData, data: { ...oldData.data, ...data.payload } };
+      // });
+      // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
+      queryClient.invalidateQueries(['room', Id]);
     },
-    {
-      key: '2',
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-          className="text-base"
-        >
-          2nd menu item
-        </a>
-      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [socket],
+  );
+
+  const handleOuted = useCallback(async (data: RoomEvent) => {
+    router.push('/chat');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    socket?.on('room-updated', handleRoomUpdated);
+    return () => {
+      socket?.off('room-updated', handleRoomUpdated);
+    };
+  }, [socket, handleRoomUpdated]);
+
+  useEffect(() => {
+    socket?.on('room.outed', handleOuted);
+    return () => {
+      socket?.off('room.outed', handleOuted);
+    };
+  }, [socket, handleOuted]);
+
+  const onRemoveMember = useCallback(
+    (data: RoomEvent) => {
+      if (data.userId == user?._id) {
+        router.push('/chat');
+      }
+      // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
+      queryClient.invalidateQueries(['room', Id]);
     },
-    {
-      key: '3',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-          3rd menu item
-        </a>
-      ),
-    },
-  ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queryClient],
+  );
+
+  useEffect(() => {
+    socket?.on('room.removed', onRemoveMember);
+    return () => {
+      socket?.off('room.removed', onRemoveMember);
+    };
+  }, [socket, onRemoveMember]);
+
   return (
-    <div>
-      <div className="flex h-14 w-full flex-shrink-0 items-center justify-between bg-white px-5">
+    <div className="drop-shadow-md">
+      <div className="flex h-[62px] w-full flex-shrink-0 items-center justify-between bg-white px-5 shadow-sm">
         <div className="flex items-center">
-          <Avatar size="large" src={room?.data.avatar} />
-          <span className="ml-2 font-bold text-gray-800">{room?.data.name}</span>
+          <Avatar size="large" src={_room?.avatar} />
+          <span className="ml-2 font-bold text-gray-800">{_room?.name}</span>
         </div>
-        <div className="flex w-24 justify-between">
-          <SearchOutlined />
-          <PhoneOutlined />
-          <Dropdown overlayClassName="w-40" menu={{ items }} placement="bottomRight">
-            <MoreOutlined />
-          </Dropdown>
-        </div>
+        <MenuHeader room={props.room} />
       </div>
     </div>
   );
