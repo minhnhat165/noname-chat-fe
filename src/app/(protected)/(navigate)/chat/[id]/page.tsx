@@ -30,7 +30,6 @@ const Page = ({ params }: PageProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Id, room]);
-
   return (
     <div className="flex h-full flex-col">
       <MessageHeader room={room?.data} />

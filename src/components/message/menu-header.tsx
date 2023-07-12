@@ -41,16 +41,18 @@ export const MenuHeader = ({ room }: MenuHeaderProps) => {
           size="large"
           icon={<PhoneOutlined />}
         />
-        <Button
-          shape="circle"
-          type="text"
-          size="large"
-          icon={<MoreOutlined />}
-          onClick={() => {
-            openGroupMenu();
-            openTabs();
-          }}
-        />
+        {room?.isGroup && (
+          <Button
+            shape="circle"
+            type="text"
+            size="large"
+            icon={<MoreOutlined />}
+            onClick={() => {
+              openGroupMenu();
+              openTabs();
+            }}
+          />
+        )}
       </div>
       {/* <TabModal open={isOpenTabs} onCancel={closeTabs} /> */}
       <GroupMenuModal

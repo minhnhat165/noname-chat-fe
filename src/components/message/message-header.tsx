@@ -24,18 +24,6 @@ const MessageHeader = (props: Props) => {
   const Id = useParams()?.id as string;
   const router = useRouter();
   let userId = Id;
-  // console.log(props.room);
-  // useMemo(() => {
-  //   if (!props.room?.isGroup) {
-  //     props.room?.participants.forEach((participant) => {
-  //       if (participant !== userCur?._id) {
-  //         // eslint-disable-next-line react-hooks/exhaustive-deps
-  //         userId = participant;
-  //       }
-  //     });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.room]);
   const queryClient = useQueryClient();
   const { data: user } = useQuery({
     queryKey: ['user', Id],
@@ -60,10 +48,6 @@ const MessageHeader = (props: Props) => {
 
   const handleRoomUpdated = useCallback(
     (data: RoomEvent) => {
-      // queryClient.setQueryData(['room', props.roomId, props.flag], (oldData: any) => {
-      //   return { ...oldData, data: { ...oldData.data, ...data.payload } };
-      // });
-      // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
       queryClient.invalidateQueries(['room', Id]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,7 +78,6 @@ const MessageHeader = (props: Props) => {
       if (data.userId == user?._id) {
         router.push('/chat');
       }
-      // queryClient.invalidateQueries(['room', props.roomId, props.flag]);
       queryClient.invalidateQueries(['room', Id]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,7 +90,6 @@ const MessageHeader = (props: Props) => {
       socket?.off('room.removed', onRemoveMember);
     };
   }, [socket, onRemoveMember]);
-
   return (
     <div className="drop-shadow-md">
       <div className="flex h-[62px] w-full flex-shrink-0 items-center justify-between bg-white px-5 shadow-sm">
