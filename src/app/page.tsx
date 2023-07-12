@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { checkIsLogin } from '@/utils/auth';
 import { redirect } from 'next/navigation';
 
-const LOGIN_LINK = 'http://localhost:5000/api/auth/google';
+const LOGIN_LINK = process.env.API_BASE_URL + '/auth/google';
 
 export default function Home() {
   const isLogged = checkIsLogin();
