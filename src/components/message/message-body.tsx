@@ -8,7 +8,6 @@ import { DisplayAvatar, DisplayName } from './display-info';
 
 import { formatDateTime } from '@/hooks/use-time-display';
 import { messageApi } from '@/services/message-services';
-import { useMessagesStore } from '@/stores/messages/messages-store';
 import { useSocketStore } from '@/stores/socket';
 import { User } from '@/types/user';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
@@ -22,18 +21,37 @@ type Props = {
 
 const MessageBody = (props: Props) => {
   const user = useUserStore((state: UserStore) => state.data);
-  //const messages = useMessagesStore((state) => state.messages);
   const [messages, setMessages] = useState<Message[]>([]);
-  // const { setMessages, removeMessage, addMessage } = useMessagesStore();
   const socket = useSocketStore((state) => state.socket);
-  //socket
+
+  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ['messages', props.roomId],
+    queryFn: ({ pageParam }) =>
+      messageApi.getMessages(props.roomId, { cursor: pageParam, limit: 20 }),
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  });
+
+  const queryClient = useQueryClient();
+  console.log('da', data);
   useEffect(() => {
     socket?.emit('join-room', props.roomId);
   }, [props.roomId, socket]);
+  const addMessage = (message: Message) => {
+    queryClient.setQueryData(['messages', props.roomId], (oldData: any) => {
+      const newData = {
+        ...oldData,
+        pages: [
+          { ...oldData.pages[0], data: [message, ...oldData.pages[0].data] },
+          ...oldData.pages.slice(1),
+        ],
+      };
 
+      return newData;
+    });
+  };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageReceived = (message: Message) => {
-    setMessages([message, ...messages]);
+    addMessage(message);
   };
 
   useEffect(() => {
@@ -46,7 +64,6 @@ const MessageBody = (props: Props) => {
   //eslint-disable-next-line react-hooks/exhaustive-deps
   const messageRemoved = (id: string) => {
     setMessages([...messages.filter((message: Message) => message._id !== id)]);
-    // removeMessage(id);
   };
   useEffect(() => {
     socket?.on('message.delete', messageRemoved);
@@ -54,31 +71,16 @@ const MessageBody = (props: Props) => {
       socket?.off('message.delete', messageRemoved);
     };
   }, [messageRemoved, socket]);
-  //pagination
-  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['messages', props.roomId],
-    queryFn: ({ pageParam }) =>
-      messageApi.getMessages(props.roomId, { cursor: pageParam, limit: 20 }),
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  });
 
   useEffect(() => {
     const allMessage: Message[] = [];
 
-    if (messages.length) {
-      data?.pages?.[data?.pages.length - 1].data.forEach((message: Message) =>
-        allMessage.push(message),
-      );
-      setMessages([...messages, ...allMessage]);
-      return;
-    }
     data?.pages.forEach((page) => {
       return page.data.forEach((message: Message) => allMessage.push(message));
     });
     setMessages(allMessage);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.pages]);
+  }, [data]);
 
   return (
     <div
