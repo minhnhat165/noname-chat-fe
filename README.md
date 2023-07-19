@@ -52,11 +52,14 @@ yarn
 
 * Create a .env file in the root of the project.
 * Define the following variables in the .env file:
-  * MONGODB_URI: The connection string for your MongoDB database.
-  * JWT_SECRET: A secret key used for signing JSON Web Tokens.
   * CLOUDINARY_CLOUD_NAME: Your Cloudinary cloud name.
   * CLOUDINARY_API_KEY: Your Cloudinary API key.
   * CLOUDINARY_API_SECRET: Your Cloudinary API secret.
+  * SERVER_API_URL=http://localhost:5000
+  * API_BASE_URL=http://localhost:5000/api
+  * NEXT_PUBLIC_CLIENT_API_URL=http://localhost:3000/api
+  * NEXT_PUBLIC_SERVER_API_URL=http://localhost:5000
+  * APP_NAME=Telebite
 
 5. Run in development mode
 
