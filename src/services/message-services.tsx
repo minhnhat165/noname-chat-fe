@@ -1,6 +1,5 @@
 import { axios } from '@/lib';
 import { Message, MessageCreate } from '@/types/message';
-import { SingleResponse } from '@/types/api';
 
 const BASE_URL = 'messages';
 export const messageApi = {

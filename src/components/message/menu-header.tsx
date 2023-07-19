@@ -24,7 +24,6 @@ export const MenuHeader = ({ room }: MenuHeaderProps) => {
     },
   });
 
-  console.log('menu heder ', room);
   return (
     <div>
       <div className="flex items-center justify-between">

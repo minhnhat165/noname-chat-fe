@@ -6,7 +6,7 @@ import MessageHeader from '@/components/message/message-header';
 import { roomApi } from '@/services/room-servers';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 export interface PageProps {
   params: {
     id: string;
@@ -23,13 +23,14 @@ const Page = ({ params }: PageProps) => {
     enabled: !!Id,
   });
 
-  useMemo(() => {
+  useEffect(() => {
     if (room?.data) {
       setRoomId(room.data._id);
       setIsNotTemp(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Id, room]);
+
   return (
     <div className="flex h-full flex-col">
       <MessageHeader room={room?.data} />

@@ -1,18 +1,18 @@
-import { Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import {
   FileImageOutlined,
   FileTextOutlined,
   LinkOutlined,
   SmileOutlined,
 } from '@ant-design/icons';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Dropdown, MenuProps, Upload, UploadFile, UploadProps } from 'antd';
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
+import { useEffect, useRef, useState } from 'react';
 
-import { MessageType } from '@/types/message';
-import { RcFile } from 'antd/es/upload';
 import { messageApi } from '@/services/message-services';
+import { MessageType } from '@/types/message';
 import { uploadImage } from '@/utils/upload-image';
 import { useMutation } from '@tanstack/react-query';
+import { RcFile } from 'antd/es/upload';
 
 type Props = {
   roomId: string;
@@ -30,9 +30,11 @@ const MessageFooter = (props: Props) => {
   const labelImage = useRef<HTMLButtonElement>(null);
   const labelFile = useRef<HTMLButtonElement>(null);
   const [isNotTemp, setIsNotTemp] = useState<boolean>(props.isNotTemp);
+
   useEffect(() => {
     setIsNotTemp(props.isNotTemp);
   }, [props.isNotTemp]);
+
   const pickerEmoji = (emoji: string) => {
     inputElement?.current?.focus();
     const currentPosition = inputElement?.current?.selectionStart ?? 0;
@@ -49,6 +51,7 @@ const MessageFooter = (props: Props) => {
     }
     inputElement?.current?.focus();
   }, [cursorPosition]);
+
   const sendFileItem: MenuProps['items'] = [
     {
       key: '1',
@@ -61,6 +64,7 @@ const MessageFooter = (props: Props) => {
       icon: <FileTextOutlined />,
     },
   ];
+
   const onClick: MenuProps['onClick'] = ({ key }) => {
     switch (key) {
       case '1':
@@ -107,12 +111,14 @@ const MessageFooter = (props: Props) => {
     const imgWindow = window.open(src);
     imgWindow?.document.write(image.outerHTML);
   };
-  useMemo(() => {
+
+  useEffect(() => {
     if (fileList.length === 0) setSelectType(MessageType.TEXT);
   }, [fileList]);
-  useMemo(() => {
+  useEffect(() => {
     if (imageList.length === 0) setSelectType(MessageType.TEXT);
   }, [imageList]);
+
   useEffect(() => {
     if (selectType === MessageType.IMAGE && labelImage.current) labelImage.current.click();
     else if (selectType === MessageType.FILE && labelFile.current) labelFile.current.click();
@@ -166,11 +172,11 @@ const MessageFooter = (props: Props) => {
       files: type === MessageType.FILE ? listFile : [],
     };
 
-    const mess = {
+    const _message = {
       message,
       isNotTemp: isNotTemp,
     };
-    mutation.mutate(mess);
+    mutation.mutate(_message);
     setInputChat('');
     setFileList([]);
     setImageList([]);

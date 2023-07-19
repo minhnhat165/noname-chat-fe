@@ -32,17 +32,18 @@ const MessageBody = (props: Props) => {
   });
 
   const queryClient = useQueryClient();
-  console.log('da', data);
+
   useEffect(() => {
     socket?.emit('join-room', props.roomId);
   }, [props.roomId, socket]);
+
   const addMessage = (message: Message) => {
     queryClient.setQueryData(['messages', props.roomId], (oldData: any) => {
       const newData = {
         ...oldData,
         pages: [
-          { ...oldData.pages[0], data: [message, ...oldData.pages[0].data] },
-          ...oldData.pages.slice(1),
+          { ...oldData?.pages[0], data: [message, ...oldData?.pages[0]?.data] },
+          ...oldData?.pages.slice(1),
         ],
       };
 
@@ -61,10 +62,12 @@ const MessageBody = (props: Props) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageReceived, socket]);
+
   //eslint-disable-next-line react-hooks/exhaustive-deps
-  const messageRemoved = (id: string) => {
-    setMessages([...messages.filter((message: Message) => message._id !== id)]);
+  const messageRemoved = () => {
+    queryClient.invalidateQueries(['messages', props.roomId]);
   };
+
   useEffect(() => {
     socket?.on('message.delete', messageRemoved);
     return () => {
@@ -104,7 +107,7 @@ const MessageBody = (props: Props) => {
                 <MyMessage key={message._id} message={message} />
               ) : (
                 <div key={message._id} className="mr-1 flex items-end">
-                  <div className="my-[2px]">
+                  <div className="my-[2px] w-full">
                     <DisplayName messages={messages} index={index} />
 
                     <div className="flex">
