@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-const HOME_LINK = '/localhost:3000';
+const HOME_LINK = '/';
 
 export default function BannedPage() {
   return (

@@ -15,8 +15,8 @@ export const SocketClient = (props: SocketClientProps) => {
   const { data, setUsersOnline, addUserOnline, removeUserOnline } = useAppStore();
   const user = useUserStore((state) => state.data!);
   useEffect(() => {
-    const socket = io('http://localhost:5000');
-    // const socket = io(process.env.NEXT_PUBLIC_SERVER_API_URL || 'http://localhost:5000');
+    //const socket = io('http://localhost:5000');
+    const socket = io(process.env.NEXT_PUBLIC_SERVER_API_URL || 'http://localhost:5000');
     setSocket(socket);
     return () => {
       socket.disconnect();
