@@ -65,6 +65,7 @@ export const GroupCreate = ({}: GroupCreateProps) => {
       avatar = await generateAvatar(groupName || 'group');
     } else {
       const { secure_url } = await uploadImage(croppedFile);
+      console.log('link', secure_url);
       avatar = secure_url;
     }
     mutate({

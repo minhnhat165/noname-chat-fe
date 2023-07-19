@@ -18,8 +18,6 @@ type Props = {
 };
 
 export const GroupMember = ({ room }: Props) => {
-  console.log('room member  ', room);
-
   const { isOpen: isOpenDelete, close: closeDelete, open: openDelete } = useModal();
   const [memberId, setMemberId] = useState('');
   const currentUser = useUserStore((state: UserStore) => state.data!);
@@ -35,7 +33,7 @@ export const GroupMember = ({ room }: Props) => {
   const { mutate: DeleteMember } = useMutation({
     mutationFn: roomApi.deleteMember,
     onSuccess: () => {
-      queryClient.invalidateQueries(['room', room?._id])
+      queryClient.invalidateQueries(['room', room?._id]);
     },
     onError: (error: any) => {
       toast.error(error?.message);
@@ -55,6 +53,7 @@ export const GroupMember = ({ room }: Props) => {
   //     socket?.off('room.removed', onRemoveMember);
   //   };
   // }, [socket, onRemoveMember]);
+  console.log('roommm', room);
 
   return (
     <div className="overflow-y-overlay mt-2 max-h-[300px] flex-1">

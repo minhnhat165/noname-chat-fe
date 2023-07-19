@@ -71,6 +71,7 @@ export const GroupName = ({
             showUploadList={false}
             customRequest={({ file }) => {
               const newFile = file as Blob;
+              console.log('file', newFile);
               setCroppedFile(newFile);
               setImgPreview(URL.createObjectURL(newFile));
             }}
